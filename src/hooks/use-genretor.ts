@@ -10,7 +10,7 @@ export function useGenretor (option: genratorMode) {
 
   switch (type) {
     case 'listModel':
-      useInitListModel(path, force)
+      useInitListModel(path)
       break
   }
 

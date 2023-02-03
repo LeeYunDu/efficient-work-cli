@@ -2,6 +2,7 @@
 import { createFile, getSourcePath, mkdir, writeFile } from '../../utils/index'
 import { Ast } from '../../utils/ast'
 import prompts from 'prompts'
+import * as logger from '../../utils/logger'
 
 // import child_process from 'child_process'
 // let gitPath = 'git clone git@codeup.aliyun.com:60810cde35f5934d3af8e181/szzt/Gov-Group/Industrial-Brain-Group/KunMing-GongXin-Group/Frontend-Group/Portal-PC.git'
@@ -15,17 +16,31 @@ import prompts from 'prompts'
  * @description 根据输入的文件路径先依次创建文件,再往文件里写代码 
  * @param force
  */
-export async function useInitListModel (path: string, force: boolean = false) {
-  // let testpath = `C:/Users/49210/AppData/Roaming/npm/node_modules/ef-work-cli/src/template/listModel/template//view.vue`
-  // let componentsAst = new Ast(testpath, { parseOptions: { language: 'vue' } })
-  // componentsAst.insertImport(`import addDialog from './components/add.model.vue';`, componentsAst.jsAst)
-  // let templateResult = componentsAst.ast.generate()
-
-  let { checkedModels, hasMock } = await prompts(promptsOptions)
-
+export async function useInitListModel (path: string) {
+  let { checkedModels, force } = await prompts(promptsOptions)
+  if (!checkedModels || checkedModels.length === 0) {
+    logger.info(`${checkedModels && checkedModels.length === 0 ? '因为未选择模块,' : ''}已取消操作`)
+    return
+  }
   // 创建该目录下所需要的模板文件
   let modelPath = `${process.cwd()}/${path}`
-  await mkdir(modelPath)
+  let hasDir = await mkdir(modelPath)
+  if (hasDir) {
+    let { force } = await prompts({
+      type: 'select',//单选
+      name: 'force',
+      message: '输入的文件路径已存在,是否覆盖原有的文件',
+      choices: [
+        { title: '否', value: false },
+        { title: '是', value: true }
+      ]
+    })
+    if (!force) {
+      logger.success('已取消操作')
+      return
+    }
+  }
+
 
   const defailtFiles = [
     '/业务模块中文名称',
@@ -35,6 +50,7 @@ export async function useInitListModel (path: string, force: boolean = false) {
     list: '/view.vue',
     detail: '/components/detail.model.vue',
     add: '/components/add.model.vue',
+    mock: '/json.ts',
   }
   let renderModel = new Array(0).concat(checkedModels.map((model: string) => modelFilePathMap[model])).concat(defailtFiles)
   renderModel.forEach(file => {
@@ -44,7 +60,7 @@ export async function useInitListModel (path: string, force: boolean = false) {
   const rootDir = await getSourcePath()
 
   let componentsAst: any
-  checkedModels.forEach((model: string, index: number) => {
+  ['mock', ...checkedModels].forEach((model: string, index: number) => {
     const sourcePath = `${rootDir}/src/template/listModel/template/${modelFilePathMap[model]}`
     let templateResult: any
     switch (model) {
@@ -59,21 +75,17 @@ export async function useInitListModel (path: string, force: boolean = false) {
         } else if (checkedModels.indexOf('detail') > 0) {
           componentsAst.insertImport(`import detailDialog from './components/detail.model.vue';`, componentsAst.jsAst)
         }
-        templateResult = componentsAst.ast.generate()
-        writeFile({ filePath: `${modelPath}${renderModel[index]}`, data: templateResult })
         break;
+      case 'mock':
+        break
       default:
         componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
-        componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
         break;
     }
 
 
-
-
-
-
   })
+
 
 
 }
@@ -89,13 +101,13 @@ const promptsOptions: any = [
       { title: '新增/修改表单弹窗', value: 'add' }
     ]
   },
-  {
-    type: 'select',//单选
-    name: 'hasMock',
-    message: '是否生成模拟数据/字段',
-    choices: [
-      { title: '是', value: true },
-      { title: '否', value: false }
-    ]
-  },
+  // {
+  //   type: 'select',//单选
+  //   name: 'hasMock',
+  //   message: '是否生成模拟数据/字段',
+  //   choices: [
+  //     { title: '是', value: true },
+  //     { title: '否', value: false }
+  //   ]
+  // },
 ]
