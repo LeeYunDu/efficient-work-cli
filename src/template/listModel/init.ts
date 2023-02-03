@@ -1,6 +1,6 @@
 
-import { createFile, getSourcePath, mkdir } from '../../utils/index'
-import * as Ast from '../../utils/ast'
+import { createFile, getSourcePath, mkdir, writeFile } from '../../utils/index'
+import { Ast } from '../../utils/ast'
 import prompts from 'prompts'
 
 // import child_process from 'child_process'
@@ -16,6 +16,11 @@ import prompts from 'prompts'
  * @param force
  */
 export async function useInitListModel (path: string, force: boolean = false) {
+  // let testpath = `C:/Users/49210/AppData/Roaming/npm/node_modules/ef-work-cli/src/template/listModel/template//view.vue`
+  // let componentsAst = new Ast(testpath, { parseOptions: { language: 'vue' } })
+  // componentsAst.insertImport(`import addDialog from './components/add.model.vue';`, componentsAst.jsAst)
+  // let templateResult = componentsAst.ast.generate()
+
   let { checkedModels, hasMock } = await prompts(promptsOptions)
 
   // 创建该目录下所需要的模板文件
@@ -37,23 +42,37 @@ export async function useInitListModel (path: string, force: boolean = false) {
   })
   // 文件写入
   const rootDir = await getSourcePath()
-  checkedModels.forEach((model: string) => {
+
+  let componentsAst: any
+  checkedModels.forEach((model: string, index: number) => {
     const sourcePath = `${rootDir}/src/template/listModel/template/${modelFilePathMap[model]}`
+    let templateResult: any
     switch (model) {
       case 'list':
+        componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
         // 列表模块需要根据选中的模块来引入组件
         if (checkedModels.indexOf('detail') > 0 && checkedModels.indexOf('add') > 0) {
-
+          componentsAst.insertImport(`import addDialog from './components/add.model.vue';`, componentsAst.jsAst)
+          componentsAst.insertImport(`import detailDialog from './components/detail.model.vue';`, componentsAst.jsAst)
         } else if (checkedModels.indexOf('add') > 0) {
-
+          componentsAst.insertImport(`import addDialog from './components/add.model.vue';`, componentsAst.jsAst)
         } else if (checkedModels.indexOf('detail') > 0) {
-
+          componentsAst.insertImport(`import detailDialog from './components/detail.model.vue';`, componentsAst.jsAst)
         }
+        templateResult = componentsAst.ast.generate()
+        writeFile({ filePath: `${modelPath}${renderModel[index]}`, data: templateResult })
         break;
-
       default:
+        componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
+        componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
         break;
     }
+
+
+
+
+
+
   })
 
 

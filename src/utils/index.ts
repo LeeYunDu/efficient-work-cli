@@ -32,6 +32,27 @@ export function getSourcePath (path = '') {
   })
 }
 
+
+/**
+ * 写入文件
+ * @param opts 
+ * @returns 
+ */
+export async function writeFile (opts: any) {
+  if (!opts) return
+  return new Promise((resolve, reject) => {
+    const { filePath, data, encoding } = opts
+    const encodingType = encoding || 'utf-8'
+    const uPath = path.resolve(filePath)
+    fs.writeFile(uPath, data, encodingType, err => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(data)
+    })
+  })
+}
+
 /**
  * 创建文件
  * @param option 
