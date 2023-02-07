@@ -56,6 +56,7 @@ export class Ast {
               this.enumTypeNode[node.type].push(node)
             }
           })
+
           break
         case 'vue':
           this.ast.find('<script setup></script>').each((item: any) => {
@@ -91,6 +92,8 @@ export class Ast {
    */
   writeFile (filePath: string = this.filePath) {
     let res = $.writeFile(this.ast.generate(), filePath)
+    console.log(4);
+
     // logger.success(`${filePath},文件写入成功`)
   }
 

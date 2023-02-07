@@ -83,11 +83,17 @@ export async function useInitListModel (path: string) {
         componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
         // writeFile({ filePath: `${modelPath}${renderModel[index]}`, data: templateResult })
         break;
-      case 'mock':
-        break
-      default:
+      case 'detail':
+      case 'add':
         componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
         componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
+        break
+      case 'mock':
+        componentsAst = new Ast(sourcePath, {})
+        componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
+        break
+      default:
+
         break;
     }
   })
