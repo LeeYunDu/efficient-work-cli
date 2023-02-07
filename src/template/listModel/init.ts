@@ -17,6 +17,12 @@ import * as logger from '../../utils/logger'
  * @param force
  */
 export async function useInitListModel (path: string) {
+  // let rootDir1 = await getSourcePath()
+
+  // const sourcePath = `${rootDir1}/src/template/listModel/template//json.ts`
+  // let componentsAst1 = new Ast(sourcePath, {})
+  // console.log(componentsAst1.getExportNode('tableColumns').remove());
+
   let { checkedModels, force } = await prompts(promptsOptions)
   if (!checkedModels || checkedModels.length === 0) {
     logger.info(`${checkedModels && checkedModels.length === 0 ? '因为未选择模块,' : ''}已取消操作`)
@@ -71,26 +77,46 @@ export async function useInitListModel (path: string) {
     switch (model) {
       case 'list':
         componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
+
         // 列表模块需要根据选中的模块来引入组件
-        if (checkedModels.indexOf('detail') > 0 && checkedModels.indexOf('add') > 0) {
-          componentsAst.insertImport(`import addDialog from './components/add.model.vue';`, componentsAst.jsAst)
-          componentsAst.insertImport(`import detailDialog from './components/detail.model.vue';`, componentsAst.jsAst)
-        } else if (checkedModels.indexOf('add') > 0) {
-          componentsAst.insertImport(`import addDialog from './components/add.model.vue';`, componentsAst.jsAst)
-        } else if (checkedModels.indexOf('detail') > 0) {
-          componentsAst.insertImport(`import detailDialog from './components/detail.model.vue';`, componentsAst.jsAst)
+
+        let importMap: any = {
+          add: `import addDialog from './components/add.model.vue';`,
+          detail: `import detailDialog from './components/detail.model.vue';`,
         }
-        componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
+
+        Object.keys(importMap).forEach((key: any) => {
+          if (checkedModels.includes(key)) {
+            componentsAst.insertImport(importMap[key], componentsAst.jsAst)
+          }
+        })
+        componentsAst.writeFile(`${modelPath}${modelFilePathMap[model]}`)
         // writeFile({ filePath: `${modelPath}${renderModel[index]}`, data: templateResult })
         break;
       case 'detail':
       case 'add':
         componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
-        componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
+        componentsAst.writeFile(`${modelPath}${modelFilePathMap[model]}`)
         break
       case 'mock':
+        /**
+         * 根据选择的模块,生成对应的mock字段数据
+         */
         componentsAst = new Ast(sourcePath, {})
-        componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
+
+        let mockFieldMap: any = {
+          list: 'tableColumns',
+          add: 'formFields',
+          detail: 'detailFields',
+        }
+
+        Object.keys(mockFieldMap).forEach((key: any) => {
+          if (!checkedModels.includes(key)) {
+            componentsAst.removeNode(componentsAst.getExportNode(mockFieldMap[key]))
+          }
+        })
+
+        componentsAst.writeFile(`${modelPath}${modelFilePathMap[model]}`)
         break
       default:
 
