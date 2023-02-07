@@ -90,8 +90,8 @@ export class Ast {
    * 写入文件
    */
   writeFile (filePath: string = this.filePath) {
-    $.writeFile(this.ast.generate(), filePath)
-    logger.success(`${filePath}文件写入成功`)
+    let res = $.writeFile(this.ast.generate(), filePath)
+    // logger.success(`${filePath},文件写入成功`)
   }
 
   generateNode (value: any) {

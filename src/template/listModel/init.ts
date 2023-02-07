@@ -25,21 +25,25 @@ export async function useInitListModel (path: string) {
   // 创建该目录下所需要的模板文件
   let modelPath = `${process.cwd()}/${path}`
   let hasDir = await mkdir(modelPath)
-  if (hasDir) {
-    let { force } = await prompts({
-      type: 'select',//单选
-      name: 'force',
-      message: '输入的文件路径已存在,是否覆盖原有的文件',
-      choices: [
-        { title: '否', value: false },
-        { title: '是', value: true }
-      ]
-    })
-    if (!force) {
-      logger.success('已取消操作')
-      return
-    }
-  }
+
+
+  // 是否覆盖文件判断
+
+  // if (hasDir) {
+  //   let { force } = await prompts({
+  //     type: 'select',//单选
+  //     name: 'force',
+  //     message: '输入的文件路径已存在,是否覆盖原有的文件',
+  //     choices: [
+  //       { title: '否', value: false },
+  //       { title: '是', value: true }
+  //     ]
+  //   })
+  //   if (!force) {
+  //     logger.success('已取消操作')
+  //     return
+  //   }
+  // }
 
 
   const defailtFiles = [
@@ -60,7 +64,8 @@ export async function useInitListModel (path: string) {
   const rootDir = await getSourcePath()
 
   let componentsAst: any
-  ['mock', ...checkedModels].forEach((model: string, index: number) => {
+
+  [...checkedModels, 'mock'].forEach((model: string, index: number) => {
     const sourcePath = `${rootDir}/src/template/listModel/template/${modelFilePathMap[model]}`
     let templateResult: any
     switch (model) {
@@ -75,19 +80,17 @@ export async function useInitListModel (path: string) {
         } else if (checkedModels.indexOf('detail') > 0) {
           componentsAst.insertImport(`import detailDialog from './components/detail.model.vue';`, componentsAst.jsAst)
         }
+        componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
+        // writeFile({ filePath: `${modelPath}${renderModel[index]}`, data: templateResult })
         break;
       case 'mock':
         break
       default:
         componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
+        componentsAst.writeFile(`${modelPath}${renderModel[index]}`)
         break;
     }
-
-
   })
-
-
-
 }
 
 const promptsOptions: any = [
