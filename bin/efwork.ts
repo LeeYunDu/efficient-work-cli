@@ -10,7 +10,7 @@ program
   .command('g <type> [path]')
   .description('生成type对应到到模版代码到指定目录')
   .option('-f --force', '如果存在输入的项目目录，强制删除项目目录')
-  .action((type, path, cmd) => {
+  .action((type: any, path: string, cmd: any) => {
     genStart({ type, path, force: cmd.force ?? false })
   })
 
