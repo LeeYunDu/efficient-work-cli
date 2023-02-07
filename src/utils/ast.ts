@@ -26,6 +26,7 @@ export class Ast {
     FunctionDeclaration: [],
     VariableDeclaration: [],
     ImportDeclaration: [],
+    ExportNamedDeclaration: []
   }
 
 
@@ -51,7 +52,12 @@ export class Ast {
       switch (this.fileType) {
         case 'javascript':
           // 根据抽象语法树类型枚举过滤node
-          this.ast.attr('program.body').forEach((node: any) => {
+          this.ast.attr('program.body').forEach((node: any, index: number) => {
+            if (index === 0) {
+              // console.log(node.declaration.declarations[0].id.name, 'node.type');
+
+            }
+
             if (node.type in this.enumTypeNode) {
               this.enumTypeNode[node.type].push(node)
             }
@@ -92,8 +98,6 @@ export class Ast {
    */
   writeFile (filePath: string = this.filePath) {
     let res = $.writeFile(this.ast.generate(), filePath)
-    console.log(4);
-
     // logger.success(`${filePath},文件写入成功`)
   }
 
@@ -303,10 +307,52 @@ export class Ast {
     ast.find(`const ${variableName} = $_$1`).remove()
   }
 
+
+  /**
+   * 删除节点,返回根节点
+   * @param node 
+   */
+  removeNode (node: any, ast = this.ast) {
+    ast.find(node).remove()
+  }
+
+
+  /**
+   * 获取节点类型
+   * @param node 
+   * @returns 
+   */
   getNodeType (node: any) {
     if (node) {
       return node.attr('declarations')[0].init.type
     }
   }
+
+
+  /**
+   * 根据export的变量名称找到对应的node
+   * @param variableName 
+   * @returns 
+   * @description 目前实例只支持常量
+   */
+  getExportNode (variableName: string) {
+    let resultNode: any
+    this.enumTypeNode['ExportNamedDeclaration'].forEach((node: any) => {
+      try {
+        if (node.declaration.declarations[0].id.name === variableName) {
+          resultNode = node
+        }
+      } catch (error) {
+
+      }
+    })
+    if (resultNode) {
+      return resultNode
+    } else {
+      logger.error('没有找到export对象')
+    }
+  }
+
+
 }
 
