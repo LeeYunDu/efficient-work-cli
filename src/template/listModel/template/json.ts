@@ -1,10 +1,11 @@
 export const tableColumns = [
   {
     label: '序号',
-    key: 'index',
+    type: 'index',
+    width: '80'
   },
   {
-    label: '基本字段',
+    label: '文本字段',
     key: 'y1',
     width: 100
   },
@@ -12,7 +13,7 @@ export const tableColumns = [
     label: '字典字段',
     key: 'y2',
     formatType: 'dict',
-    valueFormat: '15.dist'
+    valueFormat: '26.list'
   },
   {
     label: '时间字段',
@@ -28,7 +29,7 @@ export const tableColumns = [
   },
   {
     label: '操作',
-    width: '120',
+    width: '220',
     slot: 'action',
     btns: [
       {

@@ -1,3 +1,4 @@
+
 <template>
   <SimpleModal
     v-model="state.show"
@@ -47,10 +48,11 @@ function onClosed () {
   emits('update:row', {})
 }
 
-async function asyncData(){
-  let res = await apiName({id:row.value.id})
-  if (!res.success) throw new Error(res.errMsg)
-  state.resData = res.data||{}
+async function asyncData (){
+  state.resData = props.row
+  // let res = await apiName({id:row.value.id})
+  // if (!res.success) throw new Error(res.errMsg)
+  // state.resData = res.data||{}
 }
 
 // -------- watch --------
@@ -59,5 +61,3 @@ async function asyncData(){
 
 // -------- expose --------
 </script>
-
-

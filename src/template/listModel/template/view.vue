@@ -1,3 +1,4 @@
+
 <template>
   <section class="view-component">
     <div class="table-list">
@@ -42,10 +43,18 @@
                 </template>
               </SimpleInput>
             </div>
-            <el-button type="primary">新增</el-button>
+            <el-button
+              type="primary"
+              @click="onAction('add',{})"
+            >
+              新增
+            </el-button>
           </div>
         </template>
 
+        <template #slotName="{ $column, $row }">
+          插槽内容
+        </template>
         <template #action="{ $column, $row }">
           <template v-for="btn in $column.btns" :key="btn.key">
             <span
@@ -65,18 +74,19 @@
       :form-fields="formFields"
       :config-props="formModalConfigProps"
       @reload="asyncData"
-    >
-    </addDialog>
+    />
     <detailDialog v-model="state.detailModalShow" />
   </section>
 </template>
 
 <script setup>
 
+import detailDialog from './components/detail.model.vue';import addDialog from './components/add.model.vue'
+
 import SimpleTable from '@/views/components/SimpleTable/view.vue'
 import SimpleInput from '@/views/components/Simple.input.vue'
 import { tableColumns,formFields } from './json'
-import { apiName } from '@/api'
+// import { apiName } from '@/api'
 import { ElMessageBox } from 'element-plus'
 
 
@@ -95,9 +105,7 @@ const tableData = computed(() => table.data || [
 const table = reactive({
   columns: tableColumns,
   total: 0,
-  data: [
-    {}
-  ],
+  data: [],
   params: {
     pageNum: 1,
     pageSize: 10,
@@ -179,15 +187,22 @@ function onDelete (row) {
 }
 
 async function asyncData () {
-  state.loading = true
-  let { data, success } = await apiName(table.params)
-  state.loading = false
-  if (success) {
-    table.total = data.total
-    table.data = data.list
-  }
+  table.data = [
+    {
+      y1:'张三',
+      y2:547,
+      y3:1676257671832
+    }
+  ]
+  // state.loading = true
+  // let { data, success } = await apiName(table.params)
+  // state.loading = false
+  // if (success) {
+  //   table.total = data.total
+  //   table.data = data.list
+  // }
 }
-// asyncData()
+asyncData()
 
 </script>
 

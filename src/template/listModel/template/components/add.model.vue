@@ -1,3 +1,4 @@
+
 <template>
   <SimpleModal
     v-model="state.show"
@@ -21,6 +22,7 @@
           v-for="{ key,inputType,type,slotKey,slotField, alignItems, event, vIf,disabled,...fieldProps } in formFields"
           :key="key"
         >
+        
           <template v-if="vIf ? formItemShow(vIf): true">
             <FormItemCol
               v-model="propsModel[key]"
@@ -53,7 +55,7 @@
                           style: {
                             marginBottom: 0,
                           }
-                      }"
+                        }"
                       />
                     </template>
                   </template>
@@ -129,10 +131,10 @@ function formItemShow (vIf) {
       type: _modalType.value
     })
   } catch (error) {
-    console.log('表单字段显示错误:' + error);
+    console.log('表单字段显示错误:' + error)
     return true
   }
-  
+
 }
 
 function formItemDisabled (disabled) {
@@ -160,7 +162,7 @@ async function onConfirm (cb) {
       { id: row.value.id }
     ))
     if (!res.success) throw new Error(res.errMsg)
-    
+
     ElMessage.success(`${({ edit: '编辑', add: '新增', default: '操作' }[_modalType.value || 'default'] ?? '')}成功!`)
     emits('update:modelValue', false)
     emits('reload')
@@ -171,7 +173,7 @@ async function onConfirm (cb) {
   }
 }
 
-async function asyncDataDetail(){
+async function asyncDataDetail (){
   let handleApi = configPropsApis.value['detail']
   let res = await handleApi(row.value.id)
   if (!res.success) throw new Error(res.errMsg)
