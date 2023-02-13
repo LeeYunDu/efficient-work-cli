@@ -4,10 +4,11 @@ exports.detailFields = exports.formFields = exports.tableColumns = void 0;
 exports.tableColumns = [
     {
         label: '序号',
-        key: 'index',
+        type: 'index',
+        width: '80'
     },
     {
-        label: '基本字段',
+        label: '文本字段',
         key: 'y1',
         width: 100
     },
@@ -15,7 +16,7 @@ exports.tableColumns = [
         label: '字典字段',
         key: 'y2',
         formatType: 'dict',
-        valueFormat: '15.dist'
+        valueFormat: '26.list'
     },
     {
         label: '时间字段',
@@ -31,7 +32,7 @@ exports.tableColumns = [
     },
     {
         label: '操作',
-        width: '120',
+        width: '220',
         slot: 'action',
         btns: [
             {

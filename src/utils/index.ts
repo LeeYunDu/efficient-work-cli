@@ -9,7 +9,6 @@ import { exec } from 'child_process'
  * @param {*} hasJoin 
  */
 export function checkExists (name: string, hasJoin = true) {
-
   return fs.existsSync(hasJoin ? path.join(process.cwd(), `${name}`) : `${name}`)
 }
 
