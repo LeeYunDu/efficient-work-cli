@@ -77,7 +77,9 @@ export async function useInitListModel (path: string) {
     switch (model) {
       case 'list':
         componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
+
         // 列表模块需要根据选中的模块来引入组件
+
         let importMap: any = {
           add: `import addDialog from './components/add.model.vue';`,
           detail: `import detailDialog from './components/detail.model.vue';`,
