@@ -26,7 +26,9 @@ export class Ast {
     FunctionDeclaration: [],
     VariableDeclaration: [],
     ImportDeclaration: [],
-    ExportNamedDeclaration: []
+    ExportNamedDeclaration: [],
+    Identifier: [],
+    TSInterfaceBody: []
   }
 
 
@@ -82,7 +84,6 @@ export class Ast {
   }
   /**
    * 检查文件是否存在
-   * 文件地址包含node_modules默认为szzt-cli 源码文件
    */
   checkExistsFile (filePath: string) {
     if (!checkExists(filePath, filePath.indexOf('node_modules') > -1 ? false : true)) {
@@ -351,6 +352,105 @@ export class Ast {
     } else {
       logger.error('没有找到export对象')
     }
+  }
+  /**
+ * 解析 typescript interface 相关代码
+ */
+
+
+  /**
+   * 生成interface Node
+   * generateInterfaceNode
+   * @param {*} name 
+   */
+
+  generateIdentifierNode (name: any, hasT = false) {
+    let template: any = hasT ? $(`
+    interface 占位符<T = any> {
+      
+    }
+  `) : $(`
+  interface 占位符 {
+    
+  }
+`)
+    let node = template.attr('program').body[0]
+    node.id = name
+    node.loc.identifierName = name
+    return node
+    /**
+     * interfacePanel.attr('program').body[0].id 最外层 interface名称
+     * nterfacePanel.attr('program').body[0].body interface的字段配置
+     * 字段配置相关的  名称、类型、注释 
+     * 注释相关的字段为 leadingComments、comments
+     */
+  }
+  // interface 字段类型
+  generateTSTypeAnnotationNode (keyName: any, keyType: any, comment: any, businessName: any, required: string[] = []) {
+    let template: any = $(`
+      interface customName<T = any> {
+        //注释占位符
+        string: string
+        //注释占位符
+        number: number
+        //注释占位符
+        boolean: boolean
+        //注释占位符
+        any:any
+        //注释占位符
+        array_string:Array<string>
+        //注释占位符
+        array_interface:Array<interfaceName>
+        //注释占位符
+        choosable?:any
+        //注释占位符
+        t: T
+        //注释占位符
+        list:${businessName}List
+      }
+    `)
+
+
+    // 字段类型
+    let mapType = ''
+    switch (keyType) {
+      case 'number':
+        mapType = 'number'
+        break;
+      case 'string':
+        mapType = 'string'
+        break;
+      case 'boolean':
+        mapType = 'boolean'
+        break
+      case 'list':
+        // 列表字段类型  名称为业务表示名称 + List
+        mapType = 'list'
+        break
+      default:
+        mapType = 't'
+        break;
+    }
+    let fieldNodes = template.attr('program').body[0].body.body
+    let filterNode = fieldNodes.filter((node: { key: { name: string } }) => {
+      return node.key.name === mapType
+    })[0]
+    if (required.includes(keyName)) {
+      filterNode.optional = true
+    }
+
+    // 字段名称
+    filterNode.key.name = keyName
+    // 注释
+    if (comment) {
+      filterNode.leadingComments[0].value = comment
+      filterNode.comments[0].value = comment
+    } else {
+      delete filterNode.leadingComments
+      delete filterNode.comments
+    }
+
+    return filterNode
   }
 
 

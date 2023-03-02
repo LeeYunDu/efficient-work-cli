@@ -24,6 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useGenretor = void 0;
+const generator_types_1 = require("../template/generator.types");
 const init_1 = require("../template/listModel/init");
 const init_2 = require("../template/util/init");
 const logger = __importStar(require("../utils/logger"));
@@ -40,6 +41,9 @@ function useGenretor(option) {
             break;
         case 'util':
             (0, init_2.useInitUtil)();
+            break;
+        case 'types':
+            (0, generator_types_1.generatorTypes)();
             break;
         default:
             logger.error(`未找到模块,枚举：${ENUM.join('、')}`);

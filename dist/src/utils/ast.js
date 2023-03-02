@@ -25,7 +25,9 @@ class Ast {
             FunctionDeclaration: [],
             VariableDeclaration: [],
             ImportDeclaration: [],
-            ExportNamedDeclaration: []
+            ExportNamedDeclaration: [],
+            Identifier: [],
+            TSInterfaceBody: []
         };
         /**
          * templateString true 表示 filePath传入的是代码片段（字符串）,false表示的代码文件路径地址
@@ -75,7 +77,6 @@ class Ast {
     }
     /**
      * 检查文件是否存在
-     * 文件地址包含node_modules默认为szzt-cli 源码文件
      */
     checkExistsFile(filePath) {
         if (!(0, index_1.checkExists)(filePath, filePath.indexOf('node_modules') > -1 ? false : true)) {
@@ -332,6 +333,99 @@ class Ast {
         else {
             logger.error('没有找到export对象');
         }
+    }
+    /**
+   * 解析 typescript interface 相关代码
+   */
+    /**
+     * 生成interface Node
+     * generateInterfaceNode
+     * @param {*} name
+     */
+    generateIdentifierNode(name, hasT = false) {
+        let template = hasT ? (0, gogocode_1.default)(`
+    interface 占位符<T = any> {
+      
+    }
+  `) : (0, gogocode_1.default)(`
+  interface 占位符 {
+    
+  }
+`);
+        let node = template.attr('program').body[0];
+        node.id = name;
+        node.loc.identifierName = name;
+        return node;
+        /**
+         * interfacePanel.attr('program').body[0].id 最外层 interface名称
+         * nterfacePanel.attr('program').body[0].body interface的字段配置
+         * 字段配置相关的  名称、类型、注释
+         * 注释相关的字段为 leadingComments、comments
+         */
+    }
+    // interface 字段类型
+    generateTSTypeAnnotationNode(keyName, keyType, comment, businessName, required = []) {
+        let template = (0, gogocode_1.default)(`
+      interface customName<T = any> {
+        //注释占位符
+        string: string
+        //注释占位符
+        number: number
+        //注释占位符
+        boolean: boolean
+        //注释占位符
+        any:any
+        //注释占位符
+        array_string:Array<string>
+        //注释占位符
+        array_interface:Array<interfaceName>
+        //注释占位符
+        choosable?:any
+        //注释占位符
+        t: T
+        //注释占位符
+        list:${businessName}List
+      }
+    `);
+        // 字段类型
+        let mapType = '';
+        switch (keyType) {
+            case 'number':
+                mapType = 'number';
+                break;
+            case 'string':
+                mapType = 'string';
+                break;
+            case 'boolean':
+                mapType = 'boolean';
+                break;
+            case 'list':
+                // 列表字段类型  名称为业务表示名称 + List
+                mapType = 'list';
+                break;
+            default:
+                mapType = 't';
+                break;
+        }
+        let fieldNodes = template.attr('program').body[0].body.body;
+        let filterNode = fieldNodes.filter((node) => {
+            return node.key.name === mapType;
+        })[0];
+        if (required.includes(keyName)) {
+            filterNode.optional = true;
+        }
+        // 字段名称
+        filterNode.key.name = keyName;
+        // 注释
+        if (comment) {
+            filterNode.leadingComments[0].value = comment;
+            filterNode.comments[0].value = comment;
+        }
+        else {
+            delete filterNode.leadingComments;
+            delete filterNode.comments;
+        }
+        return filterNode;
     }
 }
 exports.Ast = Ast;
