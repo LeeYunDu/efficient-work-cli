@@ -407,7 +407,13 @@ class Ast {
                 mapType = 't';
                 break;
         }
-        let fieldNodes = template.attr('program').body[0].body.body;
+        let fieldNodes;
+        try {
+            fieldNodes = template.attr('program').body[0].body.body;
+        }
+        catch (error) {
+            return null;
+        }
         let filterNode = fieldNodes.filter((node) => {
             return node.key.name === mapType;
         })[0];

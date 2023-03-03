@@ -399,7 +399,7 @@ function pushAstNode(interfaceResult, interfaceAst, interfaceInfo, isResponse) {
         Object.keys(interfaceListFields).forEach((key, index) => {
             let { type, fieldConfig } = interfaceListFields[key];
             let node = interfaceAst.generateTSTypeAnnotationNode(key, type, fieldConfig.example, interfaceName);
-            fieldListNodes.push(node);
+            node && fieldListNodes.push(node);
         });
         IdentifierListNode.body.body = fieldListNodes;
     }
@@ -415,7 +415,7 @@ function pushAstNode(interfaceResult, interfaceAst, interfaceInfo, isResponse) {
     Object.keys(interfaceFields).forEach((key, index) => {
         let { type, fieldConfig } = interfaceFields[key];
         let node = interfaceAst.generateTSTypeAnnotationNode(key, type, fieldConfig.example, interfaceName, required);
-        fieldNodes.push(node);
+        node && fieldNodes.push(node);
     });
     IdentifierNode.body.body = fieldNodes;
 }

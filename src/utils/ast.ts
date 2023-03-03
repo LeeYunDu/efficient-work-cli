@@ -431,7 +431,12 @@ export class Ast {
         mapType = 't'
         break;
     }
-    let fieldNodes = template.attr('program').body[0].body.body
+    let fieldNodes
+    try {
+      fieldNodes = template.attr('program').body[0].body.body
+    } catch (error) {
+      return null
+    }
     let filterNode = fieldNodes.filter((node: { key: { name: string } }) => {
       return node.key.name === mapType
     })[0]

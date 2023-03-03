@@ -3,7 +3,6 @@ import * as logger from '../utils/logger'
 import prompts from 'prompts'
 import { Ast } from '../utils/ast'
 import { createFile, mkdir } from '../utils/index'
-
 /**
  * @param {*} data 
  * @description 
@@ -22,11 +21,13 @@ import fetch from 'node-fetch'
 
 
 export async function generatorTypes () {
+
   let resources: any = await getDocResources()
   if (!resources) return
   let docAddress: string = resources
   fetch(docAddress).then((res: { json: () => Promise<any> }) => {
     res.json().then((response: { tags: any; paths: any; definitions: any }) => {
+
       let { tags, paths, definitions } = response
       if (!(tags && paths && definitions)) {
         logger.error(`选中的业务模块没有接口定义,definitions、tags、paths`)
@@ -392,7 +393,7 @@ function pushAstNode (interfaceResult: { listHasT: any; hasList: any; listInterf
     Object.keys(interfaceListFields).forEach((key, index) => {
       let { type, fieldConfig } = interfaceListFields[key]
       let node = interfaceAst.generateTSTypeAnnotationNode(key, type, fieldConfig.example, interfaceName)
-      fieldListNodes.push(node)
+      node && fieldListNodes.push(node)
     })
     IdentifierListNode.body.body = fieldListNodes
   }
@@ -409,7 +410,7 @@ function pushAstNode (interfaceResult: { listHasT: any; hasList: any; listInterf
   Object.keys(interfaceFields).forEach((key, index) => {
     let { type, fieldConfig } = interfaceFields[key]
     let node = interfaceAst.generateTSTypeAnnotationNode(key, type, fieldConfig.example, interfaceName, required)
-    fieldNodes.push(node)
+    node && fieldNodes.push(node)
   })
   IdentifierNode.body.body = fieldNodes
 }
