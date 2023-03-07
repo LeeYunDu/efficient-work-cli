@@ -284,7 +284,7 @@ export class Ast {
       })
     } else {
       // 文件开头插入
-      ast.before(code)
+      ast.before('\n' + code)
     }
   }
 
