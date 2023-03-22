@@ -80,9 +80,6 @@
 </template>
 
 <script setup>
-
-import detailDialog from './components/detail.model.vue';import addDialog from './components/add.model.vue'
-
 import SimpleTable from '@/views/components/SimpleTable/view.vue'
 import SimpleInput from '@/views/components/Simple.input.vue'
 import { tableColumns,formFields } from './json'
