@@ -2,6 +2,7 @@ import { generatorTypes } from "../template/generator.types";
 import { useInitListModel } from "../template/listModel/init";
 import { useInitUtil } from "../template/util/init";
 import { genratorMode } from "../typings/genrator";
+import { useDefaultFile } from '../template/default/init'
 import * as logger from '../utils/logger'
 
 /**
@@ -22,6 +23,9 @@ export function useGenretor (option: genratorMode) {
     case 'types':
       generatorTypes()
       break;
+    case 'default':
+      useDefaultFile(path)
+      break
     default:
       logger.error(`未找到模块,枚举：${ENUM.join('、')}`)
       break
