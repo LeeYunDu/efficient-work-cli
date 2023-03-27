@@ -42,7 +42,10 @@ const promptsOptions = [
         message: '选择生成模板',
         choices: [
             { title: 'setup+ts的单组件文件', value: 'vue' },
-            { title: '表格', value: 'table' }
+            { title: '表格', value: 'table' },
+            { title: '弹窗', value: 'dialog' },
+            { title: '弹窗-表格', value: 'dialog.table' },
+            { title: '弹窗-表单', value: 'dialog.form' },
         ]
     },
 ];

@@ -1,6 +1,13 @@
 <template>
-  <div>
-    <ui-table
+  <SimpleModal
+    v-model="state.show"
+    :title="state.title"
+    :footer-show="false"
+    width="60%"
+    body-padding="20"
+    @closed="onClosed"
+  >
+  <ui-table
       v-bind="tableOptions"
       @change="onChange"
       @onSort="sortChange"
@@ -17,22 +24,41 @@
         </template>
       </template>
     </ui-table>
-  </div>
+  </SimpleModal>
 </template>
 
-<script lang="ts" setup>
-import { reactive, ref } from 'vue';
-import { tableColumn  } from './json'
+<script setup lang="ts">
+import SimpleModal from '@/views/common/Simple.modal.vue'
+import {reactive,ref,inject,computed} from 'vue'
 import { ElMessage } from 'element-plus'
 import { get } from 'lodash-es'
-import { UiTable  } from 'static/lib/entry'
-
+import { tableColumn  } from './json'
 
 const props = defineProps({
-  group: { type: Object, default: () => ({}) },
-  data: { type: Object, default: () => ({}) },
-  queryParams: { type: Object, default: () => ({}) }
+  modelValue: { type: Boolean, default: false },
+  row: { type: Object, default: () => ({}) }
 })
+
+
+const emits = defineEmits(['update:modelValue','update:row'])
+
+const row = computed(() => props.row || {})
+
+const state = reactive({
+  show: computed({
+    get: () => {
+      props.modelValue && asyncData()
+      return props.modelValue
+    },
+    set: val =>  emits('update:modelValue', val)
+  }),
+  title: '弹窗标题',
+  data:{},
+  row:{},
+  dialogShow:false
+})
+
+
 
 let tableOptions = reactive({
   props:{
@@ -59,13 +85,6 @@ let tableOptions = reactive({
   columns:tableColumn,
 })
 
-
-let state = reactive({
-  data:[],
-  show:false,
-  row:{}
-})
-
 const actionButtons = ref([
   { label:'详情',key:'detail' },
   { label:'编辑',key:'edit' },
@@ -85,7 +104,6 @@ function showBtns (key:string, row:any):boolean {
 
 const onAction = (key:string, row:any) => {
   state.row = row
-
   const actionMap:any = {
     'detail': () => ({}),
     'edit': () => ({}),
@@ -95,11 +113,16 @@ const onAction = (key:string, row:any) => {
   actionMap[key] && actionMap[key](row)
 }
 
+
+
+function onClosed () {
+  emits('update:row', {})
+}
+
 const curParams:any = ref({
   pageNum: 1,
   pageSize: 10
 })
-
 
 function onChange (opts:any){
   let { params } = opts
@@ -116,9 +139,8 @@ const sortChange=async (item:any)=>{
   onChangeCurrent(1)
 }
 
-
 const asyncData = async () => {
-  const params: any = Object.assign({}, props.queryParams || {}, curParams.value || {})
+  const params: any = Object.assign({},  curParams.value || {})
   // const { success, errMsg, data }: any = await apiName(params)
   const  { success, errMsg, data }: any = { success:true,errMsg:'',data:{
     list:new Array(10).fill({
@@ -129,32 +151,9 @@ const asyncData = async () => {
   tableOptions.data= get(data || {}, 'list', [])
   tableOptions.options.pagination.total = get(data || {}, 'total', 0)
 }
-
-asyncData()
 </script>
 
 <style lang="scss" scoped>
-   .action-btn{
-    font-size: 16px;
-    font-family: PingFangSC-Regular, PingFang SC;
-    font-weight: 400;
-    color: #125DD5;
-    margin-left:12px ;
-    cursor: pointer;
-    position: relative;
 
-    &~.action-btn{
-      &::before{
-        content: '';
-        position: absolute;
-        left: -6px;
-        width: 1px;
-        height: 50%;
-        top: 50%;
-        transform: translateY(-50%);
-        background: #125DD5;
-      }
-    }
 
-  }
 </style>
