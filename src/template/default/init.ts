@@ -13,5 +13,4 @@ export async function useDefaultFile (path: string) {
   let templateResult: any
   let componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
   componentsAst.writeFile(`${modelPath}${file}`)
-
 }

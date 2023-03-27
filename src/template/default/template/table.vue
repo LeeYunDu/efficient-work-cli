@@ -1,54 +1,37 @@
 <template>
-  <section class="list-page-view">
-    <section class="content">
-      <section class="page-top">
-        <div class="table-query-from">
-          <ui-form
-            v-bind="tableQueryFormOptions"
-            ref="queryForm"
-            :model="curParams"
-            @change="onChange"
-          />
-        </div>
-      </section>
-      <section class="page-center">
-        <ui-table
-          v-bind="tableOptions"
-          @change="onChange"
-          @onSort="sortChange"
-        >
-          <template #action="{row,config}">
-            <template v-for="btn in actionButtons" :key="btn.key">
-              <span
-                v-if="showBtns(btn.key, row)"
-                class="action-btn"
-                type="text"
-                @click="onAction(btn.key, row)"
-              >{{ btn.label }}</span>
-            </template>
-          </template>
-        </ui-table>
-      </section>
-    </section>
-  </section>
+  <div>
+    <ui-table
+      v-bind="tableOptions"
+      @change="onChange"
+      @onSort="sortChange"
+    >
+
+      <template #action="{row,config}">
+        <template v-for="btn in actionButtons" :key="btn.key">
+          <span
+            v-if="showBtns(btn.key, row)"
+            class="action-btn"
+            type="text"
+            @click="onAction(btn.key, row)"
+          >{{ btn.label }}</span>
+        </template>
+      </template>
+    </ui-table>
+  </div>
 </template>
+
 <script lang="ts" setup>
-import { ref, reactive, watch, shallowRef } from 'vue'
-import { get } from 'lodash-es'
-import { UiTable ,UiForm } from 'static/lib/entry'
+import { reactive, ref } from 'vue';
+import { tableColumn  } from './json'
 import { ElMessage } from 'element-plus'
-import { tableColumn , tableQueryFormOptions } from './json'
+import { get } from 'lodash-es'
+import { UiTable  } from 'static/lib/entry'
+
 
 const props = defineProps({
   group: { type: Object, default: () => ({}) },
   data: { type: Object, default: () => ({}) },
   queryParams: { type: Object, default: () => ({}) }
-})
-
-let queryForm = shallowRef<null|InstanceType<typeof UiForm>>(null)
-
-let state = reactive({
-  row:{}
 })
 
 let tableOptions = reactive({
@@ -74,6 +57,13 @@ let tableOptions = reactive({
   },
   data:[],
   columns:tableColumn,
+})
+
+
+let state = reactive({
+  data:[],
+  show:false,
+  row:{}
 })
 
 const actionButtons = ref([
@@ -120,6 +110,11 @@ const onChangeCurrent = (value: number) => {
   asyncData()
 }
 
+const sortChange=async (item:any)=>{
+  curParams.value.sort=item && item.order?item.prop+(item.order==='ascending'?'+':'-'):undefined
+  onChangeCurrent(1)
+}
+
 
 const asyncData = async () => {
   const params: any = Object.assign({}, props.queryParams || {}, curParams.value || {})
@@ -133,57 +128,12 @@ const asyncData = async () => {
   tableOptions.data= get(data || {}, 'list', [])
   tableOptions.options.pagination.total = get(data || {}, 'total', 0)
 }
-const sortChange=async (item:any)=>{
-  curParams.value.sort=item && item.order?item.prop+(item.order==='ascending'?'+':'-'):undefined
-  onChangeCurrent(1)
-}
-watch(
-  () => {
-    return props.queryParams
-  },
-  () => {
-    onChangeCurrent(1)
-  },
-  { deep: true,immediate:true }
-)
 
-
+asyncData()
 </script>
 
 <style lang="scss" scoped>
-.list-page-view{
-  :deep {
-    table {
-      tbody {
-        tr {
-          &.hover-row {
-            background: #e3eaf3 !important;
-            td {
-              background: transparent !important;
-            }
-          }
-        }
-      }
-    }
-  }
-
-
-  .content{
-
-    .page-center {
-      padding: 10px 0 20px;
-    }
-
-    .page-top{
-      border-bottom: 1px solid #ECECEC;
-      padding: 0 24px;
-      padding-top: 24px;
-    }
-  }
-
-
-
-  .action-btn{
+   .action-btn{
     font-size: 16px;
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
@@ -206,6 +156,4 @@ watch(
     }
 
   }
-}
-
 </style>

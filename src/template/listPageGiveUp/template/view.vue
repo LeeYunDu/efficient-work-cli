@@ -16,23 +16,14 @@
           </template>
         </ui-table>
       </section>
-      <section class="page_bottom">
-        <el-pagination
-          :total="total"
-          :current-page="pageParams.pageNum"
-          :page-size="pageParams.pageSize"
-          v-bind="state.pageOptions"
-          @size-change="onChangeSize"
-          @current-change="onChangeCurrent"
-        />
-      </section>
+
     </section>
   </section>
 </template>
 <script lang="ts" setup>
 import { ref, reactive, watch } from 'vue'
 import { get } from 'lodash-es'
-import { UiTable } from '@/components/UI/table/index'
+import { UiTable } from 'static/lib/entry'
 import { ElMessage,ElLoading } from 'element-plus'
 const props = defineProps({
   group: { type: Object, default: () => ({}) },
@@ -52,7 +43,7 @@ const columns = ref([
     }
   },
   {
-    label: '单位类型',
+    label: '单位22类型',
     key: 'deptType',
     props: {
       minWidth: '100px'
