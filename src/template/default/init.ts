@@ -16,10 +16,28 @@ export async function useDefaultFile (path: string) {
   let file = `/${type}.vue`
   createFile({ filePath: `${modelPath}${file}` })
   const rootDir = await getSourcePath()
-  const sourcePath = `${rootDir}/src/template/default/template/${type}.vue`
-  let templateResult: any
-  let componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
-  componentsAst.writeFile(`${modelPath}${file}`)
+  if (type === 'json') {
+
+  } else {
+
+  }
+  let sourcePath = ''
+  let templateResult: any = ''
+  let componentsAst: any
+
+  switch (type) {
+    case 'json':
+      sourcePath = `${rootDir}/src/template/default/template/${type}.ts`
+      componentsAst = new Ast(sourcePath, {})
+      componentsAst.writeFile(`${modelPath}/json.ts`)
+      break;
+    default:
+      sourcePath = `${rootDir}/src/template/default/template/${type}.vue`
+      componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
+      componentsAst.writeFile(`${modelPath}${file}`)
+      break
+  }
+
 }
 
 
@@ -30,10 +48,12 @@ const promptsOptions: any = [
     message: '选择生成模板',
     choices: [
       { title: 'setup+ts的单组件文件', value: 'vue' },
+      { title: 'list-view', value: 'list-view' },
       { title: '表格', value: 'table' },
       { title: '弹窗', value: 'dialog' },
       { title: '弹窗-表格', value: 'dialog.table' },
       { title: '弹窗-表单', value: 'dialog.form' },
+      { title: 'json', value: 'json' },
     ]
   },
 ]

@@ -38,35 +38,12 @@ export const tableColumn: FieldItem[] = [
       width: '80px'
     }
   },
-  {
-    label: '场景名称',
-    key: 'deptType',
-
-  },
-  {
-    label: '场景类型',
-    key: 'deptName',
-  },
-  {
-    label: '发布部门',
-    key: 'appealCount',
-  },
-  {
-    label: '发布时间',
-    key: 'hadFinished',
-
-  },
-  {
-    label: '操作人',
-    key: 'hadFinished',
-
-  },
-  {
-    label: '状态',
-    key: 'hadFinished',
-
-  },
-
+  { label: '场景名称', key: 'deptType', },
+  { label: '场景类型', key: 'deptName', },
+  { label: '发布部门', key: 'appealCount', },
+  { label: '发布时间', key: 'hadFinished', },
+  { label: '操作人', key: 'hadFinished', },
+  { label: '状态', key: 'hadFinished', },
   {
     label: '系统推送',
     key: 'key9',
@@ -81,7 +58,6 @@ export const tableColumn: FieldItem[] = [
     props: {
       width: '210px',
     },
-
   },
 ]
 
