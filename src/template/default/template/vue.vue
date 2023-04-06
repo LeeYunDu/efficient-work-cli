@@ -5,6 +5,16 @@
 <script lang="ts" setup>
 import { reactive } from 'vue';
 
+let props = defineProps({
+  data:{
+    type:Object,
+    default:()=>{}
+  },
+  fields:{
+    type:Array,default:()=>{[]}
+  }
+})
+
 let state = reactive({
   data:[],
   show:false

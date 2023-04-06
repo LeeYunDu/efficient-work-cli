@@ -38,12 +38,9 @@ export const tableColumn: FieldItem[] = [
       width: '80px'
     }
   },
-  { label: '场景名称', key: 'deptType', },
-  { label: '场景类型', key: 'deptName', },
-  { label: '发布部门', key: 'appealCount', },
-  { label: '发布时间', key: 'hadFinished', },
-  { label: '操作人', key: 'hadFinished', },
-  { label: '状态', key: 'hadFinished', },
+  { label: '字段1', key: 'deptType', },
+  { label: '字典字段2', key: 'deptName_t', transform: '1.dist' },
+  { label: '时间字段3', key: 'hadFinished_t', transform: '{y}-{m}-{d}' },
   {
     label: '系统推送',
     key: 'key9',
@@ -74,8 +71,6 @@ export const formFileds: FormMode[] = [
     props: {
       formItem: { required: true, }
     },
-
-
   },
   { label: '联系人', value: '', key: 'key2', type: 'input', props: { formItem: { required: true, } }, },
   { label: '联系电话', value: '', key: 'key3', type: 'input', props: { formItem: { required: true, } }, },

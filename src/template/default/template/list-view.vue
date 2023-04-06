@@ -134,6 +134,7 @@ const asyncData = async () => {
   } }
   if (!success) return ElMessage.error(errMsg)
   tableOptions.data= get(data || {}, 'list', [])
+  // tableOptions.data= transformTableData(planColumn,get(data || {}, 'list', []))
   tableOptions.options.pagination.total = get(data || {}, 'total', 0)
 }
 const sortChange=async (item:any)=>{
