@@ -11,7 +11,7 @@
   >
     <UiForm
       v-bind="planFormOptions"
-      ref="form"
+      ref="formRef"
       :model="state.params"
     />
   </SimpleModal>
