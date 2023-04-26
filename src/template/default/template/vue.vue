@@ -13,6 +13,10 @@ let props = defineProps({
     type:Array,
     default:()=>[]
   },
+  group: {
+    type: Object,
+    default: () => ({})
+  },
   fields:{
     type:Array,default:()=>{[]}
   }
