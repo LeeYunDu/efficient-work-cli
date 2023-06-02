@@ -4,6 +4,7 @@ import { useInitUtil } from "../template/util/init";
 import { genratorMode } from "../typings/genrator";
 import { useDefaultFile } from '../template/default/init'
 import * as logger from '../utils/logger'
+import { useGenretorItems } from "../template/items/init";
 
 /**
  * 
@@ -12,7 +13,7 @@ import * as logger from '../utils/logger'
 export function useGenretor (option: genratorMode) {
 
   let { type, path, force } = option
-  const ENUM = ['listModel', 'util']
+  const ENUM = ['listModel', 'util', 'types', 'default']
   switch (type) {
     case 'listModel':
       useInitListModel(path)
@@ -23,6 +24,9 @@ export function useGenretor (option: genratorMode) {
     case 'types':
       generatorTypes()
       break;
+    case 'items':
+      useGenretorItems()
+      break
     case 'default':
       useDefaultFile(path)
       break

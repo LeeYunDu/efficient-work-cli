@@ -29,13 +29,14 @@ const init_1 = require("../template/listModel/init");
 const init_2 = require("../template/util/init");
 const init_3 = require("../template/default/init");
 const logger = __importStar(require("../utils/logger"));
+const init_4 = require("../template/items/init");
 /**
  *
  * @param option
  */
 function useGenretor(option) {
     let { type, path, force } = option;
-    const ENUM = ['listModel', 'util'];
+    const ENUM = ['listModel', 'util', 'types', 'default'];
     switch (type) {
         case 'listModel':
             (0, init_1.useInitListModel)(path);
@@ -45,6 +46,9 @@ function useGenretor(option) {
             break;
         case 'types':
             (0, generator_types_1.generatorTypes)();
+            break;
+        case 'items':
+            (0, init_4.useGenretorItems)();
             break;
         case 'default':
             (0, init_3.useDefaultFile)(path);
