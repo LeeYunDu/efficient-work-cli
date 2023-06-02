@@ -18,6 +18,9 @@
                 </small>
               </span>
             </section>
+            <section v-if="rate" class="rate-box">
+              /  {{ getProportion(item) }}%
+            </section>
           </section>
           <section class="bottom">
             <div class="progress-bar-box">
@@ -55,6 +58,10 @@ const props = defineProps({
   sort:{
     type:Boolean,
     default:true
+  },
+  rate:{
+    type:Boolean,
+    default:false
   }
 })
 
@@ -66,6 +73,7 @@ const props = defineProps({
  * 2、{y1:'数据1的数值',y2:'数据2的数值'}
  * 根据传入的数据类型,判断出列表渲染时的写法
  */
+
 
 const propsData = computed(() => props.data||[])
 const propsFields = computed(()=> props.fields||[
@@ -82,7 +90,6 @@ const loopItems = computed<any>(()=>{
 
 
 function getName (item){
-
   if(isLoopData.value){
     return  item[propsFields.value[0].key]||''
   }else{
@@ -90,7 +97,7 @@ function getName (item){
   }
 }
 
-function getIcon (item){
+function getIcon (item:any){
   if(isLoopData.value){
     return props.iconMap[getName(item)]||''
   }else{
@@ -98,13 +105,15 @@ function getIcon (item){
   }
 }
 
-function getValue (item){
+function getValue (item:any){
   if(isLoopData.value){
     return  get(item,props.fields[1].key)||0
   }else{
     return get(propsData,item.key)||0
   }
 }
+
+
 
 const  valueSum = computed(()=>{
   let sum = 0
@@ -126,6 +135,13 @@ const  valueSum = computed(()=>{
   }
   return sum
 })
+
+
+// 占比
+function getProportion (item:any){
+  return ((getValue(item) / valueSum.value) * 100).toFixed(2)
+}
+
 
 
 </script>
@@ -160,8 +176,13 @@ const  valueSum = computed(()=>{
     .top {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       padding: 4px 0;
+      .value{
+        margin-left: auto;
+      }
+      .rate-box{
+        margin-left: 6px;
+      }
     }
     & ~ .item {
       margin-top: 10px;
