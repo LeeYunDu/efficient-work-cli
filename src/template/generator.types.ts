@@ -19,9 +19,7 @@ import { createFile, mkdir } from '../utils/index'
 
 import fetch from 'node-fetch'
 
-
 export async function generatorTypes () {
-
   let resources: any = await getDocResources()
   if (!resources) return
   let docAddress: string = resources
@@ -140,7 +138,11 @@ function getDocResources () {
     }
     // ip + 业务前缀 + swagger-resources
     let docResourcesPath = `http://${ip}/${businessName}/swagger-resources`
-    fetch(docResourcesPath).then((res: { json: () => Promise<any> }) => {
+    fetch(docResourcesPath, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    }).then((res: { json: () => Promise<any> }) => {
       res.json().then(async (resources: { name: any; url: any }[]) => {
 
         let resourcesOptions: any[] = [
