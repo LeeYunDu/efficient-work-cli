@@ -457,7 +457,5 @@ export class Ast {
 
     return filterNode
   }
-
-
 }
 

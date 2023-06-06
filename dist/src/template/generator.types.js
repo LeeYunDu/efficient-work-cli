@@ -173,7 +173,11 @@ function getDocResources() {
         }
         // ip + 业务前缀 + swagger-resources
         let docResourcesPath = `http://${ip}/${businessName}/swagger-resources`;
-        (0, node_fetch_1.default)(docResourcesPath).then((res) => {
+        (0, node_fetch_1.default)(docResourcesPath, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then((res) => {
             res.json().then((resources) => __awaiter(this, void 0, void 0, function* () {
                 let resourcesOptions = [
                     {

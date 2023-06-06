@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detailFields = exports.addFormOptions = exports.formFields = exports.tableColumn = exports.tableQueryFormOptions = exports.tableQueryFormFields = void 0;
+exports.detailFields = exports.addFormOptions = exports.formFileds = exports.tableColumn = exports.tableQueryFormOptions = exports.tableQueryFormFields = void 0;
 /**
  * common
  */
@@ -37,9 +37,30 @@ exports.tableColumn = [
             width: '80px'
         }
     },
-    { label: '字段1', key: 'deptType', },
-    { label: '字典字段2', key: 'deptName_t', transform: '1.dist' },
-    { label: '时间字段3', key: 'hadFinished_t', transform: '{y}-{m}-{d}' },
+    {
+        label: '场景名称',
+        key: 'deptType',
+    },
+    {
+        label: '场景类型',
+        key: 'deptName',
+    },
+    {
+        label: '发布部门',
+        key: 'appealCount',
+    },
+    {
+        label: '发布时间',
+        key: 'hadFinished',
+    },
+    {
+        label: '操作人',
+        key: 'hadFinished',
+    },
+    {
+        label: '状态',
+        key: 'hadFinished',
+    },
     {
         label: '系统推送',
         key: 'key9',
@@ -56,14 +77,14 @@ exports.tableColumn = [
         },
     },
 ];
-exports.formFields = [
+exports.formFileds = [
     {
         label: '场景名称', value: '1', key: 'key1', type: 'input', props: {
             formItem: { required: true, }
         },
     },
     {
-        label: '场景类型', key: 'key2', type: 'select', options: [
+        label: '场景类型', key: 'key99', type: 'select', options: [
             { label: '选项1', value: 'valaue1', tValue: 'valuet1' }
         ],
         props: {
@@ -78,7 +99,7 @@ exports.formFields = [
     { label: '', value: '', key: 'key6', type: 'slot', slotName: 'btns' },
 ];
 exports.addFormOptions = {
-    labels: exports.formFields,
+    labels: exports.formFileds,
     props: {
         rules: []
     },

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detailFields = exports.addFormOptions = exports.formFileds = exports.tableColumn = exports.tableQueryFormOptions = exports.tableQueryFormFields = void 0;
+exports.detailFields = exports.addFormOptions = exports.formFields = exports.tableColumn = exports.tableQueryFormOptions = exports.tableQueryFormFields = void 0;
 /**
  * common
  */
@@ -77,14 +77,14 @@ exports.tableColumn = [
         },
     },
 ];
-exports.formFileds = [
+exports.formFields = [
     {
         label: '场景名称', value: '1', key: 'key1', type: 'input', props: {
             formItem: { required: true, }
         },
     },
     {
-        label: '场景类型', key: 'key2', type: 'select', options: [
+        label: '场景类型', key: 'key99', type: 'select', options: [
             { label: '选项1', value: 'valaue1', tValue: 'valuet1' }
         ],
         props: {
@@ -99,7 +99,7 @@ exports.formFileds = [
     { label: '', value: '', key: 'key6', type: 'slot', slotName: 'btns' },
 ];
 exports.addFormOptions = {
-    labels: exports.formFileds,
+    labels: exports.formFields,
     props: {
         rules: []
     },

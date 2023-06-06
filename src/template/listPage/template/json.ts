@@ -85,14 +85,14 @@ export const tableColumn: FieldItem[] = [
   },
 ]
 
-export const formFileds: FormMode[] = [
+export const formFields: FormMode[] = [
   {
     label: '场景名称', value: '1', key: 'key1', type: 'input', props: {
       formItem: { required: true, }
     },
   },
   {
-    label: '场景类型', key: 'key2', type: 'select', options: [
+    label: '场景类型', key: 'key99', type: 'select', options: [
       { label: '选项1', value: 'valaue1', tValue: 'valuet1' }
     ],
     props: {
@@ -111,7 +111,7 @@ export const formFileds: FormMode[] = [
 ]
 
 export const addFormOptions = {
-  labels: formFileds,
+  labels: formFields,
   props: {
     rules: []
   },

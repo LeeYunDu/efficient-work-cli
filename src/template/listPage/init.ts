@@ -16,7 +16,7 @@ import * as logger from '../../utils/logger'
  * @description 根据输入的文件路径先依次创建文件,再往文件里写代码 
  * @param force
  */
-export async function useInitListModel (path: string) {
+export async function useInitListPage (path: string) {
   // let rootDir1 = await getSourcePath()
 
   // const sourcePath = `${rootDir1}/src/template/listModel/template//json.ts`
@@ -68,11 +68,10 @@ export async function useInitListModel (path: string) {
   })
   // 文件写入
   const rootDir = await getSourcePath()
-
   let componentsAst: any
 
   [...checkedModels, 'mock'].forEach((model: string, index: number) => {
-    const sourcePath = `${rootDir}/src/template/listModel/template/${modelFilePathMap[model]}`
+    const sourcePath = `${rootDir}/src/template/listPage/template/${modelFilePathMap[model]}`
     let templateResult: any
     switch (model) {
       case 'list':
@@ -80,14 +79,22 @@ export async function useInitListModel (path: string) {
 
         // 列表模块需要根据选中的模块来引入组件
 
-        let importMap: any = {
+        const importMap: any = {
           add: `import addDialog from './components/add.model.vue';`,
           detail: `import detailDialog from './components/detail.model.vue';`,
+        }
+
+        const importComponentTag = {
+          add: 'addModel',
+          detail: 'detailModel'
         }
 
         Object.keys(importMap).forEach((key: any) => {
           if (checkedModels.includes(key)) {
             componentsAst.insertImport(importMap[key], componentsAst.jsAst)
+          } else {
+            // 不引入则删除 <template> 下的组件标签，这次选择删除节点，是因为删除比插入简单
+
           }
         })
         componentsAst.writeFile(`${modelPath}${modelFilePathMap[model]}`)
@@ -105,7 +112,7 @@ export async function useInitListModel (path: string) {
         componentsAst = new Ast(sourcePath, {})
 
         let mockFieldMap: any = {
-          list: 'tableColumns',
+          list: 'tableColumn',
           add: 'formFields',
           detail: 'detailFields',
         }

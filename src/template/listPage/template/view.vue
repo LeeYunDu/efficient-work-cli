@@ -1,5 +1,5 @@
 <template>
-  <section class="list-page-view">
+  <section class="page-view">
     <section class="content">
       <section class="page-top">
         <div class="table-query-from">
@@ -14,29 +14,36 @@
       <section class="page-center">
         <div class="table-box">
           <ui-table
-          v-bind="tableOptions"
-          ref="uiTableRef"
-          @change="onChange"
-          @onSort="sortChange"
-        >
-          <template #action="{row,config}">
-            <template v-for="btn in actionButtons" :key="btn.key">
-              <span
-                v-if="showBtns(btn.key, row)"
-                class="action-btn"
-                type="text"
-                @click="onAction(btn.key, row)"
-              >{{ btn.label }}</span>
+            v-bind="tableOptions"
+            ref="uiTableRef"
+            @change="onChange"
+            @onSort="sortChange"
+          >
+            <template #action="{row,config}">
+              <template v-for="btn in actionButtons" :key="btn.key">
+                <span
+                  v-if="showBtns(btn.key, row)"
+                  class="action-btn"
+                  type="text"
+                  @click="onAction(btn.key, row)"
+                >{{ btn.label }}</span>
+              </template>
             </template>
-          </template>
-        </ui-table>
-          </div>
+          </ui-table>
+        </div>
       </section>
     </section>
   </section>
+
+  <addModel
+    v-model="state.addModalShow"
+    v-model:row="state.row"
+    @reload="asyncData"
+  />
+  <detailModel v-model="state.detailModalShow" />
 </template>
 <script lang="ts" setup>
-import { ref, reactive, watch, shallowRef,onMounted } from 'vue'
+import { ref, reactive, watch, shallowRef } from 'vue'
 import { get } from 'lodash-es'
 import { UiTable ,UiForm } from 'static/lib/entry'
 import { ElMessage } from 'element-plus'
@@ -51,7 +58,9 @@ const props = defineProps({
 let queryFormRef = shallowRef<null|InstanceType<typeof UiForm>>(null)
 let uiTableRef = shallowRef<null|InstanceType<typeof UiTable>>(null)
 let state = reactive({
-  row:{}
+  row:{},
+  addModalShow: false,
+  detailModalShow: false,
 })
 
 let tableOptions = reactive({
@@ -97,13 +106,21 @@ function showBtns (key:string, row:any):boolean {
 }
 
 const onAction = (key:string, row:any) => {
-  const actionMap:any = {
-    'detail': () => ({}),
-    'edit': () => ({}),
-    'down': () => ({}),
-    'delete': () => ({}),
-  }
+  row._modalType = key
   state.row = row
+  const actionMap:any = {
+    'add':()=>{
+      state.addModalShow=true
+    },
+    'detail': () => {
+      state.detailModalShow=true
+    },
+    'edit': () => {
+      state.addModalShow=true
+    },
+    'down': () => ({}),
+    'delete': () => {},
+  }
   actionMap[key] && actionMap[key](row)
 }
 
@@ -153,7 +170,7 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.list-page-view{
+.page-view{
   :deep {
     table {
       tbody {
@@ -184,7 +201,7 @@ watch(
         flex: 1;
         overflow: hidden;
       }
-    } 
+    }
 
     .page-top{
       border-bottom: 1px solid #ECECEC;

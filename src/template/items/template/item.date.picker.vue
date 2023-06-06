@@ -1,7 +1,6 @@
-<template>
-  <div>
+<template><div>
     <span @click="state.showPopup=true">{{ selectInput }}</span>
-
+  
     <Teleport to="body">
       <van-popup
         v-model:show="state.showPopup"
@@ -28,6 +27,13 @@
         </PickerGroup>
       </van-popup>
     </Teleport>
+
+    <div class="name test2" id="1" :data="[]" :fields="test">2</div>
+    <div>2</div>
+    <div>2</div>
+    <div>2</div>
+    <div>2</div>
+    <div>2</div>
   </div>
 </template>
 
@@ -36,6 +42,7 @@
 import { computed,reactive } from 'vue'
 import { useStore } from 'vuex'
 import { PickerGroup,DatePicker  } from 'vant'
+
 const store = useStore()
 
 let state = reactive({
@@ -69,3 +76,12 @@ function onCancel (){
 }
 
 </script>
+
+
+
+<style lang="scss" scoped>
+.test{
+  color: red;
+  font-size: 14px;
+}
+</style>

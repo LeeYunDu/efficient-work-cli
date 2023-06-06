@@ -14,10 +14,10 @@
 </template>
 
 <script setup>
-import SimpleModal from '@/views/components/Simple.modal.vue'
+import SimpleModal from '@/views/common/Simple.modal.vue'
 import _ from 'lodash-es'
 import { detailFields } from '../json'
-
+import { defineProps,defineEmits,ref,reactive,computed } from 'vue'
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
   row: { type: Object, default: () => ({}) }

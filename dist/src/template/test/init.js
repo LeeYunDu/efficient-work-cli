@@ -99,26 +99,19 @@ function useInitListPage(path) {
         const rootDir = yield (0, index_1.getSourcePath)();
         let componentsAst;
         [...checkedModels, 'mock'].forEach((model, index) => {
-            const sourcePath = `${rootDir}/src/template/listPage/template/${modelFilePathMap[model]}`;
+            const sourcePath = `${rootDir}/src/template/listModel/template/${modelFilePathMap[model]}`;
             let templateResult;
             switch (model) {
                 case 'list':
                     componentsAst = new ast_1.Ast(sourcePath, { parseOptions: { language: 'vue' } });
                     // 列表模块需要根据选中的模块来引入组件
-                    const importMap = {
+                    let importMap = {
                         add: `import addDialog from './components/add.model.vue';`,
                         detail: `import detailDialog from './components/detail.model.vue';`,
-                    };
-                    const importComponentTag = {
-                        add: 'addModel',
-                        detail: 'detailModel'
                     };
                     Object.keys(importMap).forEach((key) => {
                         if (checkedModels.includes(key)) {
                             componentsAst.insertImport(importMap[key], componentsAst.jsAst);
-                        }
-                        else {
-                            // 不引入则删除 <template> 下的组件标签，这次选择删除节点，是因为删除比插入简单
                         }
                     });
                     componentsAst.writeFile(`${modelPath}${modelFilePathMap[model]}`);
@@ -135,7 +128,7 @@ function useInitListPage(path) {
                      */
                     componentsAst = new ast_1.Ast(sourcePath, {});
                     let mockFieldMap = {
-                        list: 'tableColumn',
+                        list: 'tableColumns',
                         add: 'formFields',
                         detail: 'detailFields',
                     };
