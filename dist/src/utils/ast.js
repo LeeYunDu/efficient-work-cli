@@ -433,5 +433,16 @@ class Ast {
         }
         return filterNode;
     }
+    /**
+   * 检查interface是否在AST中生成过
+   * @param interfaceName
+   */
+    checkedInterfaceExist(interfaceName, ast) {
+        let body = ast.ast.attr('program').body;
+        let ids = body.map(node => {
+            return node.declaration.id;
+        }) || [];
+        return ids.includes(interfaceName);
+    }
 }
 exports.Ast = Ast;
