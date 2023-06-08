@@ -2,34 +2,26 @@ import prompts from "prompts"
 import { Ast } from "../../utils/ast";
 import { getSourcePath } from "../../utils";
 import * as csstree from 'css-tree'
+import { ASTNode } from "../../typings/ast.types";
 export async function useGenretorItems () {
   // let { items } = await prompts(promptsOptions)
   const rootDir = await getSourcePath()
   const filePath = rootDir + `/src/template/items/template/item.date.picker.vue`
   let currentAst = new Ast(filePath, { parseOptions: { language: 'vue' } })
-  // currentAst.ast.find('<Teleport><Teleport/>').each((item: any) => {
-  //   console.log(item[0], 'item')
+  // let changeNode = tags[1]
+  // changeNode.content.attributes.forEach(e => {
+  //   if (e.key.content == 'class') {
+  //     e.value.content = 'test3'
+  //   }
   // })
-  // console.log(currentAst.htmlAst.find('<Teleport></Teleport>'))
-  // currentAst.htmlAst.find('<Teleport></Teleport>').each((node: any) => {
-  //   console.log(node[0].nodePath.value, 'node')
-  // })
 
-
-  // console.log(currentAst.htmlAst.node.content.children)
-  // console.log(currentAst.htmlAst.node.content.children[0].content.children, 'currentAst');
-  // currentAst.htmlAst.node.content.children[0].content.name = 'section'
-  let tags = deepQuery(currentAst.htmlAst.node, 'div')
-  let changeNode = tags[1]
-  changeNode.content.attributes.forEach(e => {
-    if (e.key.content == 'class') {
-      console.log(e.value);
-
-      e.value.content = 'test3'
-    }
+  // console.log(currentAst.ast.generate());
+  let nodes = currentAst.getElementByTagName('van-popup');
+  nodes.forEach((node: ASTNode) => {
+    console.log(currentAst.editAttributes(node, 'round', 'e'))
   })
 
-  console.log(currentAst.ast.generate());
+  console.log(currentAst.ast.generate())
 
   // currentAst.htmlAst.node.content.children.forEach((node: any) => {
   //   if (node.nodeType === 'tag') {
@@ -57,21 +49,7 @@ export async function useGenretorItems () {
 }
 
 
-function deepQuery (node, tagName) {
-  let tagNodes: any[] = []
-  if (node.content.children) {
-    node.content.children.forEach(node => {
-      if (node.content.name === tagName) {
-        tagNodes.push(node)
-      }
-      if (node.nodeType === 'tag') {
-        let deepNodes = deepQuery(node, tagName)
-        tagNodes = tagNodes.concat(deepNodes)
-      }
-    })
-  }
-  return tagNodes
-}
+
 const promptsOptions: any = [
   {
     type: 'multiselect',

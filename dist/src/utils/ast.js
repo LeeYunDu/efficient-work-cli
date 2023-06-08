@@ -444,5 +444,146 @@ class Ast {
         }) || [];
         return ids.includes(interfaceName);
     }
+    /**
+     * 查看
+     * @param tagName
+     * @param node
+     */
+    getElementByTagName(tagName, ast = this.htmlAst) {
+        let tagNodes = [];
+        ast.find(`<${tagName}></${tagName}>`).each((node) => {
+            tagNodes.push(node);
+        });
+        // node 为 <template></template> 下的node
+        // if (node.content.children) {
+        //   node.content.children.forEach((nodeItem: HTMLNode) => {
+        //     if (nodeItem.content.name === tagName) {
+        //       tagNodes.push(nodeItem)
+        //     }
+        //     if (nodeItem.nodeType === 'tag') {
+        //       let deepNodes = this.getElementByTagName(tagName, nodeItem)
+        //       tagNodes = tagNodes.concat(deepNodes)
+        //     }
+        //   })
+        // }
+        return tagNodes;
+    }
+    /**
+     * HTML 版本的remove Node,这个方法是通过下标找到具体的node，再从父级元素中剔除
+     * @param node
+     * @param ast
+     */
+    removeHtmlNode(node, ast = this.htmlAst) {
+        let index = node.parentRef.content.children.findIndex((childrenNode) => {
+            return childrenNode.nodeType === node.nodeType &&
+                node.content.name === childrenNode.content.name &&
+                node.content.openEnd.endPosition === childrenNode.content.openEnd.endPosition;
+        });
+        if (index > 0) {
+            node.parentRef.content.children.splice(index, 1);
+        }
+    }
+    createHtmlNode() {
+    }
+    getAttributes(node) {
+        const attributes = node.attr('content.attributes');
+        return attributes;
+        let keyValueGroups = attributes.map((attribute) => {
+            return {
+                name: attribute.key.content,
+                value: attribute.value ? attribute.value.content : null
+            };
+        });
+        if (Array.isArray(key)) {
+            return keyValueGroups.filter(item => {
+                if (key.includes[item.name]) {
+                    return item;
+                }
+            });
+        }
+        else {
+            return keyValueGroups.filter(item => {
+                if (item.key === key) {
+                    return item;
+                }
+            });
+        }
+    }
+    getSingleAttribute(node, key) {
+        let attributes = this.getAttributes(node);
+        let value = '';
+        attributes.map((item) => {
+            if (item.key.content === key || item.key.content === `${key}\r`) {
+                if (item.value) {
+                    value = item.value.content;
+                }
+            }
+        });
+        return value;
+    }
+    editAttributes(node, key, value) {
+        let attributes = this.getAttributes(node);
+        attributes.map((item) => {
+            if (item.key.content === key || item.key.content === `${key}\r`) {
+                if (!item.value) {
+                    // 这里去掉一个换行，去不去应该都行，新文件保存都会执行一次格式化
+                    item.key.content = item.key.content.replace('\r', '');
+                    item.startWrapper = {
+                        type: 'token:attribute-value-wrapper-start',
+                        content: '"',
+                        startPosition: item.key.startPosition,
+                        endPosition: item.key.endPosition
+                    };
+                    item.value = {
+                        type: 'token:attribute-value',
+                        content: value,
+                        startPosition: item.key.startPosition,
+                        endPosition: item.key.endPosition
+                    };
+                    item.endWrapper = {
+                        type: 'token:attribute-value-wrapper-end',
+                        content: '"',
+                        startPosition: item.key.startPosition,
+                        endPosition: item.key.endPosition
+                    };
+                }
+                else {
+                    item.value.content = value;
+                }
+            }
+            return item;
+        });
+    }
+    addAttributes(node, key, value) {
+        let attributes = this.getAttributes(node);
+        let newAttribute = {
+            key: {
+                type: 'token:attribute-key',
+                content: key,
+            },
+            startWrapper: {
+                type: 'token:attribute-value-wrapper-start',
+                content: '"',
+            },
+            value: {
+                type: 'token:attribute-value',
+                content: value,
+            },
+            endWrapper: {
+                type: 'token:attribute-value-wrapper-end',
+                content: '"',
+            }
+        };
+        attributes.push(newAttribute);
+    }
+    removeAttributes(node, key) {
+        let attributes = this.getAttributes(node);
+        let index = attributes.findIndex((item) => {
+            return item.key.content === key || item.key.content === `${key}\r`;
+        });
+        if (index > -1) {
+            attributes.splice(index, 1);
+        }
+    }
 }
 exports.Ast = Ast;

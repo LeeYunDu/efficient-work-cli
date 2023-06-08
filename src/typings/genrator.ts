@@ -3,3 +3,4 @@ export interface genratorMode {
   path: string,
   force?: boolean
 }
+

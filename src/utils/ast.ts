@@ -2,6 +2,7 @@ import $ from 'gogocode'
 
 const logger = require('./logger')
 import { checkExists } from './index'
+import { ASTNode, EnumTypeNode, HTMLNode } from '../typings/ast.types'
 export class Ast {
 
   /**
@@ -22,7 +23,7 @@ export class Ast {
 
 
 
-  enumTypeNode: any = {
+  enumTypeNode: EnumTypeNode = {
     FunctionDeclaration: [],
     VariableDeclaration: [],
     ImportDeclaration: [],
@@ -117,7 +118,7 @@ export class Ast {
    * @param {*} key 
    * @param {*} value 
    */
-  editObjectField (objectName: string, key: string, value: any, ast = this.ast) {
+  editObjectField (objectName: string, key: string, value: any, ast: ASTNode = this.ast) {
     let node = this.getVariableNode(objectName, ast)
     let nodeType = this.getNodeType(node)
     let fieldNode
@@ -144,7 +145,7 @@ export class Ast {
    * @param {String} objectName 被添加对象
    * @param {Object} injectObject 添加的对象
    */
-  addFieldToObject (objectName: string, injectObject: any, ast = this.ast,) {
+  addFieldToObject (objectName: string, injectObject: any, ast: ASTNode = this.ast,) {
     // JSON序列化后生成抽象语法树,再获取到对象的properties
     let injectObjectAst = $(JSON.stringify(injectObject))
     let injectProperties = injectObjectAst.attr('properties') || []
@@ -171,7 +172,7 @@ export class Ast {
    * @param {string} variable 变量名称
    * @param {*} value  
    */
-  editVariableNode (variable: string, value: any, ast = this.ast) {
+  editVariableNode (variable: string, value: any, ast: ASTNode = this.ast) {
     let node = this.getVariableNode(variable, ast)
     let nodeType = this.getNodeType(node)
     if (node) {
@@ -191,7 +192,7 @@ export class Ast {
    * @param {string||number} variable 
    * @returns {} 返回值 node:'变量节点',value:'变量值',name:'变量名称'
    */
-  getVariableNode (variable: string, ast = this.ast) {
+  getVariableNode (variable: string, ast: ASTNode = this.ast) {
     try {
       /**
        * 遍历node节点,找到抽象语法树中的声明变量
@@ -225,7 +226,7 @@ export class Ast {
    * @param {*} fnName 
    * @returns 
    */
-  getFunctoinNode (fnName: string, ast = this.ast) {
+  getFunctoinNode (fnName: string, ast: ASTNode = this.ast) {
     try {
       let temp = ''
       let node = null
@@ -245,7 +246,7 @@ export class Ast {
    * @param {*} fnName 
    * @returns 
    */
-  getFunctoinAst (fnName: string, ast = this.ast) {
+  getFunctoinAst (fnName: string, ast: ASTNode = this.ast) {
     try {
       return $(ast.find(`function ${fnName}() {}`))
     } catch (error) {
@@ -253,7 +254,7 @@ export class Ast {
     }
   }
 
-  getCallFunction (fnName: string, ast = this.ast) {
+  getCallFunction (fnName: string, ast: ASTNode = this.ast) {
     try {
       let node = null
       ast.find(`${fnName}()`).each((item: any, index: number) => {
@@ -293,7 +294,7 @@ export class Ast {
    * @param {*} fnName 
    * @param {*} ast 
    */
-  removeFunction (fnName: string, ast = this.ast) {
+  removeFunction (fnName: string, ast: ASTNode = this.ast) {
     ast.find(`function ${fnName}() {}`).remove()
   }
 
@@ -302,7 +303,7 @@ export class Ast {
    * @param {*} variableName 
    * @param {*} ast 
    */
-  removeVariable (variableName: string, ast = this.ast) {
+  removeVariable (variableName: string, ast: ASTNode = this.ast) {
     ast.find(`let ${variableName} = $_$1`).remove()
     ast.find(`var ${variableName} = $_$1`).remove()
     ast.find(`const ${variableName} = $_$1`).remove()
@@ -313,7 +314,7 @@ export class Ast {
    * 删除节点,返回根节点
    * @param node 
    */
-  removeNode (node: any, ast = this.ast) {
+  removeNode (node: any, ast: ASTNode = this.ast) {
     ast.find(node).remove()
   }
 
@@ -323,7 +324,7 @@ export class Ast {
    * @param node 
    * @returns 
    */
-  getNodeType (node: any) {
+  getNodeType (node: ASTNode) {
     if (node) {
       return node.attr('declarations')[0].init.type
     }
@@ -364,7 +365,7 @@ export class Ast {
    * @param {*} name 
    */
 
-  generateIdentifierNode (name: any, hasT = false) {
+  generateIdentifierNode (name: string, hasT: Boolean = false) {
     let template: any = hasT ? $(`
     interface 占位符<T = any> {
       
@@ -386,7 +387,7 @@ export class Ast {
      */
   }
   // interface 字段类型
-  generateTSTypeAnnotationNode (keyName: any, keyType: any, comment: any, businessName: any, required: string[] = []) {
+  generateTSTypeAnnotationNode (keyName: string, keyType: string, comment: any, businessName: string, required: string[] = []) {
     let template: any = $(`
       interface customName<T = any> {
         //注释占位符
@@ -468,5 +469,152 @@ export class Ast {
     }) || []
     return ids.includes(interfaceName)
   }
+
+
+  /**
+   * 查看
+   * @param tagName 
+   * @param node 
+   */
+  getElementByTagName (tagName: string, ast: ASTNode = this.htmlAst): ASTNode[] {
+    let tagNodes: ASTNode[] = []
+    ast.find(`<${tagName}></${tagName}>`).each((node: any) => {
+      tagNodes.push(node)
+    })
+
+    // node 为 <template></template> 下的node
+    // if (node.content.children) {
+    //   node.content.children.forEach((nodeItem: HTMLNode) => {
+    //     if (nodeItem.content.name === tagName) {
+    //       tagNodes.push(nodeItem)
+    //     }
+    //     if (nodeItem.nodeType === 'tag') {
+    //       let deepNodes = this.getElementByTagName(tagName, nodeItem)
+    //       tagNodes = tagNodes.concat(deepNodes)
+    //     }
+
+    //   })
+    // }
+    return tagNodes
+  }
+
+  /**
+   * HTML 版本的remove Node,这个方法是通过下标找到具体的node，再从父级元素中剔除
+   * @param node 
+   * @param ast 
+   */
+  removeHtmlNode (node: HTMLNode, ast: ASTNode = this.htmlAst) {
+    let index = node.parentRef.content.children.findIndex((childrenNode: HTMLNode) => {
+      return childrenNode.nodeType === node.nodeType &&
+        node.content.name === childrenNode.content.name &&
+        node.content.openEnd.endPosition === childrenNode.content.openEnd.endPosition
+    })
+    if (index > 0) {
+      node.parentRef.content.children.splice(index, 1)
+    }
+  }
+  createHtmlNode () {
+
+  }
+  getAttributes (node: ASTNode) {
+    const attributes = node.attr('content.attributes')
+    return attributes
+    let keyValueGroups = attributes.map((attribute: any) => {
+      return {
+        name: attribute.key.content,
+        value: attribute.value ? attribute.value.content : null
+      }
+    })
+    if (Array.isArray(key)) {
+      return keyValueGroups.filter(item => {
+        if (key.includes[item.name]) {
+          return item
+        }
+      })
+    } else {
+      return keyValueGroups.filter(item => {
+        if (item.key === key) {
+          return item
+        }
+      })
+    }
+  }
+  getSingleAttribute (node: ASTNode, key: string) {
+    let attributes = this.getAttributes(node)
+    let value = ''
+    attributes.map((item: any) => {
+      if (item.key.content === key || item.key.content === `${key}\r`) {
+        if (item.value) {
+          value = item.value.content
+        }
+      }
+    })
+    return value;
+  }
+  editAttributes (node: ASTNode, key: string, value: string) {
+    let attributes = this.getAttributes(node)
+    attributes.map((item: any) => {
+      if (item.key.content === key || item.key.content === `${key}\r`) {
+        if (!item.value) {
+          // 这里去掉一个换行，去不去应该都行，新文件保存都会执行一次格式化
+          item.key.content = item.key.content.replace('\r', '')
+          item.startWrapper = {
+            type: 'token:attribute-value-wrapper-start',
+            content: '"',
+            startPosition: item.key.startPosition,
+            endPosition: item.key.endPosition
+          }
+          item.value = {
+            type: 'token:attribute-value',
+            content: value,
+            startPosition: item.key.startPosition,
+            endPosition: item.key.endPosition
+          }
+          item.endWrapper = {
+            type: 'token:attribute-value-wrapper-end',
+            content: '"',
+            startPosition: item.key.startPosition,
+            endPosition: item.key.endPosition
+          }
+        } else {
+          item.value.content = value
+        }
+      }
+      return item
+    })
+  }
+  addAttributes (node: ASTNode, key: string, value: any) {
+    let attributes = this.getAttributes(node)
+    let newAttribute = {
+      key: {
+        type: 'token:attribute-key',
+        content: key,
+      },
+      startWrapper: {
+        type: 'token:attribute-value-wrapper-start',
+        content: '"',
+      },
+      value: {
+        type: 'token:attribute-value',
+        content: value,
+      },
+      endWrapper: {
+        type: 'token:attribute-value-wrapper-end',
+        content: '"',
+      }
+    }
+
+    attributes.push(newAttribute)
+  }
+  removeAttributes (node: ASTNode, key: string) {
+    let attributes = this.getAttributes(node)
+    let index = attributes.findIndex((item: any) => {
+      return item.key.content === key || item.key.content === `${key}\r`
+    })
+    if (index > -1) {
+      attributes.splice(index, 1)
+    }
+  }
+
 }
 

@@ -16,8 +16,10 @@
           <ui-table
             v-bind="tableOptions"
             ref="uiTableRef"
+            test
             @change="onChange"
             @onSort="sortChange"
+            auto
           >
             <template #action="{row,config}">
               <template v-for="btn in actionButtons" :key="btn.key">
@@ -35,12 +37,13 @@
     </section>
   </section>
 
-  <addModel
-    v-model="state.addModalShow"
-    v-model:row="state.row"
-    @reload="asyncData"
+  <addModel 
+    v-model="state.addModalShow" 
+    v-model:row="state.row" 
+    @reload="asyncData" 
   />
-  <detailModel v-model="state.detailModalShow" />
+
+  <detailModel  v-model="state.detailModalShow"  />
 </template>
 <script lang="ts" setup>
 import { ref, reactive, watch, shallowRef } from 'vue'

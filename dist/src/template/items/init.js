@@ -18,23 +18,16 @@ function useGenretorItems() {
         const rootDir = yield (0, utils_1.getSourcePath)();
         const filePath = rootDir + `/src/template/items/template/item.date.picker.vue`;
         let currentAst = new ast_1.Ast(filePath, { parseOptions: { language: 'vue' } });
-        // currentAst.ast.find('<Teleport><Teleport/>').each((item: any) => {
-        //   console.log(item[0], 'item')
+        // let changeNode = tags[1]
+        // changeNode.content.attributes.forEach(e => {
+        //   if (e.key.content == 'class') {
+        //     e.value.content = 'test3'
+        //   }
         // })
-        // console.log(currentAst.htmlAst.find('<Teleport></Teleport>'))
-        // currentAst.htmlAst.find('<Teleport></Teleport>').each((node: any) => {
-        //   console.log(node[0].nodePath.value, 'node')
-        // })
-        // console.log(currentAst.htmlAst.node.content.children)
-        // console.log(currentAst.htmlAst.node.content.children[0].content.children, 'currentAst');
-        // currentAst.htmlAst.node.content.children[0].content.name = 'section'
-        let tags = deepQuery(currentAst.htmlAst.node, 'div');
-        let changeNode = tags[1];
-        changeNode.content.attributes.forEach(e => {
-            if (e.key.content == 'class') {
-                console.log(e.value);
-                e.value.content = 'test3';
-            }
+        // console.log(currentAst.ast.generate());
+        let nodes = currentAst.getElementByTagName('van-popup');
+        nodes.forEach((node) => {
+            console.log(currentAst.editAttributes(node, 'round', 'e'));
         });
         console.log(currentAst.ast.generate());
         // currentAst.htmlAst.node.content.children.forEach((node: any) => {
@@ -60,21 +53,6 @@ function useGenretorItems() {
     });
 }
 exports.useGenretorItems = useGenretorItems;
-function deepQuery(node, tagName) {
-    let tagNodes = [];
-    if (node.content.children) {
-        node.content.children.forEach(node => {
-            if (node.content.name === tagName) {
-                tagNodes.push(node);
-            }
-            if (node.nodeType === 'tag') {
-                let deepNodes = deepQuery(node, tagName);
-                tagNodes = tagNodes.concat(deepNodes);
-            }
-        });
-    }
-    return tagNodes;
-}
 const promptsOptions = [
     {
         type: 'multiselect',

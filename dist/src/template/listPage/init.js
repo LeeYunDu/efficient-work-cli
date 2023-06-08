@@ -118,8 +118,20 @@ function useInitListPage(path) {
                             componentsAst.insertImport(importMap[key], componentsAst.jsAst);
                         }
                         else {
-                            // 不引入则删除 <template> 下的组件标签，这次选择删除节点，是因为删除比插入简单
+                            // // 不引入则删除 <template> 下的组件标签，这次选择删除节点，是因为删除比插入简单
+                            // let tagName = importComponentTag[key]
+                            // let tagNodes = componentsAst.getElementByTagName(tagName);
+                            // tagNodes.forEach((node: any) => {
+                            //   node.remove()
+                            // })
                         }
+                    });
+                    let nodes = componentsAst.getElementByTagName('ui-table');
+                    nodes.forEach((node) => {
+                        // console.log(componentsAst.editAttributes(node, 'ref', 'tt'))
+                        // console.log(componentsAst.removeAttributes(node, 'ref'))
+                        console.log(componentsAst.addAttributes(node, 'ref2', 'tet'));
+                        console.log(componentsAst.getSingleAttribute(node, 'ref'));
                     });
                     componentsAst.writeFile(`${modelPath}${modelFilePathMap[model]}`);
                     // writeFile({ filePath: `${modelPath}${renderModel[index]}`, data: templateResult })

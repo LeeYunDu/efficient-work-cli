@@ -3,6 +3,7 @@ import { createFile, getSourcePath, mkdir, writeFile } from '../../utils/index'
 import { Ast } from '../../utils/ast'
 import prompts from 'prompts'
 import * as logger from '../../utils/logger'
+import { ASTNode, HTMLNode } from '../../typings/ast.types'
 
 // import child_process from 'child_process'
 // let gitPath = 'git clone git@codeup.aliyun.com:60810cde35f5934d3af8e181/szzt/Gov-Group/Industrial-Brain-Group/KunMing-GongXin-Group/Frontend-Group/Portal-PC.git'
@@ -76,28 +77,41 @@ export async function useInitListPage (path: string) {
     switch (model) {
       case 'list':
         componentsAst = new Ast(sourcePath, { parseOptions: { language: 'vue' } })
-
         // 列表模块需要根据选中的模块来引入组件
-
         const importMap: any = {
           add: `import addDialog from './components/add.model.vue';`,
           detail: `import detailDialog from './components/detail.model.vue';`,
         }
-
-        const importComponentTag = {
+        const importComponentTag: any = {
           add: 'addModel',
           detail: 'detailModel'
         }
-
         Object.keys(importMap).forEach((key: any) => {
           if (checkedModels.includes(key)) {
             componentsAst.insertImport(importMap[key], componentsAst.jsAst)
           } else {
-            // 不引入则删除 <template> 下的组件标签，这次选择删除节点，是因为删除比插入简单
+
+            // // 不引入则删除 <template> 下的组件标签，这次选择删除节点，是因为删除比插入简单
+            // let tagName = importComponentTag[key]
+            // let tagNodes = componentsAst.getElementByTagName(tagName);
+            // tagNodes.forEach((node: any) => {
+            //   node.remove()
+            // })
 
           }
         })
+
+        let nodes = componentsAst.getElementByTagName('ui-table');
+        nodes.forEach((node: ASTNode) => {
+          // console.log(componentsAst.editAttributes(node, 'ref', 'tt'))
+          // console.log(componentsAst.removeAttributes(node, 'ref'))
+          console.log(componentsAst.addAttributes(node, 'ref2', 'tet'))
+          console.log(componentsAst.getSingleAttribute(node, 'ref',))
+
+        })
+
         componentsAst.writeFile(`${modelPath}${modelFilePathMap[model]}`)
+
         // writeFile({ filePath: `${modelPath}${renderModel[index]}`, data: templateResult })
         break;
       case 'detail':
