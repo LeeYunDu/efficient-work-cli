@@ -25,7 +25,6 @@
             </div>
             <div v-if="rateType==='column'" class="rate-box">
               <div
-
                 class="rate-value"
                 :class="[getRate(item)>=0?'up':'down']"
               >
