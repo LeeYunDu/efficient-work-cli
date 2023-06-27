@@ -35,13 +35,13 @@ const curParams:any = ref({
 
 const asyncData = async () => {
   const params: any = Object.assign({},  curParams.value || {})
-  // const { success, errMsg, data }: any = await apiName(params)
-  const  { success, errMsg, data }: any = { success:true,errMsg:'',data:{
+  // const {status, success, errMsg, data }: any = await apiName(params)
+  const  {status, success, errMsg, data }: any = { success:true,errMsg:'',data:{
     list:new Array(10).fill({
       name:'mock'
     }),total:10
   } }
-  if (!success) return ElMessage.error(errMsg)
+  if (!(status===200)) return ElMessage.error(errMsg)
   state.data= data
 }
 

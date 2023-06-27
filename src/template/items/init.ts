@@ -23,6 +23,10 @@ export async function useGenretorItems () {
 
   console.log(currentAst.ast.generate())
 
+  function log () {
+    // 打印 hellow world
+  }
+
   // currentAst.htmlAst.node.content.children.forEach((node: any) => {
   //   if (node.nodeType === 'tag') {
   //     console.log(node.content.children)

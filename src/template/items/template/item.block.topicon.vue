@@ -4,16 +4,16 @@
       <div class="item">
         <div class="main">
           <div>
-            <img :src="`static/images/modelName/${item.icon}.png`" alt="">
+            <img :src="`static/images/common/${item.icon}.png`" alt="">
           </div>
           <span class="label">{{ item.label }}</span>
           <div class="value-box">
             <span class="value">{{
-                item.unit == '家'
-                  ? Number(get(propsData, item.key)).toFixed(0)
-                  : get(propsData, item.key)
-              }}</span>
-              <i class="unit">{{ item.unit }}</i>
+              item.unit == '家'
+                ? Number(get(propsData, item.key)).toFixed(0)
+                : get(propsData, item.key)
+            }}</span>
+            <i class="unit">{{ item.unit }}</i>
           </div>
         </div>
       </div>
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { get } from 'lodash-es'
-import {computed,ref,PropType} from 'vue'
+import { computed,ref,PropType } from 'vue'
 import { FieldItem } from '@/typings/items'
 
 const props = defineProps({
