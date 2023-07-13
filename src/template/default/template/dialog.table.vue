@@ -10,7 +10,7 @@
   <ui-table
       v-bind="tableOptions"
       @change="onChange"
-      @onSort="sortChange"
+      @sort="sortChange"
     >
 
       <template #action="{row,config}">

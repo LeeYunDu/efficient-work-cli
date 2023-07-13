@@ -1,6 +1,6 @@
 <template>
-  <div>
-    this is default vue file
+  <div class="view-component">
+    这是门户类型的单组件Vue文件
   </div>
 </template>
 
@@ -36,7 +36,7 @@ const curParams:any = ref({
 const asyncData = async () => {
   const params: any = Object.assign({},  curParams.value || {})
   // const {status, success, errMsg, data }: any = await apiName(params)
-  const  {status, success, errMsg, data }: any = { success:true,errMsg:'',data:{
+  const  {status, success, errMsg, data }: any = {status:200, success:true,errMsg:'',data:{
     list:new Array(10).fill({
       name:'mock'
     }),total:10

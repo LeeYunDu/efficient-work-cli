@@ -2,8 +2,8 @@
   <section class="items">
     <template v-for="(item, index) in loopItems" :key="index">
       <section class="item">
-        <div class="icon-box">
-          <img :src="`static/images/home/${getIcon(item)}.png`" alt>
+        <div class="icon-box" v-if="iconMap">
+          <img :src="`static/images/common/${getIcon(item)}.png`" alt>
         </div>
         <div class="progress-box">
           <section class="top">
@@ -48,6 +48,7 @@ const props = defineProps({
   fields:{
     type: Array as PropType<FieldItem[]>,
   },
+  // 图标名称映射
   iconMap:{
     type:Object as PropType<{[x:string]:any}>
   },
@@ -109,7 +110,7 @@ function getValue (item:any){
   if(isLoopData.value){
     return  get(item,props.fields[1].key)||0
   }else{
-    return get(propsData,item.key)||0
+    return get(propsData.value,item.key,'0')
   }
 }
 

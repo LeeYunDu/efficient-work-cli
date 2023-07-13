@@ -68,14 +68,14 @@ function getValue (item:any){
   if(isLoopData.value){
     return  Number(get(item,props.fields[1].key)||0)
   }else{
-    return get(propsData,item.key)||0
+    return get(propsData.value,item.key,'0')
   }
 }
 function getRate (item:any){
   if(isLoopData.value){
     return  Number(get(item,props.fields[2].key)||0).toFixed(2)
   }else{
-    return get(propsData,item.key)||0
+    return get(propsData.value,item.key,'0')
   }
 }
 function getUnit (item:any){

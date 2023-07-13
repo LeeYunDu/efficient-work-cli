@@ -19,29 +19,28 @@ let state = ref({
   z-index: 2;
   .header-title,
   .header-shadow {
-    font-size: 16px;
+    font-size: 34px;
     font-weight: 600;
     position: relative;
+    font-family: DOUYU-常规体, DOUYU;
+
   }
 
   .header-title {
     display: inline-block;
-    background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
+    background: linear-gradient(180deg, #FFFFFF 0%, #88C6FF 100%);;
     color: transparent;
-    font-size: 16px;
-    font-family: D-DIN-DIN-Bold, D-DIN-DIN;
     font-weight: bold;
     -webkit-background-clip: text;
-    text-shadow: 0px 2px 4px rgba(60, 114, 250, 0.37);
   }
   .header-shadow {
     display: inline-block;
     position: absolute;
     text-align: center;
-    right: 0;
     color: transparent;
+    left: 0;
     z-index: -1;
-    text-shadow: 0px 2px 4px rgba(60, 114, 250, 0.37);
+    text-shadow: 0px 6px 14px #3177FF;
   }
 }
 </style>
