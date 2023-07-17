@@ -8,7 +8,8 @@ const COMPONENT_PATH_MAP = {
   default: ''
 }
 export async function useGeneratorModel () {
-  console.log(getFoldersInDirectory('./'))
+  // console.log(getFoldersInDirectory('./'))
+  console.log(222222222)
   return
   let { type } = await prompts(promptsOptions)
 

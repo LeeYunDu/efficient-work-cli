@@ -21,7 +21,8 @@ const COMPONENT_PATH_MAP = {
 };
 function useGeneratorModel() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log((0, utils_1.getFoldersInDirectory)('./'));
+        // console.log(getFoldersInDirectory('./'))
+        console.log(222222222);
         return;
         let { type } = yield (0, prompts_1.default)(promptsOptions);
         // 创建该目录下所需要的模板文件

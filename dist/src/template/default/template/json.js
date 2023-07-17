@@ -1,4 +1,5 @@
 "use strict";
+// import { FieldItem, FormMode, ItemMode } from '@/typings/items'
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.detailFields = exports.addFormOptions = exports.formFields = exports.tableColumn = exports.tableQueryFormOptions = exports.tableQueryFormFields = void 0;
 /**
