@@ -519,25 +519,6 @@ export class Ast {
   getAttributes (node: ASTNode) {
     const attributes = node.attr('content.attributes')
     return attributes
-    let keyValueGroups = attributes.map((attribute: any) => {
-      return {
-        name: attribute.key.content,
-        value: attribute.value ? attribute.value.content : null
-      }
-    })
-    if (Array.isArray(key)) {
-      return keyValueGroups.filter(item => {
-        if (key.includes[item.name]) {
-          return item
-        }
-      })
-    } else {
-      return keyValueGroups.filter(item => {
-        if (item.key === key) {
-          return item
-        }
-      })
-    }
   }
   getSingleAttribute (node: ASTNode, key: string) {
     let attributes = this.getAttributes(node)

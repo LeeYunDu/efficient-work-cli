@@ -140,6 +140,24 @@ function doMkdir(dir) {
 }
 exports.doMkdir = doMkdir;
 /**
+ * 根据路径读取该路径下的文件夹
+ * @param path
+ * @returns
+ */
+function getFoldersInDirectory(path) {
+    try {
+        const files = fs_1.default.readdirSync(path);
+        const folders = files.filter(file => {
+            return fs_1.default.statSync(`${path}/${file}`).isDirectory();
+        });
+        return folders;
+    }
+    catch (error) {
+        console.error('Error reading directory:', error);
+        return [];
+    }
+}
+/**
  * 读取路径信息
  * @param path
  * @returns
