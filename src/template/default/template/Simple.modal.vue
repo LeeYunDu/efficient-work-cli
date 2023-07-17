@@ -18,7 +18,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import _ from 'lodash-es'
 import { computed, ref, useAttrs } from 'vue'
 const props = defineProps({
