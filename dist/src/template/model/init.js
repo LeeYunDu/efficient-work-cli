@@ -13,16 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useGeneratorModel = void 0;
-const utils_1 = require("@/utils");
-const ast_1 = require("@/utils/ast");
+const utils_1 = require("../..//utils");
+const ast_1 = require("../../utils/ast");
 const prompts_1 = __importDefault(require("prompts"));
 const COMPONENT_PATH_MAP = {
     default: ''
 };
 function useGeneratorModel() {
     return __awaiter(this, void 0, void 0, function* () {
-        // console.log(getFoldersInDirectory('./'))
-        console.log(222222222);
+        let models = (0, utils_1.getFoldersInDirectory)('./src/template/model');
+        console.log(models, 'models');
         return;
         let { type } = yield (0, prompts_1.default)(promptsOptions);
         // 创建该目录下所需要的模板文件

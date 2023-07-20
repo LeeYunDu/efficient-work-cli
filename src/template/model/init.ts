@@ -1,5 +1,5 @@
-import { createFile, getSourcePath, mkdir, getFoldersInDirectory } from "@/utils"
-import { Ast } from "@/utils/ast"
+import { createFile, getSourcePath, mkdir, getFoldersInDirectory } from "../..//utils"
+import { Ast } from "../../utils/ast"
 import prompts from 'prompts'
 
 
@@ -8,8 +8,7 @@ const COMPONENT_PATH_MAP = {
   default: ''
 }
 export async function useGeneratorModel () {
-  // console.log(getFoldersInDirectory('./'))
-  console.log(222222222)
+  let models = getFoldersInDirectory('./src/template/model')
   return
   let { type } = await prompts(promptsOptions)
 

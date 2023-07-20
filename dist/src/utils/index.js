@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadFileByUrl = exports.convertTemplate = exports.getStat = exports.doMkdir = exports.mkdir = exports.createFile = exports.writeFile = exports.getSourcePath = exports.checkExists = void 0;
+exports.downloadFileByUrl = exports.convertTemplate = exports.getStat = exports.getFoldersInDirectory = exports.doMkdir = exports.mkdir = exports.createFile = exports.writeFile = exports.getSourcePath = exports.checkExists = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const request_1 = __importDefault(require("request"));
@@ -157,6 +157,7 @@ function getFoldersInDirectory(path) {
         return [];
     }
 }
+exports.getFoldersInDirectory = getFoldersInDirectory;
 /**
  * 读取路径信息
  * @param path

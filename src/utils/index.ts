@@ -123,7 +123,7 @@ export function doMkdir (dir: string) {
  * @param path 
  * @returns 
  */
-function getFoldersInDirectory (path) {
+export function getFoldersInDirectory (path) {
   try {
     const files = fs.readdirSync(path);
     const folders = files.filter(file => {
