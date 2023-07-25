@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadFileByUrl = exports.convertTemplate = exports.getStat = exports.getFoldersInDirectory = exports.doMkdir = exports.mkdir = exports.createFile = exports.writeFile = exports.getSourcePath = exports.checkExists = void 0;
+exports.downloadFileByUrl = exports.convertTemplate = exports.getStat = exports.getAllFilesInFolder = exports.getFoldersInDirectory = exports.doMkdir = exports.mkdir = exports.getAllFilesInDirectory = exports.createFile = exports.writeFile = exports.getSourcePath = exports.checkExists = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const request_1 = __importDefault(require("request"));
@@ -94,6 +94,29 @@ function createFile(option) {
 }
 exports.createFile = createFile;
 /**
+ * 根据路径地址返回该路径下的所有文件
+ * @param dirPath
+ * @returns
+ */
+function getAllFilesInDirectory(dirPath) {
+    // 读取指定路径下的所有文件和文件夹
+    const files = fs_1.default.readdirSync(dirPath);
+    let fields = [];
+    // 遍历所有文件和文件夹
+    files.forEach(file => {
+        // 获取文件或文件夹的完整路径
+        const filePath = path_1.default.join(dirPath, file);
+        // 判断是否为文件
+        fields.push({
+            type: fs_1.default.statSync(filePath).isFile() ? 'file' : 'folder',
+            filePath,
+            file
+        });
+    });
+    return fields;
+}
+exports.getAllFilesInDirectory = getAllFilesInDirectory;
+/**
  * 根据路径创建文件目录
  * @param dir
  * @returns
@@ -158,6 +181,35 @@ function getFoldersInDirectory(path) {
     }
 }
 exports.getFoldersInDirectory = getFoldersInDirectory;
+/**
+ * 获取文件夹下的所有文件
+ * @param dirPath
+ * @returns
+ */
+function getAllFilesInFolder(dirPath) {
+    // 读取指定路径下的所有文件和文件夹
+    const files = fs_1.default.readdirSync(dirPath);
+    let allFiles = [];
+    // 遍历所有文件和文件夹
+    files.forEach(file => {
+        // 获取文件或文件夹的完整路径
+        const filePath = path_1.default.join(dirPath, file);
+        // 判断是否为文件
+        if (fs_1.default.statSync(filePath).isFile()) {
+            allFiles.push({
+                filePath,
+                file,
+            });
+        }
+        // 如果是文件夹，则递归调用函数获取文件夹下的所有文件
+        else {
+            const subDirFiles = getAllFilesInFolder(filePath);
+            allFiles = allFiles.concat(subDirFiles);
+        }
+    });
+    return allFiles;
+}
+exports.getAllFilesInFolder = getAllFilesInFolder;
 /**
  * 读取路径信息
  * @param path

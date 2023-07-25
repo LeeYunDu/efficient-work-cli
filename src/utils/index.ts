@@ -74,6 +74,28 @@ export async function createFile (option: any) {
     }
   })
 }
+/**
+ * 根据路径地址返回该路径下的所有文件
+ * @param dirPath 
+ * @returns 
+ */
+export function getAllFilesInDirectory (dirPath: string): any[] {
+  // 读取指定路径下的所有文件和文件夹
+  const files = fs.readdirSync(dirPath);
+  let fields: any[] = []
+  // 遍历所有文件和文件夹
+  files.forEach(file => {
+    // 获取文件或文件夹的完整路径
+    const filePath = path.join(dirPath, file);
+    // 判断是否为文件
+    fields.push({
+      type: fs.statSync(filePath).isFile() ? 'file' : 'folder',
+      filePath,
+      file
+    })
+  });
+  return fields
+}
 
 /**
  * 根据路径创建文件目录
@@ -123,7 +145,7 @@ export function doMkdir (dir: string) {
  * @param path 
  * @returns 
  */
-export function getFoldersInDirectory (path) {
+export function getFoldersInDirectory (path: string) {
   try {
     const files = fs.readdirSync(path);
     const folders = files.filter(file => {
@@ -136,6 +158,38 @@ export function getFoldersInDirectory (path) {
   }
 }
 
+/**
+ * 获取文件夹下的所有文件
+ * @param dirPath 
+ * @returns 
+ */
+export function getAllFilesInFolder (dirPath: string): any[] {
+  // 读取指定路径下的所有文件和文件夹
+  const files = fs.readdirSync(dirPath);
+
+  let allFiles: any[] = [];
+
+  // 遍历所有文件和文件夹
+  files.forEach(file => {
+    // 获取文件或文件夹的完整路径
+    const filePath = path.join(dirPath, file);
+
+    // 判断是否为文件
+    if (fs.statSync(filePath).isFile()) {
+      allFiles.push({
+        filePath,
+        file,
+      });
+    }
+    // 如果是文件夹，则递归调用函数获取文件夹下的所有文件
+    else {
+      const subDirFiles = getAllFilesInFolder(filePath);
+      allFiles = allFiles.concat(subDirFiles);
+    }
+  });
+
+  return allFiles;
+}
 
 /**
  * 读取路径信息

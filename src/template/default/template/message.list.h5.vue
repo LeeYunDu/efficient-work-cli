@@ -37,7 +37,6 @@
     </div>
   </banner>
 </template>
-
 <script lang="ts" setup>
 import { parseTime } from '@/utils'
 import banner from '../common/banner.vue'
