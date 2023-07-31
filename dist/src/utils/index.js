@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadFileByUrl = exports.convertTemplate = exports.getStat = exports.getAllFilesInFolder = exports.getFoldersInDirectory = exports.doMkdir = exports.mkdir = exports.getAllFilesInDirectory = exports.createFile = exports.writeFile = exports.getSourcePath = exports.checkExists = void 0;
+exports.getDictValue = exports.transformTableData = exports.downloadFileByUrl = exports.convertTemplate = exports.getStat = exports.getAllFilesInFolder = exports.getFoldersInDirectory = exports.doMkdir = exports.mkdir = exports.getAllFilesInDirectory = exports.createFile = exports.writeFile = exports.getSourcePath = exports.checkExists = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const request_1 = __importDefault(require("request"));
@@ -277,3 +277,64 @@ function downloadFileByUrl(url, fileName, dir) {
     });
 }
 exports.downloadFileByUrl = downloadFileByUrl;
+function transformTableData(fields, data) {
+    const needTransField = fields.filter((field) => {
+        return field;
+    });
+    needTransField.forEach((field) => {
+        const { transform, key, unit } = field;
+        let tKey = '';
+        try {
+            tKey = key.split('_')[0];
+        }
+        catch (error) {
+            console.log(error);
+        }
+        // 目前就判断下是否为时间、字典
+        let type = '';
+        try {
+            if (typeof transform === 'function') {
+                type = 'function';
+            }
+            if (transform.indexOf('x') > -1 || (transform.indexOf('{') > -1 && transform.indexOf('}') > -1)) {
+                type = 'time';
+            }
+            if (transform.indexOf('.') > -1) {
+                type = 'dict';
+            }
+        }
+        catch (error) {
+        }
+        data.map((e) => {
+            var _a;
+            switch (type) {
+                case 'time':
+                    e[key] = parseTime(e[tKey], transform) + (unit || '');
+                    break;
+                case 'dict':
+                    e[key] = getDictValue(transform, e[tKey]) + (unit || '');
+                    break;
+                case 'function':
+                    e[key] = transform(e[key]);
+                default:
+                    e[key] = (_a = e[key]) !== null && _a !== void 0 ? _a : '-' + (unit || '');
+                    break;
+            }
+            if (unit) {
+                e[key] = e[key];
+            }
+            return e;
+        });
+    });
+    return data;
+}
+exports.transformTableData = transformTableData;
+// 字典值转换
+function getDictValue(target, value, valueKey) {
+    var _a, _b;
+    value = +value;
+    if (!value && !String(value))
+        return value;
+    return ((_b = (_a = store.getters.dictDataOnly(target)) === null || _a === void 0 ? void 0 : _a.find((dict) => +dict[valueKey || 'id'] === value)) === null || _b === void 0 ? void 0 : _b.name) || value;
+}
+exports.getDictValue = getDictValue;

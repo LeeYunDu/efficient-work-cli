@@ -1,12 +1,5 @@
 
-// xlsx 下载
-export const exportExcelByJson = function (data, fileName) {
-  if (!isArray(data)) return
-  const excelBook = XLSX.utils.book_new()
-  const excelSheet = XLSX.utils.aoa_to_sheet(data)
-  XLSX.utils.book_append_sheet(excelBook, excelSheet, 'sheet1')
-  XLSX.writeFile(excelBook, fileName)
-}
+
 
 
 // 字典值转换
@@ -88,3 +81,26 @@ export function transformValue (field: ItemMode, data: any) {
   return result
 }
 
+/**
+ * 导出excel功能
+ * 1、请求接口拿到数据
+ */
+async function onExport () {
+  let { data } = await apiName(Object.assign({}, table.value.params, {}))
+  exportExcelByJson(data.excelData, '项目清单.xlsx')
+}
+
+/**
+ *  xlsx 下载
+ *  "xlsx": "^0.18.5"
+ * @param data 
+ * @param fileName 
+ * @returns 
+ */
+export const exportExcelByJson = function (data, fileName) {
+  if (!isArray(data)) return
+  const excelBook = XLSX.utils.book_new()
+  const excelSheet = XLSX.utils.aoa_to_sheet(data)
+  XLSX.utils.book_append_sheet(excelBook, excelSheet, 'sheet1')
+  XLSX.writeFile(excelBook, fileName)
+}

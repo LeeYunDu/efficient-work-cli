@@ -253,3 +253,67 @@ export function downloadFileByUrl (url: string, fileName: string, dir: string) {
     console.log("文件" + fileName + "下载完毕");
   });
 }
+
+export function transformTableData (fields: FieldItem[], data: any) {
+  const needTransField = fields.filter((field: FieldItem) => {
+    return field
+  })
+
+  needTransField.forEach((field: FieldItem) => {
+    const { transform, key, unit } = field
+    let tKey = ''
+    try {
+      tKey = key.split('_')[0]
+    } catch (error) {
+      console.log(error)
+
+    }
+    // 目前就判断下是否为时间、字典
+    let type = ''
+    try {
+      if (typeof transform === 'function') {
+        type = 'function'
+      }
+      if (transform.indexOf('x') > -1 || (transform.indexOf('{') > -1 && transform.indexOf('}') > -1)) {
+        type = 'time'
+      }
+      if (transform.indexOf('.') > -1) {
+        type = 'dict'
+      }
+    } catch (error) {
+
+    }
+
+
+
+    data.map((e: any) => {
+      switch (type) {
+        case 'time':
+          e[key] = parseTime(e[tKey], transform) + (unit || '')
+          break
+        case 'dict':
+          e[key] = getDictValue(transform, e[tKey]) + (unit || '')
+          break
+        case 'function':
+          e[key] = transform(e[key])
+        default:
+          e[key] = e[key] ?? '-' + (unit || '')
+          break
+      }
+      if (unit) {
+        e[key] = e[key]
+      }
+      return e
+    })
+  })
+
+  return data
+}
+
+
+// 字典值转换
+export function getDictValue (target: any, value: any, valueKey?: string) {
+  value = +value
+  if (!value && !String(value)) return value
+  return store.getters.dictDataOnly(target)?.find((dict: any) => +dict[valueKey || 'id'] === value)?.name || value
+}

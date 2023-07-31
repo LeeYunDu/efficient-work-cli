@@ -25,37 +25,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useGenretor = void 0;
 const generator_types_1 = require("../template/generator.types");
-const init_1 = require("../template/util/init");
-const init_2 = require("../template/default/init");
 const logger = __importStar(require("../utils/logger"));
-const init_3 = require("../template/items/init");
-const init_4 = require("../template/listPage/init");
-const init_5 = require("../template/model/init");
+const init_1 = require("../template/listPage/init");
+const init_2 = require("../template/model/init");
 /**
  *
  * ..param option
  */
 function useGenretor(option) {
     let { type, path, force } = option;
-    const ENUM = ['listPage', 'util', 'types', 'default', 'items', 'model'];
+    const ENUM = ['listPage', 'types', 'model'];
     switch (type) {
         case 'listPage':
-            (0, init_4.useInitListPage)(path);
-            break;
-        case 'util':
-            (0, init_1.useInitUtil)();
+            (0, init_1.useInitListPage)(path);
             break;
         case 'types':
             (0, generator_types_1.generatorTypes)();
             break;
-        case 'items':
-            (0, init_3.useGenretorItems)();
-            break;
-        case 'default':
-            (0, init_2.useDefaultFile)(path);
-            break;
         case 'model':
-            (0, init_5.useGeneratorModel)();
+            (0, init_2.useGeneratorModel)();
             break;
         default:
             logger.error(`未找到模块,枚举：${ENUM.join('、')}`);

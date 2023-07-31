@@ -1,6 +1,7 @@
 import { createFile, getSourcePath, mkdir, getFoldersInDirectory, getAllFilesInDirectory, getAllFilesInFolder } from "../..//utils"
 import { Ast } from "../../utils/ast"
 import prompts from 'prompts'
+import * as logger from '../../utils/logger'
 
 export async function useGeneratorModel (path = 'cli') {
   const rootDir = await getSourcePath()
@@ -13,12 +14,16 @@ export async function useGeneratorModel (path = 'cli') {
     }
   })))
   if (!modelType) return
-  let fields = getAllFilesInDirectory(`${rootDir}/src/template/model/${modelType}`)
-  let { activeIndex } = await prompts(getOptions('activeIndex', '请选择生成的文件', fields.map(item => {
+  let files = getAllFilesInDirectory(`${rootDir}/src/template/model/${modelType}`)
+  let { activeIndex } = await prompts(getOptions('activeIndex', '请选择生成的文件', files.map(item => {
     item.title = item.file
     return item
   })))
-  let model = fields[activeIndex]
+  if (files.length == 0) {
+    logger.info('该模块下没有文件')
+    return
+  }
+  let model = files[activeIndex]
   if (!model) return
   let modelFiles = []
   let modelPath = `${process.cwd()}/${path}`

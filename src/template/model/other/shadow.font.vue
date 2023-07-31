@@ -1,7 +1,7 @@
 <template>
   <div class="title-box">
-    <span class="header-title" :text="state.title">{{ state.title }}</span>
-    <span class="header-shadow" :text="state.title">{{ state.title }}</span>
+    <span class="header-title" >标题</span>
+    <span class="header-shadow" >标题</span>
   </div>
 </template>
 
