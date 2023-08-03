@@ -345,19 +345,30 @@ class Ast {
      * generateInterfaceNode
      * @param {*} name
      */
-    generateIdentifierNode(name, hasT = false) {
+    generateIdentifierNode(name, hasT = false, comment = '') {
         let template = hasT ? (0, gogocode_1.default)(`
-    interface 占位符<T = any> {
+    //注释占位符
+    export  interface 占位符<T = any> {
       
     }
   `) : (0, gogocode_1.default)(`
-  interface 占位符 {
+  //注释占位符
+  export  interface 占位符 {
     
   }
 `);
         let node = template.attr('program').body[0];
-        node.id = name;
-        node.loc.identifierName = name;
+        //注释
+        if (comment) {
+            node.leadingComments[0].value = comment;
+            node.comments[0].value = comment;
+        }
+        else {
+            delete node.leadingComments;
+            delete node.comments;
+        }
+        let declaration = node.declaration;
+        declaration.id = name;
         return node;
         /**
          * interfacePanel.attr('program').body[0].id 最外层 interface名称
@@ -366,16 +377,27 @@ class Ast {
          * 注释相关的字段为 leadingComments、comments
          */
     }
-    /**
-     * 生成interface字段类型
-     * @param keyName
-     * @param keyType
-     * @param comment
-     * @param businessName
-     * @param required
-     * @returns
-     */
-    generateTSTypeAnnotationNode(keyName, keyType, comment, businessName, required = []) {
+    // interface 字段类型
+    generateTSTypeAnnotationNode(keyName, keyType, fieldConfig, businessName, required = []) {
+        let { items, example } = fieldConfig;
+        // 字段类型是数组的情况下回有items,里面是数组集合的类型
+        let itemsType = 'any';
+        if (keyType === 'array') {
+            const TYPE_MAP = {
+                integer: 'number',
+                string: 'string',
+                boolean: 'boolean',
+                number: 'number',
+                array: 'array'
+            };
+            // 如果是实体类,又将生成一个
+            if ('originalRef' in items) {
+                itemsType = this.definitionInterfaceName(items.originalRef, 1);
+            }
+            else {
+                itemsType = TYPE_MAP[items.type] || 'any';
+            }
+        }
         let template = (0, gogocode_1.default)(`
       interface customName<T = any> {
         //注释占位符
@@ -386,6 +408,8 @@ class Ast {
         boolean: boolean
         //注释占位符
         any:any
+        //注释占位符
+        array:Array<${itemsType}>
         //注释占位符
         array_string:Array<string>
         //注释占位符
@@ -404,11 +428,17 @@ class Ast {
             case 'number':
                 mapType = 'number';
                 break;
+            case 'integer':
+                mapType = 'number';
+                break;
             case 'string':
                 mapType = 'string';
                 break;
             case 'boolean':
                 mapType = 'boolean';
+                break;
+            case 'array':
+                mapType = 'array';
                 break;
             case 'list':
                 // 列表字段类型  名称为业务表示名称 + List
@@ -434,9 +464,9 @@ class Ast {
         // 字段名称
         filterNode.key.name = keyName;
         // 注释
-        if (comment) {
-            filterNode.leadingComments[0].value = comment;
-            filterNode.comments[0].value = comment;
+        if (example) {
+            filterNode.leadingComments[0].value = example;
+            filterNode.comments[0].value = example;
         }
         else {
             delete filterNode.leadingComments;
@@ -454,6 +484,32 @@ class Ast {
             return node.declaration.id;
         }) || [];
         return ids.includes(interfaceName);
+    }
+    /**
+     * 定义interface名称结尾后缀
+     * @param apiName
+     * @param endingType
+     * @returns
+     */
+    definitionInterfaceName(apiName, endingType) {
+        let endingTypeMap = {
+            1: 'Ro',
+            2: 'Param',
+        };
+        let sliptIndex = apiName.lastIndexOf('/');
+        let interfaceName = apiName.slice(sliptIndex + 1, apiName.length);
+        // 首先改为首字母大写
+        interfaceName = interfaceName.replace(interfaceName[0], interfaceName[0].toUpperCase());
+        // 如果接口名称结尾包含Result,则删除
+        let rLastIndex = interfaceName.lastIndexOf('Result');
+        if (rLastIndex > -1)
+            interfaceName = interfaceName.slice(0, rLastIndex);
+        let filterLetter = [...(String(interfaceName))].filter((e) => {
+            return e.charCodeAt(0) > 64 && e.charCodeAt(0) < 91;
+        });
+        interfaceName = filterLetter.join('').toLowerCase();
+        interfaceName = interfaceName.replace(interfaceName[0], interfaceName[0].toUpperCase());
+        return interfaceName + endingTypeMap[endingType];
     }
     /**
      * 查看

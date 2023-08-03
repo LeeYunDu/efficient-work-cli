@@ -357,19 +357,30 @@ export class Ast {
    * generateInterfaceNode
    * @param {*} name 
    */
-  generateIdentifierNode (name: string, hasT: Boolean = false) {
-    let template: any = hasT ? $(`
-    interface 占位符<T = any> {
+  generateIdentifierNode (name: any, hasT = false, comment = '') {
+    let template = hasT ? $(`
+    //注释占位符
+    export  interface 占位符<T = any> {
       
     }
   `) : $(`
-  interface 占位符 {
+  //注释占位符
+  export  interface 占位符 {
     
   }
 `)
     let node = template.attr('program').body[0]
-    node.id = name
-    node.loc.identifierName = name
+    //注释
+    if (comment) {
+      node.leadingComments[0].value = comment
+      node.comments[0].value = comment
+    } else {
+      delete node.leadingComments
+      delete node.comments
+    }
+    let declaration = node.declaration
+
+    declaration.id = name
     return node
     /**
      * interfacePanel.attr('program').body[0].id 最外层 interface名称
@@ -378,17 +389,29 @@ export class Ast {
      * 注释相关的字段为 leadingComments、comments
      */
   }
-  /**
-   * 生成interface字段类型
-   * @param keyName 
-   * @param keyType 
-   * @param comment 
-   * @param businessName 
-   * @param required 
-   * @returns 
-   */
-  generateTSTypeAnnotationNode (keyName: string, keyType: string, comment: any, businessName: string, required: string[] = []) {
-    let template: any = $(`
+  // interface 字段类型
+  generateTSTypeAnnotationNode (keyName: any, keyType: any, fieldConfig: any, businessName: any, required: string[] = []) {
+    let { items, example } = fieldConfig
+    // 字段类型是数组的情况下回有items,里面是数组集合的类型
+    let itemsType: string = 'any'
+    if (keyType === 'array') {
+      const TYPE_MAP: any = {
+        integer: 'number',
+        string: 'string',
+        boolean: 'boolean',
+        number: 'number',
+        array: 'array'
+      }
+      // 如果是实体类,又将生成一个
+      if ('originalRef' in items) {
+        itemsType = this.definitionInterfaceName(items.originalRef, 1)
+      } else {
+        itemsType = TYPE_MAP[items.type] || 'any'
+      }
+
+    }
+
+    let template = $(`
       interface customName<T = any> {
         //注释占位符
         string: string
@@ -398,6 +421,8 @@ export class Ast {
         boolean: boolean
         //注释占位符
         any:any
+        //注释占位符
+        array:Array<${itemsType}>
         //注释占位符
         array_string:Array<string>
         //注释占位符
@@ -410,17 +435,24 @@ export class Ast {
         list:${businessName}List
       }
     `)
+
     // 字段类型
     let mapType = ''
     switch (keyType) {
       case 'number':
         mapType = 'number'
         break;
+      case 'integer':
+        mapType = 'number'
+        break
       case 'string':
         mapType = 'string'
         break;
       case 'boolean':
         mapType = 'boolean'
+        break
+      case 'array':
+        mapType = 'array'
         break
       case 'list':
         // 列表字段类型  名称为业务表示名称 + List
@@ -430,7 +462,7 @@ export class Ast {
         mapType = 't'
         break;
     }
-    let fieldNodes
+    let fieldNodes: any
     try {
       fieldNodes = template.attr('program').body[0].body.body
     } catch (error) {
@@ -446,9 +478,9 @@ export class Ast {
     // 字段名称
     filterNode.key.name = keyName
     // 注释
-    if (comment) {
-      filterNode.leadingComments[0].value = comment
-      filterNode.comments[0].value = comment
+    if (example) {
+      filterNode.leadingComments[0].value = example
+      filterNode.comments[0].value = example
     } else {
       delete filterNode.leadingComments
       delete filterNode.comments
@@ -467,6 +499,32 @@ export class Ast {
     }) || []
     return ids.includes(interfaceName)
   }
+  /**
+   * 定义interface名称结尾后缀
+   * @param apiName 
+   * @param endingType 
+   * @returns 
+   */
+  definitionInterfaceName (apiName: string, endingType: number) {
+    let endingTypeMap: any = {
+      1: 'Ro',
+      2: 'Param',
+    }
+    let sliptIndex = apiName.lastIndexOf('/')
+    let interfaceName = apiName.slice(sliptIndex + 1, apiName.length)
+    // 首先改为首字母大写
+    interfaceName = (interfaceName as string).replace(interfaceName[0], interfaceName[0].toUpperCase());
+    // 如果接口名称结尾包含Result,则删除
+    let rLastIndex = interfaceName.lastIndexOf('Result')
+    if (rLastIndex > -1) interfaceName = interfaceName.slice(0, rLastIndex)
+    let filterLetter = [...(String(interfaceName))].filter((e: string) => {
+      return e.charCodeAt(0) > 64 && e.charCodeAt(0) < 91
+    })
+    interfaceName = filterLetter.join('').toLowerCase()
+    interfaceName = (interfaceName as string).replace(interfaceName[0], interfaceName[0].toUpperCase());
+    return interfaceName + endingTypeMap[endingType]
+  }
+
   /**
    * 查看
    * @param tagName 

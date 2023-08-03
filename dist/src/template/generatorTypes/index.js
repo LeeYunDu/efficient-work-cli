@@ -40,6 +40,7 @@ const logger = __importStar(require("../../utils/logger"));
 const prompts_1 = __importDefault(require("prompts"));
 const ast_1 = require("../../utils/ast");
 const index_1 = require("../../utils/index");
+const node_fetch_1 = __importDefault(require("node-fetch"));
 /**
  * @param {*} data
  * @description
@@ -53,15 +54,19 @@ const index_1 = require("../../utils/index");
  * @todo 番外-生成接口请求模板,分为POST、GET
  * @todo AST写入文件
  */
-const node_fetch_1 = __importDefault(require("node-fetch"));
+//---------------------------------
 function generatorTypes() {
     return __awaiter(this, void 0, void 0, function* () {
         let resources = yield getDocResources();
         if (!resources)
             return;
         let docAddress = resources;
-        (0, node_fetch_1.default)(docAddress).then((res) => {
-            res.json().then((response) => {
+        (0, node_fetch_1.default)(docAddress, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(res => {
+            res.json().then(response => {
                 let { tags, paths, definitions } = response;
                 if (!(tags && paths && definitions)) {
                     logger.error(`选中的业务模块没有接口定义,definitions、tags、paths`);
@@ -104,7 +109,7 @@ function generatorTypes() {
                 // 解构接口实体类
                 let interfaceResultArr = generatorInterfaceTemplate(needWriteDefinitions, analysisDefinitionsResult);
                 // 业务模块组合接口
-                let businessInterfaceModel = generateASTNode(interfaceResultArr);
+                let businessInterfaceModel = generateASTNode(interfaceResultArr, analysisDefinitionsResult);
                 // 创建业务接口文件夹,进行分类
                 generateBusinessDir(businessInterfaceModel);
                 /**
@@ -152,27 +157,29 @@ function generatorTypes() {
 exports.generatorTypes = generatorTypes;
 function getDocResources() {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-        logger.success('请查看浏览器地址栏的接口文档地址,完成表单填写');
-        logger.info('比如：http://172.16.208.12:18340/lp_building_manage_api/doc.html#/home');
-        let docOptions = [
-            {
-                type: 'text',
-                name: 'ip',
-                message: '请输入文档的IP地址 + 端口号 比如上面的:172.16.208.12:18340',
-            },
-            {
-                type: 'text',
-                name: 'businessName',
-                message: '清输入接口文档的业务标识名称,比如上面的lp_building_manage_api',
-            },
-        ];
-        let { ip, businessName } = yield (0, prompts_1.default)(docOptions);
-        if (!(ip && businessName)) {
-            logger.error('未按要求输入IP地址加业务名称');
-            return;
-        }
+        // logger.success('请查看浏览器地址栏的接口文档地址,完成表单填写')
+        // logger.info('比如：http://172.16.208.12:18340/lp_building_manage_api/doc.html#/home')
+        // let docOptions: any[] = [
+        //   {
+        //     type: 'text',
+        //     name: 'ip',
+        //     message: '请输入文档的IP地址 + 端口号 比如上面的:172.16.208.12:18340',
+        //   },
+        //   {
+        //     type: 'text',
+        //     name: 'businessName',
+        //     message: '清输入接口文档的业务标识名称,比如上面的lp_building_manage_api',
+        //   },
+        // ]
+        // let { ip, businessName } = await prompts(docOptions)
+        // if (!(ip && businessName)) {
+        //   logger.error('未按要求输入IP地址加业务名称')
+        //   return
+        // }
         // km_gyy_gov_main_api   220.163.127.146:8146
         // ip + 业务前缀 + swagger-resources
+        let ip = '172.16.208.12:18550';
+        let businessName = 'zhaoshang-project-api';
         let docResourcesPath = `http://${ip}/${businessName}/swagger-resources`;
         (0, node_fetch_1.default)(docResourcesPath, {
             headers: {
@@ -364,11 +371,12 @@ function getInterfaceResult(definition, analysisDefinitionsResult) {
     return interfaceResult;
 }
 let pathUseCount = 0;
-function generateASTNode(interfaceResultArr) {
+function generateASTNode(interfaceResultArr, analysisDefinitionsResult) {
     let businessInterfaceModel = {};
     for (let index = 0; index < interfaceResultArr.length; index++) {
         const element = interfaceResultArr[index];
-        let { apiName, apiModel, interfaceResult, requestWay, modelName, businessName, interfaceParamResult } = element;
+        let { interfaceResult, businessName, interfaceParamResult } = element;
+        // 业务模块的type.ts文件
         let interfaceAst = new ast_1.Ast(`
     `, {}, true);
         if (businessInterfaceModel[businessName]) {
@@ -380,6 +388,9 @@ function generateASTNode(interfaceResultArr) {
         // 生成的interface定义需要区分是 params 还是 response
         pushAstNode(interfaceResult, interfaceAst, element, true);
         pushAstNode(interfaceParamResult, interfaceAst, element, false);
+        // 这里递归判断下字段里头还有没有实体类嵌套
+        deepCheckInterface(interfaceResult ? interfaceResult.interface : undefined, interfaceAst, analysisDefinitionsResult, false);
+        deepCheckInterface(interfaceParamResult ? interfaceParamResult.interface : undefined, interfaceAst, analysisDefinitionsResult, false);
     }
     Object.keys(businessInterfaceModel).forEach(key => {
         let element = businessInterfaceModel[key];
@@ -387,29 +398,45 @@ function generateASTNode(interfaceResultArr) {
     logger.success(`一共成功生成了${pathUseCount}个接口定义`);
     return businessInterfaceModel;
 }
+function generateFunctionModelASTNode(interfaceResultArr, analysisDefinitionsResult) {
+    // 业务实体类模块
+    let businessFunctionModel = {};
+    for (let index = 0; index < interfaceResultArr.length; index++) {
+        const element = interfaceResultArr[index];
+        let { apiName, apiModel, interfaceResult, requestWay, modelName, businessName, interfaceParamResult } = element;
+        let functionAst = new ast_1.Ast(`
+    `, {}, true);
+        if (businessFunctionModel[businessName]) {
+            businessFunctionModel[businessName].push(functionAst);
+        }
+        else {
+            businessFunctionModel[businessName] = [functionAst];
+        }
+        if (index == 0) {
+            console.log(element);
+        }
+        // 生成的interface定义需要区分是 params 还是 response
+        pushAstNode(interfaceResult, functionAst, element, true);
+        pushAstNode(interfaceParamResult, functionAst, element, false);
+    }
+    Object.keys(businessFunctionModel).forEach(key => {
+        let element = businessFunctionModel[key];
+    });
+    return businessFunctionModel;
+}
 function pushAstNode(interfaceResult, interfaceAst, interfaceInfo, isResponse) {
     if (!interfaceResult)
         return;
     pathUseCount++;
-    let { businessName, apiName } = interfaceInfo;
-    let sliptIndex = apiName.lastIndexOf('/');
-    let interfaceName = apiName.slice(sliptIndex + 1, apiName.length);
-    let { listHasT, hasList, listInterface, hasT, interface: interfaceState } = interfaceResult;
-    // list Node 判断,几乎是复制一份逻辑,看着冗余
-    if (hasList) {
-        let IdentifierListNode = interfaceAst.generateIdentifierNode(interfaceName + 'List', listHasT);
-        interfaceAst.ast.attr('program').body.push(IdentifierListNode);
-        // 生成interface字段
-        let interfaceListFields = listInterface;
-        let fieldListNodes = [];
-        Object.keys(interfaceListFields).forEach((key, index) => {
-            let { type, fieldConfig } = interfaceListFields[key];
-            let node = interfaceAst.generateTSTypeAnnotationNode(key, type, fieldConfig.example, interfaceName);
-            node && fieldListNodes.push(node);
-        });
-        IdentifierListNode.body.body = fieldListNodes;
-    }
-    let IdentifierNode = interfaceAst.generateIdentifierNode(interfaceName + `${isResponse ? 'Response' : 'Param'}`, hasT);
+    let { businessName, apiName, apiModel, modelName } = interfaceInfo;
+    let interfaceName = interfaceAst.definitionInterfaceName(apiName, isResponse ? 1 : 2);
+    let { hasT, interface: interfaceState } = interfaceResult;
+    //注释
+    let interfaceComment = `【${modelName}】,${apiName} `;
+    // 检查字段是否为通用接口回复,是的话就不生成了
+    if (isResponse && checkAPIFixedRo(interfaceState))
+        return;
+    let IdentifierNode = interfaceAst.generateIdentifierNode(interfaceName, hasT, interfaceComment);
     interfaceAst.ast.attr('program').body.push(IdentifierNode);
     // 生成interface字段
     let interfaceFields = interfaceState;
@@ -420,10 +447,10 @@ function pushAstNode(interfaceResult, interfaceAst, interfaceInfo, isResponse) {
     }
     Object.keys(interfaceFields).forEach((key, index) => {
         let { type, fieldConfig } = interfaceFields[key];
-        let node = interfaceAst.generateTSTypeAnnotationNode(key, type, fieldConfig.example, interfaceName, required);
+        let node = interfaceAst.generateTSTypeAnnotationNode(key, type, fieldConfig, interfaceName, required);
         node && fieldNodes.push(node);
     });
-    IdentifierNode.body.body = fieldNodes;
+    IdentifierNode.declaration.body.body = fieldNodes;
 }
 // 根据接口定义截取业务标识
 function getBusinessName(apiName) {
@@ -437,30 +464,6 @@ function getBusinessName(apiName) {
         return e;
     }).join('');
     return result;
-}
-/**
- * 接口定义名称
- * @param {*} definition
- * @returns
- * @deprecated
- */
-function getDefinitionName(definition) {
-    let title = definition.title;
-    let hasIconLeft = title.indexOf('«');
-    let hasIconRight = title.indexOf('»');
-    if (hasIconLeft > -1 && hasIconRight > -1) {
-        title = title.slice(hasIconLeft + 1, hasIconRight);
-    }
-    let hasADS = title.indexOf('Ads');
-    if (hasADS > -1) {
-        title = title.slice(3, title.length);
-    }
-    let hasResult = title.indexOf('Result');
-    if (hasResult > -1) {
-        title = title.slice(0, hasResult);
-    }
-    // 首字母小写
-    return title.replace(title[0], title[0].toLowerCase());
 }
 /**
  * 将业务模块的AST存储到文件中
@@ -483,14 +486,15 @@ function generateBusinessDir(businessInterfaceModel) {
                 businessModel.forEach((model) => {
                     let modelAst = model.ast.attr('program.body');
                     modelAst.forEach((node) => {
-                        let exportNode = new ast_1.Ast(`
-export interface template {
-
-}
-            `, {}, true);
-                        let replaceNode = exportNode.ast.attr('program.body')[0];
-                        replaceNode.declaration = node;
-                        resutAst.ast.attr('program.body').push(replaceNode);
+                        //           let exportNode = new Ast(
+                        //             `
+                        // export interface template {
+                        // }
+                        //             `
+                        //             , {}, true)
+                        //           let replaceNode = exportNode.ast.attr('program.body')[0]
+                        //           replaceNode.declaration = node
+                        resutAst.ast.attr('program.body').push(node);
                     });
                 });
                 setTimeout(() => {
@@ -500,4 +504,65 @@ export interface template {
         }
         return;
     });
+}
+/**
+ * 递归判断实体类里是否嵌套其他实体类
+ * @param interfaces
+ * @param interfaceAst
+ * @param interfaceInfo
+ */
+function deepCheckInterface(interfaceFields, interfaceAst, analysisDefinitionsResult, isDeep) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!interfaceFields)
+            return;
+        // let interfaceFields = interfaceResult.interface
+        // 需要生成嵌套下的实体类
+        let needGenerateInterface = [];
+        Object.keys(interfaceFields).forEach(key => {
+            let field = interfaceFields[key];
+            let { type } = field;
+            if (type === 'array' && 'items' in field) {
+                if (field.items.originalRef) {
+                    let interfaceName = interfaceAst.definitionInterfaceName(field.items.originalRef, 1);
+                    let isExist = interfaceAst.checkedInterfaceExist(interfaceName, interfaceAst);
+                    needGenerateInterface.push(field.items.originalRef);
+                    let definition = analysisDefinitionsResult[field.items.originalRef];
+                    if (definition) {
+                        // 遇到过无限嵌套的 definition,所以判断当前Ast中是否生成过该definition,没有则生成
+                        if (!isExist) {
+                            let IdentifierNode = interfaceAst.generateIdentifierNode(interfaceName, false);
+                            interfaceAst.ast.attr('program').body.push(IdentifierNode);
+                            // 生成interface字段
+                            let interfaceFields = definition.properties;
+                            let fieldNodes = [];
+                            Object.keys(interfaceFields).forEach((key, index) => {
+                                let { type } = interfaceFields[key];
+                                let node = interfaceAst.generateTSTypeAnnotationNode(key, type, interfaceFields[key], interfaceName, []);
+                                node && fieldNodes.push(node);
+                            });
+                            IdentifierNode.declaration.body.body = fieldNodes;
+                        }
+                        Object.keys(definition.properties).forEach(key => {
+                            let field = definition.properties[key];
+                            if (field.type === 'array' && field.items) {
+                                if (!isExist) {
+                                    deepCheckInterface({
+                                        [key]: field
+                                    }, interfaceAst, analysisDefinitionsResult, true);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    });
+}
+/**
+ * 判断返回实体类是就为消息类型(data、errMsg、status、success)
+ * @param interface
+ */
+function checkAPIFixedRo(interfaceFields) {
+    let isFixedRo = ['data', 'errMsg', 'status', 'success'];
+    return JSON.stringify(isFixedRo) === JSON.stringify(Object.keys(interfaceFields));
 }
