@@ -6,6 +6,7 @@ import { createFile, mkdir } from '../../utils/index'
 import fetch from 'node-fetch'
 import { InterfaceResult } from './types'
 
+
 /**
  * @param {*} data 
  * @description 
@@ -19,11 +20,6 @@ import { InterfaceResult } from './types'
  * @todo 番外-生成接口请求模板,分为POST、GET
  * @todo AST写入文件
  */
-
-//---------------------------------
-
-
-
 
 export async function generatorTypes () {
   let resources: any = await getDocResources()
@@ -126,30 +122,29 @@ export async function generatorTypes () {
 
 function getDocResources () {
   return new Promise(async (resolve, reject) => {
-    // logger.success('请查看浏览器地址栏的接口文档地址,完成表单填写')
-    // logger.info('比如：http://172.16.208.12:18340/lp_building_manage_api/doc.html#/home')
-    // let docOptions: any[] = [
-    //   {
-    //     type: 'text',
-    //     name: 'ip',
-    //     message: '请输入文档的IP地址 + 端口号 比如上面的:172.16.208.12:18340',
-    //   },
-    //   {
-    //     type: 'text',
-    //     name: 'businessName',
-    //     message: '清输入接口文档的业务标识名称,比如上面的lp_building_manage_api',
-    //   },
-    // ]
+    logger.success('请查看浏览器地址栏的接口文档地址,完成表单填写')
+    logger.info('比如：http://172.16.208.12:18340/lp_building_manage_api/doc.html#/home')
+    let docOptions: any[] = [
+      {
+        type: 'text',
+        name: 'ip',
+        message: '请输入文档的IP地址 + 端口号 比如上面的:172.16.208.12:18340',
+      },
+      {
+        type: 'text',
+        name: 'businessName',
+        message: '清输入接口文档的业务标识名称,比如上面的lp_building_manage_api',
+      },
+    ]
 
-    // let { ip, businessName } = await prompts(docOptions)
-    // if (!(ip && businessName)) {
-    //   logger.error('未按要求输入IP地址加业务名称')
-    //   return
-    // }
+    let { ip, businessName } = await prompts(docOptions)
+    if (!(ip && businessName)) {
+      logger.error('未按要求输入IP地址加业务名称')
+      return
+    }
     // km_gyy_gov_main_api   220.163.127.146:8146
     // ip + 业务前缀 + swagger-resources
-    let ip = '172.16.208.12:18550'
-    let businessName = 'zhaoshang-project-api'
+
     let docResourcesPath = `http://${ip}/${businessName}/swagger-resources`
     fetch(docResourcesPath, {
       headers: {
@@ -164,6 +159,7 @@ function getDocResources () {
             message: '请选择需要下载的模块',
             choices: resources.map((item: { name: any; url: any }) => {
               // console.log(`http://${ip}/${businessName}${item.url}`);
+
               return {
                 title: item.name,
                 value: `http://${ip}/${businessName}${item.url}`
@@ -184,7 +180,6 @@ function getDocResources () {
     })
   })
 }
-
 
 /**
  * 解析文件结构返回的数据结构
@@ -297,14 +292,14 @@ function getInterfaceResult (definition: { properties: any }, analysisDefinition
     integer: 'number',
     string: 'string',
     boolean: 'boolean',
-    number: 'number'
+    number: 'number',
+    array: 'array'
   }
 
   let properties: any = definition.properties
+
   if (!properties) return null
-  let interfaceResult: InterfaceResult = {
-    hasList: false,
-    listHasT: false,
+  let interfaceResult = {
     listInterface: {},
     hasT: false,
     interface: {}
@@ -319,37 +314,22 @@ function getInterfaceResult (definition: { properties: any }, analysisDefinition
   Object.keys(properties).forEach((key) => {
     let type = ''
     if (TYPE_MAP[properties[key].type]) {
+      // if (properties[key].type === 'array') {
+      //   console.log(definition.properties)
+      // }
       type = TYPE_MAP[properties[key].type]
-    } else if (key === 'list') {
-      type = 'list'
     } else {
       type = 'T'
     }
     interfaceState[key] = {
       type,
-      fieldConfig: properties[key]
+      fieldConfig: properties[key],
+      ...properties[key],
+
     }
     if (type === 'T') hasT = true
   })
-  // 列表实体类额外判断,复制一份上面的逻辑,看似很冗余
-  if ('list' in properties) {
-    let definition: any = analysisDefinitionsResult[properties.list.items.originalRef] || undefined
-    let listProperties = definition.properties
-    let listInterface: any = {}
-    let listHasT = false
 
-    Object.keys(listProperties).forEach((key) => {
-      let type = TYPE_MAP[listProperties[key].type] || 'T'
-      listInterface[key] = {
-        type,
-        fieldConfig: listProperties[key]
-      }
-      if (type === 'T') listHasT = true
-    })
-    interfaceResult.listHasT = listHasT
-    interfaceResult.listInterface = listInterface
-    interfaceResult.hasList = true
-  }
 
   interfaceResult.hasT = hasT
   interfaceResult.interface = interfaceState
@@ -395,34 +375,6 @@ function generateASTNode (interfaceResultArr: string | any[], analysisDefinition
   return businessInterfaceModel
 }
 
-function generateFunctionModelASTNode (interfaceResultArr: string | any[], analysisDefinitionsResult: any) {
-  // 业务实体类模块
-  let businessFunctionModel: { [x: string]: any } = {
-
-  }
-  for (let index = 0; index < interfaceResultArr.length; index++) {
-    const element = interfaceResultArr[index];
-    let { apiName, apiModel, interfaceResult, requestWay, modelName, businessName, interfaceParamResult } = element
-    let functionAst = new Ast(`
-    `, {}, true)
-    if (businessFunctionModel[businessName]) {
-      businessFunctionModel[businessName].push(functionAst)
-    } else {
-      businessFunctionModel[businessName] = [functionAst]
-    }
-    if (index == 0) {
-      console.log(element);
-    }
-    // 生成的interface定义需要区分是 params 还是 response
-    pushAstNode(interfaceResult, functionAst, element, true)
-    pushAstNode(interfaceParamResult, functionAst, element, false)
-  }
-  Object.keys(businessFunctionModel).forEach(key => {
-    let element = businessFunctionModel[key]
-  })
-  return businessFunctionModel
-}
-
 function pushAstNode (interfaceResult: { listInterface: any; hasT: any; interface: any }, interfaceAst: Ast, interfaceInfo: { definitionParam?: any; businessName?: any; apiName?: any; apiModel?: any; modelName?: any }, isResponse: boolean) {
   if (!interfaceResult) return
   pathUseCount++
@@ -460,18 +412,15 @@ function pushAstNode (interfaceResult: { listInterface: any; hasT: any; interfac
 function getBusinessName (apiName: string) {
   let sliptArr = apiName.split('/')
   let adsIndex = sliptArr.indexOf('ads') === -1 ? 0 : sliptArr.indexOf('ads') + 1
-  let nameBlock = sliptArr.slice(adsIndex, sliptArr.length - 1)
+  let beginIndex = 3
+  let nameBlock = sliptArr.slice(beginIndex, sliptArr.length - 1)
   let result = nameBlock.map((e: string | string[], index: number) => {
-    if (index > 0) {
-      e = (e as string).replace(e[0], e[0].toUpperCase());
-    }
+    e = (e as string).replace(e[0], e[0].toUpperCase());
+
     return e
   }).join('')
   return result
 }
-
-
-
 
 /**
  * 将业务模块的AST存储到文件中
@@ -516,6 +465,8 @@ async function generateBusinessDir (businessInterfaceModel: { [x: string]: any }
   }
   return
 }
+
+
 
 /**
  * 递归判断实体类里是否嵌套其他实体类
@@ -584,3 +535,4 @@ function checkAPIFixedRo (interfaceFields: any) {
   let isFixedRo = ['data', 'errMsg', 'status', 'success']
   return JSON.stringify(isFixedRo) === JSON.stringify(Object.keys(interfaceFields))
 }
+

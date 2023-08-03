@@ -54,7 +54,6 @@ const node_fetch_1 = __importDefault(require("node-fetch"));
  * @todo 番外-生成接口请求模板,分为POST、GET
  * @todo AST写入文件
  */
-//---------------------------------
 function generatorTypes() {
     return __awaiter(this, void 0, void 0, function* () {
         let resources = yield getDocResources();
@@ -157,29 +156,27 @@ function generatorTypes() {
 exports.generatorTypes = generatorTypes;
 function getDocResources() {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-        // logger.success('请查看浏览器地址栏的接口文档地址,完成表单填写')
-        // logger.info('比如：http://172.16.208.12:18340/lp_building_manage_api/doc.html#/home')
-        // let docOptions: any[] = [
-        //   {
-        //     type: 'text',
-        //     name: 'ip',
-        //     message: '请输入文档的IP地址 + 端口号 比如上面的:172.16.208.12:18340',
-        //   },
-        //   {
-        //     type: 'text',
-        //     name: 'businessName',
-        //     message: '清输入接口文档的业务标识名称,比如上面的lp_building_manage_api',
-        //   },
-        // ]
-        // let { ip, businessName } = await prompts(docOptions)
-        // if (!(ip && businessName)) {
-        //   logger.error('未按要求输入IP地址加业务名称')
-        //   return
-        // }
+        logger.success('请查看浏览器地址栏的接口文档地址,完成表单填写');
+        logger.info('比如：http://172.16.208.12:18340/lp_building_manage_api/doc.html#/home');
+        let docOptions = [
+            {
+                type: 'text',
+                name: 'ip',
+                message: '请输入文档的IP地址 + 端口号 比如上面的:172.16.208.12:18340',
+            },
+            {
+                type: 'text',
+                name: 'businessName',
+                message: '清输入接口文档的业务标识名称,比如上面的lp_building_manage_api',
+            },
+        ];
+        let { ip, businessName } = yield (0, prompts_1.default)(docOptions);
+        if (!(ip && businessName)) {
+            logger.error('未按要求输入IP地址加业务名称');
+            return;
+        }
         // km_gyy_gov_main_api   220.163.127.146:8146
         // ip + 业务前缀 + swagger-resources
-        let ip = '172.16.208.12:18550';
-        let businessName = 'zhaoshang-project-api';
         let docResourcesPath = `http://${ip}/${businessName}/swagger-resources`;
         (0, node_fetch_1.default)(docResourcesPath, {
             headers: {
@@ -310,14 +307,13 @@ function getInterfaceResult(definition, analysisDefinitionsResult) {
         integer: 'number',
         string: 'string',
         boolean: 'boolean',
-        number: 'number'
+        number: 'number',
+        array: 'array'
     };
     let properties = definition.properties;
     if (!properties)
         return null;
     let interfaceResult = {
-        hasList: false,
-        listHasT: false,
         listInterface: {},
         hasT: false,
         interface: {}
@@ -332,40 +328,18 @@ function getInterfaceResult(definition, analysisDefinitionsResult) {
     Object.keys(properties).forEach((key) => {
         let type = '';
         if (TYPE_MAP[properties[key].type]) {
+            // if (properties[key].type === 'array') {
+            //   console.log(definition.properties)
+            // }
             type = TYPE_MAP[properties[key].type];
-        }
-        else if (key === 'list') {
-            type = 'list';
         }
         else {
             type = 'T';
         }
-        interfaceState[key] = {
-            type,
-            fieldConfig: properties[key]
-        };
+        interfaceState[key] = Object.assign({ type, fieldConfig: properties[key] }, properties[key]);
         if (type === 'T')
             hasT = true;
     });
-    // 列表实体类额外判断,复制一份上面的逻辑,看似很冗余
-    if ('list' in properties) {
-        let definition = analysisDefinitionsResult[properties.list.items.originalRef] || undefined;
-        let listProperties = definition.properties;
-        let listInterface = {};
-        let listHasT = false;
-        Object.keys(listProperties).forEach((key) => {
-            let type = TYPE_MAP[listProperties[key].type] || 'T';
-            listInterface[key] = {
-                type,
-                fieldConfig: listProperties[key]
-            };
-            if (type === 'T')
-                listHasT = true;
-        });
-        interfaceResult.listHasT = listHasT;
-        interfaceResult.listInterface = listInterface;
-        interfaceResult.hasList = true;
-    }
     interfaceResult.hasT = hasT;
     interfaceResult.interface = interfaceState;
     return interfaceResult;
@@ -397,32 +371,6 @@ function generateASTNode(interfaceResultArr, analysisDefinitionsResult) {
     });
     logger.success(`一共成功生成了${pathUseCount}个接口定义`);
     return businessInterfaceModel;
-}
-function generateFunctionModelASTNode(interfaceResultArr, analysisDefinitionsResult) {
-    // 业务实体类模块
-    let businessFunctionModel = {};
-    for (let index = 0; index < interfaceResultArr.length; index++) {
-        const element = interfaceResultArr[index];
-        let { apiName, apiModel, interfaceResult, requestWay, modelName, businessName, interfaceParamResult } = element;
-        let functionAst = new ast_1.Ast(`
-    `, {}, true);
-        if (businessFunctionModel[businessName]) {
-            businessFunctionModel[businessName].push(functionAst);
-        }
-        else {
-            businessFunctionModel[businessName] = [functionAst];
-        }
-        if (index == 0) {
-            console.log(element);
-        }
-        // 生成的interface定义需要区分是 params 还是 response
-        pushAstNode(interfaceResult, functionAst, element, true);
-        pushAstNode(interfaceParamResult, functionAst, element, false);
-    }
-    Object.keys(businessFunctionModel).forEach(key => {
-        let element = businessFunctionModel[key];
-    });
-    return businessFunctionModel;
 }
 function pushAstNode(interfaceResult, interfaceAst, interfaceInfo, isResponse) {
     if (!interfaceResult)
@@ -456,11 +404,10 @@ function pushAstNode(interfaceResult, interfaceAst, interfaceInfo, isResponse) {
 function getBusinessName(apiName) {
     let sliptArr = apiName.split('/');
     let adsIndex = sliptArr.indexOf('ads') === -1 ? 0 : sliptArr.indexOf('ads') + 1;
-    let nameBlock = sliptArr.slice(adsIndex, sliptArr.length - 1);
+    let beginIndex = 3;
+    let nameBlock = sliptArr.slice(beginIndex, sliptArr.length - 1);
     let result = nameBlock.map((e, index) => {
-        if (index > 0) {
-            e = e.replace(e[0], e[0].toUpperCase());
-        }
+        e = e.replace(e[0], e[0].toUpperCase());
         return e;
     }).join('');
     return result;
