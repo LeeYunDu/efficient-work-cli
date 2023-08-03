@@ -277,6 +277,35 @@ function downloadFileByUrl(url, fileName, dir) {
     });
 }
 exports.downloadFileByUrl = downloadFileByUrl;
+function getValue(props) {
+    let uValue = '-';
+    try {
+        const { data, field } = props;
+        switch (true) {
+            case field.format && isFunction(field.format):
+                uValue = field.format(data, field);
+                break;
+            case !!field.valueFormat:
+                uValue = getDictValue(field.valueFormat, get(data, field.key, '-'));
+                break;
+            case !!field.parseTime:
+                uValue = get(data, field.key, '') ? parseTime(new Date(get(data, field.key, '')), field.parseTime) : '-';
+                break;
+            case isArray(field.key):
+                uValue = field.key.map((item) => get(data, item, '-')).join(field.split || ' - ');
+                break;
+            default:
+                uValue = get(data, field.key, '-') + (field.unit || '');
+                break;
+        }
+        if (field.unit) {
+            // uValue = uValue + field.unit
+        }
+    }
+    catch (error) {
+    }
+    return uValue;
+}
 function transformTableData(fields, data) {
     const needTransField = fields.filter((field) => {
         return field;
@@ -309,7 +338,7 @@ function transformTableData(fields, data) {
             var _a;
             switch (type) {
                 case 'time':
-                    e[key] = parseTime(e[tKey], transform) + (unit || '');
+                    e[key] = parseTime(new Date(e[tKey]), transform) + (unit || '');
                     break;
                 case 'dict':
                     e[key] = getDictValue(transform, e[tKey]) + (unit || '');

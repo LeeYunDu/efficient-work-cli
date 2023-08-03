@@ -241,6 +241,12 @@ class Ast {
             return null;
         }
     }
+    /**
+     * 根据名称获取函数node
+     * @param fnName
+     * @param ast
+     * @returns
+     */
     getCallFunction(fnName, ast = this.ast) {
         try {
             let node = null;
@@ -335,9 +341,6 @@ class Ast {
         }
     }
     /**
-   * 解析 typescript interface 相关代码
-   */
-    /**
      * 生成interface Node
      * generateInterfaceNode
      * @param {*} name
@@ -363,7 +366,15 @@ class Ast {
          * 注释相关的字段为 leadingComments、comments
          */
     }
-    // interface 字段类型
+    /**
+     * 生成interface字段类型
+     * @param keyName
+     * @param keyType
+     * @param comment
+     * @param businessName
+     * @param required
+     * @returns
+     */
     generateTSTypeAnnotationNode(keyName, keyType, comment, businessName, required = []) {
         let template = (0, gogocode_1.default)(`
       interface customName<T = any> {
@@ -485,10 +496,21 @@ class Ast {
     }
     createHtmlNode() {
     }
+    /**
+     * 获取DOM元素的属性集合
+     * @param node
+     * @returns
+     */
     getAttributes(node) {
         const attributes = node.attr('content.attributes');
         return attributes;
     }
+    /**
+     * 根据Key值，获取DOM元素属性
+     * @param node
+     * @param key
+     * @returns
+     */
     getSingleAttribute(node, key) {
         let attributes = this.getAttributes(node);
         let value = '';
@@ -501,6 +523,12 @@ class Ast {
         });
         return value;
     }
+    /**
+     * 修改DOM元素的属性
+     * @param node
+     * @param key
+     * @param value
+     */
     editAttributes(node, key, value) {
         let attributes = this.getAttributes(node);
         attributes.map((item) => {
@@ -534,6 +562,12 @@ class Ast {
             return item;
         });
     }
+    /**
+     * 给DOM元素添加属性，key：value 格式
+     * @param node
+     * @param key
+     * @param value
+     */
     addAttributes(node, key, value) {
         let attributes = this.getAttributes(node);
         let newAttribute = {
@@ -556,6 +590,12 @@ class Ast {
         };
         attributes.push(newAttribute);
     }
+    /**
+   * 根据传入的key值，移除DOM元素的属性
+   * @param node
+   * @param key
+   * @param value
+   */
     removeAttributes(node, key) {
         let attributes = this.getAttributes(node);
         let index = attributes.findIndex((item) => {

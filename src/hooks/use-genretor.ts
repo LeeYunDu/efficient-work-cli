@@ -1,7 +1,6 @@
-import { generatorTypes } from "../template/generator.types";
+import { generatorTypes } from "../template/generatorTypes/index";
 import { useInitUtil } from "../template/util/init";
 import { genratorMode } from "../typings/genrator";
-import { useDefaultFile } from '../template/default/init'
 import * as logger from '../utils/logger'
 import { useInitListPage } from "../template/listPage/init";
 import { useGeneratorModel } from "../template/model/init";

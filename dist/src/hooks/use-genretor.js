@@ -24,7 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useGenretor = void 0;
-const generator_types_1 = require("../template/generator.types");
+const index_1 = require("../template/generatorTypes/index");
 const logger = __importStar(require("../utils/logger"));
 const init_1 = require("../template/listPage/init");
 const init_2 = require("../template/model/init");
@@ -40,7 +40,7 @@ function useGenretor(option) {
             (0, init_1.useInitListPage)(path);
             break;
         case 'types':
-            (0, generator_types_1.generatorTypes)();
+            (0, index_1.generatorTypes)();
             break;
         case 'model':
             (0, init_2.useGeneratorModel)();

@@ -104,3 +104,30 @@ export const exportExcelByJson = function (data, fileName) {
   XLSX.utils.book_append_sheet(excelBook, excelSheet, 'sheet1')
   XLSX.writeFile(excelBook, fileName)
 }
+
+
+interface ExcelStreamParam {
+  url: string,
+  name: string,
+  params: any
+}
+async function exportExcelByStream (options: ExcelStreamParam) {
+  let { url, name, params } = options
+  var xhr = new XMLHttpRequest()
+  xhr.open('POST', url, true)
+  xhr.responseType = 'arraybuffer'
+  //发送合适的请求头信息
+  xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+  xhr.onload = function () {
+    // 请求结束后，在此处写处理代码
+    if (xhr.status === 200) {
+      var blob = new Blob([xhr.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      var url = URL.createObjectURL(blob)
+      var link = document.createElement('a')
+      link.href = url
+      link.download = `${name}.xlsx`
+      link.click()
+    }
+  }
+  xhr.send(JSON.stringify(params))
+}

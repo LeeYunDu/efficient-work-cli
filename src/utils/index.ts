@@ -254,6 +254,38 @@ export function downloadFileByUrl (url: string, fileName: string, dir: string) {
   });
 }
 
+
+function getValue (props) {
+  let uValue: any = '-'
+  try {
+    const { data, field } = props
+    switch (true) {
+      case field.format && isFunction(field.format):
+        uValue = field.format(data, field)
+        break
+      case !!field.valueFormat:
+        uValue = getDictValue(field.valueFormat, get(data, field.key, '-'))
+        break
+      case !!field.parseTime:
+        uValue = get(data, field.key, '') ? parseTime(new Date(get(data, field.key, '')), field.parseTime) : '-'
+        break
+      case isArray(field.key):
+        uValue = field.key.map((item: string) => get(data, item, '-')).join(field.split || ' - ')
+        break
+      default:
+        uValue = get(data, field.key, '-') + (field.unit || '')
+        break
+    }
+    if (field.unit) {
+      // uValue = uValue + field.unit
+    }
+  } catch (error) {
+
+  }
+  return uValue
+}
+
+
 export function transformTableData (fields: FieldItem[], data: any) {
   const needTransField = fields.filter((field: FieldItem) => {
     return field
@@ -289,7 +321,7 @@ export function transformTableData (fields: FieldItem[], data: any) {
     data.map((e: any) => {
       switch (type) {
         case 'time':
-          e[key] = parseTime(e[tKey], transform) + (unit || '')
+          e[key] = parseTime(new Date(e[tKey]), transform) + (unit || '')
           break
         case 'dict':
           e[key] = getDictValue(transform, e[tKey]) + (unit || '')

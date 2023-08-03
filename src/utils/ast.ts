@@ -253,7 +253,12 @@ export class Ast {
       return null
     }
   }
-
+  /**
+   * 根据名称获取函数node
+   * @param fnName 
+   * @param ast 
+   * @returns 
+   */
   getCallFunction (fnName: string, ast: ASTNode = this.ast) {
     try {
       let node = null
@@ -274,7 +279,6 @@ export class Ast {
   appendCode (code: string, ast = this.ast) {
     ast.after(code)
   }
-
   // 插入import
   insertImport (code: string, ast = this.ast) {
     // import 末尾插入
@@ -308,8 +312,6 @@ export class Ast {
     ast.find(`var ${variableName} = $_$1`).remove()
     ast.find(`const ${variableName} = $_$1`).remove()
   }
-
-
   /**
    * 删除节点,返回根节点
    * @param node 
@@ -317,8 +319,6 @@ export class Ast {
   removeNode (node: any, ast: ASTNode = this.ast) {
     ast.find(node).remove()
   }
-
-
   /**
    * 获取节点类型
    * @param node 
@@ -329,8 +329,6 @@ export class Ast {
       return node.attr('declarations')[0].init.type
     }
   }
-
-
   /**
    * 根据export的变量名称找到对应的node
    * @param variableName 
@@ -355,16 +353,10 @@ export class Ast {
     }
   }
   /**
- * 解析 typescript interface 相关代码
- */
-
-
-  /**
    * 生成interface Node
    * generateInterfaceNode
    * @param {*} name 
    */
-
   generateIdentifierNode (name: string, hasT: Boolean = false) {
     let template: any = hasT ? $(`
     interface 占位符<T = any> {
@@ -386,7 +378,15 @@ export class Ast {
      * 注释相关的字段为 leadingComments、comments
      */
   }
-  // interface 字段类型
+  /**
+   * 生成interface字段类型
+   * @param keyName 
+   * @param keyType 
+   * @param comment 
+   * @param businessName 
+   * @param required 
+   * @returns 
+   */
   generateTSTypeAnnotationNode (keyName: string, keyType: string, comment: any, businessName: string, required: string[] = []) {
     let template: any = $(`
       interface customName<T = any> {
@@ -410,8 +410,6 @@ export class Ast {
         list:${businessName}List
       }
     `)
-
-
     // 字段类型
     let mapType = ''
     switch (keyType) {
@@ -469,8 +467,6 @@ export class Ast {
     }) || []
     return ids.includes(interfaceName)
   }
-
-
   /**
    * 查看
    * @param tagName 
@@ -492,7 +488,6 @@ export class Ast {
     //       let deepNodes = this.getElementByTagName(tagName, nodeItem)
     //       tagNodes = tagNodes.concat(deepNodes)
     //     }
-
     //   })
     // }
     return tagNodes
@@ -516,10 +511,21 @@ export class Ast {
   createHtmlNode () {
 
   }
+  /**
+   * 获取DOM元素的属性集合
+   * @param node 
+   * @returns 
+   */
   getAttributes (node: ASTNode) {
     const attributes = node.attr('content.attributes')
     return attributes
   }
+  /**
+   * 根据Key值，获取DOM元素属性
+   * @param node 
+   * @param key 
+   * @returns 
+   */
   getSingleAttribute (node: ASTNode, key: string) {
     let attributes = this.getAttributes(node)
     let value = ''
@@ -532,6 +538,12 @@ export class Ast {
     })
     return value;
   }
+  /**
+   * 修改DOM元素的属性
+   * @param node 
+   * @param key 
+   * @param value 
+   */
   editAttributes (node: ASTNode, key: string, value: string) {
     let attributes = this.getAttributes(node)
     attributes.map((item: any) => {
@@ -564,6 +576,13 @@ export class Ast {
       return item
     })
   }
+
+  /**
+   * 给DOM元素添加属性，key：value 格式
+   * @param node 
+   * @param key 
+   * @param value 
+   */
   addAttributes (node: ASTNode, key: string, value: any) {
     let attributes = this.getAttributes(node)
     let newAttribute = {
@@ -587,6 +606,12 @@ export class Ast {
 
     attributes.push(newAttribute)
   }
+  /**
+ * 根据传入的key值，移除DOM元素的属性
+ * @param node 
+ * @param key 
+ * @param value 
+ */
   removeAttributes (node: ASTNode, key: string) {
     let attributes = this.getAttributes(node)
     let index = attributes.findIndex((item: any) => {
@@ -596,6 +621,5 @@ export class Ast {
       attributes.splice(index, 1)
     }
   }
-
 }
 
