@@ -1,0 +1,89 @@
+// 元素抖动动画
+.shake-element{
+  // animation: shake-animation 2s ease 0s infinite;
+  // animation-play-state: paused;
+  &:hover{
+    // animation-play-state: running;
+    animation: shake-animation 2s ease 0s infinite;
+
+  }
+}
+@keyframes shake-animation {
+  from    { transform: rotate(0deg); }
+  4%      { transform: rotate(5deg); }
+  12.5%   { transform: rotate(-5deg); }
+  21%     { transform: rotate(5deg); }
+  29%     { transform: rotate(-5deg); }
+  37.5%   { transform: rotate(5deg); }
+  46%     { transform: rotate(-5deg); }
+  50%,to  { transform: rotate(0deg); }
+}
+
+
+// 边框动画
+.border-animation{
+  position: relative;
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    transition: .3s ease-out;
+    border-radius: 4px 4px 4px 4px;
+  }
+  &::before {
+    top: 0px;
+    left: 0px;
+    border-top: 1px solid #03A9F3;
+    border-left: 1px solid #03A9F3;
+    border-radius: 4px 4px 4px 4px;
+  }
+
+  &::after {
+    right: 0;
+    bottom: 0px;
+    border-bottom: 1px solid #03A9F3;
+    border-right: 1px solid #03A9F3;
+  }
+
+  &:hover::before,
+  &:hover::after {
+    width: calc(100% + 0px );
+    height: calc(100% + 0px);
+  }
+}
+
+// card - 图片门帘打开动画
+.card-element{
+  position: relative;
+  &::after,&::before{
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    background: rgba($color: #000000, $alpha: .25);
+    top: 0;
+    z-index: 99;
+    transition: .3s ease-out;
+  }
+  &::after{
+    left: 0;
+  }
+  &::before{
+    right: 0;
+  }
+
+  &:hover{
+    &::after{
+      transform: translateX(-100%);
+    }
+    &::before{
+      transform: translateX(100%);
+    }
+    img{
+      transition: .3s ease-out;
+      transform: scale(1.1);
+    }
+  }
+}
