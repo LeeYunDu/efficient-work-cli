@@ -16,10 +16,11 @@
           <ui-table
             v-bind="tableOptions"
             ref="uiTableRef"
-            test
             @change="onChange"
+            :props="{
+              border:true
+            }"
             @onSort="sortChange"
-            auto
           >
             <template #action="{row,config}">
               <template v-for="btn in actionButtons" :key="btn.key">

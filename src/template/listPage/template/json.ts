@@ -3,6 +3,7 @@ import { FieldItem, FormMode, ItemMode } from '@/typings/items'
 /**
  * common
  */
+
 export const tableQueryFormFields: FormMode[] = [
   { label: '场景名称', value: '', key: 'name', type: 'input', },
   {
@@ -98,8 +99,6 @@ export const formFields: FormMode[] = [
     props: {
       formItem: { required: true, }
     },
-
-
   },
   { label: '联系人', value: '', key: 'key2', type: 'input', props: { formItem: { required: true, } }, },
   { label: '联系电话', value: '', key: 'key3', type: 'input', props: { formItem: { required: true, } }, },

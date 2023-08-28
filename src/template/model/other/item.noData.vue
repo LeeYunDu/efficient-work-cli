@@ -52,9 +52,16 @@ const show = computed(()=>{
 <style lang="scss" scoped>
 .no-data{
   text-align: center;
+  width: 100%;
   img{
-    width: 202px;
-    height: 180px;
+    width: 180px;
+    height: 120px;
+  }
+  .tip{
+    font-size: 12px;
+    font-family: PingFang SC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #686B73;
   }
 }
 </style>
