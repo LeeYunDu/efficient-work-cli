@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import { computed, inject, PropType } from 'vue'
 import { getDictValue,isArray,isFunction,parseTime } from '@/utils'
-import { get } from 'lodash-es'
+import { get, } from 'lodash-es'
 
 let props = defineProps({
   data:{

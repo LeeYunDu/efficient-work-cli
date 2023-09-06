@@ -12,7 +12,6 @@
       @change="onChange"
       @sort="sortChange"
     >
-
       <template #action="{row,config}">
         <template v-for="btn in actionButtons" :key="btn.key">
           <span

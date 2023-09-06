@@ -1,6 +1,73 @@
+import { get, isFunction, isArray } from 'lodash-es'
+function getValue (data, field) {
+  let uValue: any = '-'
+  try {
+    switch (true) {
+      case field.format && isFunction(field.format):
+        uValue = field.format(data, field)
+        break
+      case !!field.valueFormat:
+        uValue = getDictValue(field.valueFormat, get(data, field.key, '-'))
+        break
+      case !!field.parseTime:
+        uValue = get(data, field.key, '') ? parseTime(new Date(get(data, field.key, '')), field.parseTime) : '-'
+        break
+      case isArray(field.key):
+        uValue = field.key.map((item: string) => get(data, item, '-')).join(field.split || ' - ')
+        break
+      default:
+        uValue = get(data, field.key, '-') + (field.unit || '')
+        break
+    }
+    if (field.unit) {
+      // uValue = uValue + field.unit
+    }
+  } catch (error) {
 
+  }
+  return uValue
+}
+/**
+ * 时间转换
+ */
+export function parseTime (time: string | number | Date, cFormat?: string) {
+  if (!time) {
+    return ''
+  }
+  if (arguments.length === 0) {
+    return null
+  }
 
+  if ((time + '').length === 10) {
+    time = +time * 1000
+  }
 
+  const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}'
+  let date
+  if (typeof time === 'object') {
+    date = time
+  } else {
+    date = new Date(parseInt(String(time)))
+  }
+  const formatObj = {
+    y: date.getFullYear(),
+    m: date.getMonth() + 1,
+    d: date.getDate(),
+    h: date.getHours(),
+    i: date.getMinutes(),
+    s: date.getSeconds(),
+    a: date.getDay()
+  } as any
+  const timeStr = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result: any, key: string | number) => {
+    let value = formatObj[key]
+    if (key === 'a') return ['一', '二', '三', '四', '五', '六', '日'][value - 1]
+    if (result.length > 0 && value < 10) {
+      value = '0' + value
+    }
+    return value || 0
+  })
+  return timeStr
+}
 
 // 字典值转换
 export function getDictValue (target: any, value: any, valueKey?: string) {
@@ -130,4 +197,28 @@ async function exportExcelByStream (options: ExcelStreamParam) {
     }
   }
   xhr.send(JSON.stringify(params))
+}
+
+
+
+export function getImage (item, key = 'pic', single = true) {
+  let pic = item[key]
+  if (pic) {
+    let { VITE_FILE_PATH } = import.meta.env
+    try {
+      let f = JSON.parse(pic)
+      if (single) {
+        return VITE_FILE_PATH + f[0].url
+      } else {
+        return f.map(e => {
+          e.url = VITE_FILE_PATH + e.url
+          return e
+        })
+      }
+    } catch (error) {
+      return ''
+    }
+  } else {
+    return ''
+  }
 }
