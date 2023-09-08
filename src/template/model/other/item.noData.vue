@@ -1,7 +1,7 @@
 
 <template>
   <div v-if="show" class="no-data">
-    <img :src="url" alt="">
+    <img :src="url" alt="" :style="imgStyle">
     <div class="tip">{{ tip }}</div>
   </div>
   <template v-if="!show">
@@ -14,8 +14,15 @@ import { computed } from 'vue'
 
 let props = defineProps({
   data:{
-    type:Array||Object,
+    type:Object,
     default:()=>({})
+  },
+  imgStyle:{
+    type:Array||Object,
+    default:()=>({
+      width:'383px',
+      height:'340px'
+    })
   },
   tip:{
     type:String,
