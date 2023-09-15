@@ -1,0 +1,218 @@
+
+
+// 列表页面
+
+@mixin pageBaseStyle {
+  background: #FFFFFF;
+  // box-shadow: 0px 4px 8px 0px rgba(206,206,206,0.5);
+  border-radius: 2px;
+  height: 100%;
+  overflow: scroll;
+}
+
+.page-view {
+
+  @include pageBaseStyle;
+
+  &~.page-view {
+    margin-top: 24px;
+  }
+
+  :deep {
+    table {
+      tbody {
+        tr {
+          &.hover-row {
+            background: #e3eaf3 !important;
+
+            td {
+              background: red !important;
+            }
+          }
+        }
+      }
+
+    }
+  }
+
+
+
+  .content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .page-center {
+      flex: 1;
+      margin-top: 20px;
+      overflow: hidden;
+      padding: 0px 20px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+
+      .table-box {
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .count-box {
+        display: flex;
+        margin-bottom: 18px;
+
+        .count-item {
+          background: #F5F5F5;
+          padding: 0 16px;
+          border-radius: 19px;
+          min-width: 96px;
+          font-size: 16px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 400;
+          color: #464646;
+          height: 40px;
+          line-height: 40px;
+          text-align: center;
+          cursor: pointer;
+
+          &~.count-item {
+            margin-left: 12px;
+          }
+
+          &.active {
+            background: linear-gradient(180deg, #E7EDFF 0%, #FFFFFF 100%);
+            border-radius: 19px;
+            border: 1px solid #7CA5EA;
+            font-weight: 600;
+          }
+        }
+      }
+
+      .post-button {
+        width: 88px;
+        height: 40px;
+        background: linear-gradient(315deg, #1B5DFE 0%, #229CF7 100%);
+        border-radius: 4px;
+        font-size: 16px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 600;
+        color: #FFFFFF;
+        line-height: 40px;
+        text-align: center;
+        cursor: pointer;
+      }
+
+    }
+
+    .page-top {
+      // border-bottom: 1px solid #ECECEC;
+      // padding: 0 24px;
+      // padding-top: 24px;
+    }
+  }
+
+  .ui-table {
+    .el-table {
+      flex: 1;
+
+      th.el-table__cell {
+        font-size: 16px;
+        font-family: Source Han Sans CN-Regular, Source Han Sans CN;
+        font-weight: 400;
+        color: #020810;
+        background: #F6F8FC;
+        border: none;
+        padding: 13px 0 13px 0;
+
+        .cell {
+          white-space: nowrap;
+        }
+      }
+
+      tr {
+        background-color: transparent;
+        // border: none;
+        background-repeat: no-repeat;
+        background-size: 100%;
+
+        td {
+          // border: none !important;
+          font-size: 16px;
+          font-family: Source Han Sans CN-Regular, Source Han Sans CN;
+          font-weight: 400;
+          color: #686B73;
+          line-height: 19px;
+          padding: 10px 0;
+        }
+
+        &:hover {
+          td {
+            background: transparent !important;
+          }
+        }
+      }
+    }
+  }
+
+  .action-btn {
+    font-size: 16px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #125DD5;
+    margin-left: 12px;
+    cursor: pointer;
+    position: relative;
+
+    &~.action-btn {
+      &::before {
+        content: '';
+        position: absolute;
+        left: -6px;
+        width: 1px;
+        height: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #125DD5;
+      }
+    }
+
+  }
+}
+
+
+
+// ui-form 
+
+.table-query-form{
+  background: #FFFFFF;
+  border-radius: 4px 4px 4px 4px;
+  padding: 20px 20px 2px 20px;
+}
+
+.ui-component{
+  .el-form{
+    .el-form-item{
+      margin-bottom: 14px;
+      .el-form-item__label{
+        font-size: 16px;
+        font-family: Source Han Sans CN-Regular, Source Han Sans CN;
+        font-weight: 400;
+        color: #686B73;
+        height: 40px;
+        display: flex;
+        align-items: center;
+      }
+    }
+    .el-input{
+      .el-input__inner{
+        height: 38px;
+        &::placeholder{
+          font-size: 16px;
+          font-family: Source Han Sans CN-Regular, Source Han Sans CN;
+          font-weight: 400;
+          color: #C5C9D0;
+        }
+      }
+
+    }
+  }
+}

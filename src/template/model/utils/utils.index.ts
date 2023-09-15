@@ -83,7 +83,7 @@ export function transformTableData (fields: FieldItem[], data: any) {
   })
 
   needTransField.forEach((field: FieldItem) => {
-    const { transform, key } = field
+    const { transform, key, unit } = field
     let tKey = ''
     try {
       tKey = key.split('_')[0]
@@ -102,15 +102,19 @@ export function transformTableData (fields: FieldItem[], data: any) {
     data.map((e: any) => {
       switch (type) {
         case 'time':
-          e[key] = parseTime(e[tKey], transform)
-          console.log(e[key], 'e[key]')
-
+          e[key] = parseTime(new Date(e[tKey]), transform) + (unit || '')
           break
         case 'dict':
-          e[key] = getDictValue(transform, e[tKey])
+          e[key] = getDictValue(transform, e[tKey]) + (unit || '')
           break
+        case 'function':
+          e[key] = transform(e[key])
         default:
+          e[key] = e[key] ?? '-' + (unit || '')
           break
+      }
+      if (unit) {
+        e[key] = e[key]
       }
       return e
     })
