@@ -4,7 +4,7 @@
  * common
  */
 export const tableQueryFormFields: FormMode[] = [
-  { label: '场景名称', value: '', key: 'name', type: 'input', },
+  { label: '场景名称', key: 'name', type: 'input', },
   {
     label: '场景类型', key: 'key2', type: 'select', options: [
       { label: '选项1', value: 'valaue1', tValue: 'valuet1' }
@@ -71,20 +71,20 @@ export const formFields: FormMode[] = [
     },
   },
   {
-    label: '选择器', value: '', key: 'y1', type: 'select', options: dictData['dict_1'], props: {
+    label: '选择器', key: 'y1', type: 'select', options: dictData['dict_1'], props: {
       gridItem: { span: 12 },
       clearable: true,
       formItem: { required: true, }
     },
   },
   {
-    label: '数字带单位', value: '', key: 'y1', type: 'input',
+    label: '数字带单位', key: 'y1', type: 'input',
     props: {
       clearable: true, gridItem: { span: 12 }, min: 0, type: 'number', 'suffix': '㎡', formItem: { required: true, }
     },
   },
   {
-    label: '正则表达式', value: '', key: 'y2', type: 'input',
+    label: '正则表达式', key: 'y2', type: 'input',
     props: {
       clearable: true, gridItem: { span: 12 }, formItem: { required: false, },
       rules: [
@@ -93,7 +93,7 @@ export const formFields: FormMode[] = [
     },
   },
   {
-    label: '单选框', value: '', key: 'isApply', type: 'radio-group', options: [
+    label: '单选框', key: 'isApply', type: 'radio-group', options: [
       { text: '需要报名', label: 0 },
       { text: '无需报名', label: 1 },
     ] as any,
@@ -116,7 +116,7 @@ export const formFields: FormMode[] = [
     }
   },
   {
-    label: '富文本编辑器', value: '', key: 'content', type: 'slot', slotName: 'content', options: [
+    label: '富文本编辑器', key: 'content', type: 'slot', slotName: 'content', options: [
     ] as any,
     props: {
       clearable: true,
@@ -124,7 +124,7 @@ export const formFields: FormMode[] = [
     },
   },
   {
-    label: '图片', value: '', key: 'map', type: 'slot', slotName: 'upload',
+    label: '图片', key: 'map', type: 'slot', slotName: 'upload',
     props: {
       formItem: { required: true, },
       size: 2 * 1024,
@@ -134,7 +134,7 @@ export const formFields: FormMode[] = [
     },
   },
   {
-    label: '视频', value: '', key: 'video', type: 'slot', slotName: 'upload',
+    label: '视频', key: 'video', type: 'slot', slotName: 'upload',
     props: {
       formItem: { required: false, },
       size: 100 * 1024,
@@ -144,12 +144,12 @@ export const formFields: FormMode[] = [
     },
   },
   {
-    label: '地图坐标拾取', value: '', key: 'key6', type: 'slot', slotName: 'map',
+    label: '地图坐标拾取', key: 'key6', type: 'slot', slotName: 'map',
     props: {
       formItem: { required: false, },
     },
   },
-  { label: '', value: '', key: 'key6', type: 'slot', slotName: 'btns' },
+  { label: '', key: 'key6', type: 'slot', slotName: 'btns' },
 ]
 
 export const addFormOptions = {

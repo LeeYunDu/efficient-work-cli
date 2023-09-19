@@ -8,9 +8,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-let state = ref({
-  title: '标题'
-})
 
 </script>
 <style lang="scss" scoped>

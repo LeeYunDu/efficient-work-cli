@@ -7,7 +7,10 @@
             <img class="nomal" :src="`static/images/common/${item.icon}.png`" alt="">
             <img class="active" :src="`static/images/common/${item.icon}-active.png`" alt="">
           </template>
-          {{ item.name }}
+          <span class="label">{{ item.name }}</span>
+          <div class="value-box">
+              <div class="value">0</div>
+            </div>
         </el-radio>
       </template>
     </el-radio-group>
