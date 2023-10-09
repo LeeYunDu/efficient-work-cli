@@ -42,7 +42,7 @@ const row = computed(() => props.row || {})
 
 
 const dictData = store.getters.dictData
-export const formFields: FormMode[] = [
+ const formFields: FormMode[] = [
   {
     label: '标题带字数限制', key: 'title', type: 'input',
     props: {
@@ -175,10 +175,11 @@ async function onConfirm (cb:any) {
       state.params,
       props.modalType === 'edit' && { id: row.value.id }
     ))
-    if (!success) ElMessage.error(errMsg)
+    if (!success) return  ElMessage.error(errMsg)
     ElMessage.success(`${({ edit: '编辑', add: '新增', default: '操作' }[props.modalType || 'default'] ?? '')}成功!`)
-    emits('update:modelValue', false)
+    onClosed()
     emits('success', true)
+    
     cb()
   } catch (error) {
     cb()
@@ -188,6 +189,7 @@ async function onConfirm (cb:any) {
 function onClosed () {
   formRef.value?.resetFields()
   emits('update:row', {})
+  emits('update:modelValue', false)
 }
 
 const curParams:any = ref({
@@ -197,9 +199,9 @@ const curParams:any = ref({
 
 async function asyncDataDetail (){
   const params: any = Object.assign({},  curParams.value || {},props.modalType === 'edit' && { id: row.value.id })
-  // const { success, errMsg, data }: any = await apiName(params)
-  const  { success, errMsg, data }: any = { success:true,errMsg:'',data:{} }
-  if (!success) return ElMessage.error(errMsg)
+  // const { success, errMsg, data,status }: any = await apiName(params)
+  const  { success, errMsg, data,status }: any = { success:true,errMsg:'',data:{} }
+  if (!(status == 200)) return ElMessage.error(errMsg)
   Object.assign(state.params, cloneDeep(data))
 }
 

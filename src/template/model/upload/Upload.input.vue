@@ -53,7 +53,7 @@
   </el-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineProps, defineEmits, watch, computed, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Delete } from '@element-plus/icons-vue'
@@ -153,7 +153,7 @@ watch(() => state.fileList,() => {
 watch(() => props.modelValue,() => {
   if (!props.modelValue) return state.fileList = []
   state.fileList = JSON.parse(props.modelValue)
-})
+},{immediate:true})
 // -------- init --------
 
 </script>

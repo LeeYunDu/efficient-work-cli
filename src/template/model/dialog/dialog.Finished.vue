@@ -62,7 +62,7 @@ async function onConfirm (cb:any) {
       state.params,
       props.modalType === 'edit' && { id: row.value.id }
     ))
-    if (!success) ElMessage.error(errMsg)
+    if (!success) return  ElMessage.error(errMsg)
     ElMessage.success(`${({ edit: '编辑', add: '新增', default: '操作' }[props.modalType || 'default'] ?? '')}成功!`)
     emits('update:modelValue', false)
     emits('success', true)
