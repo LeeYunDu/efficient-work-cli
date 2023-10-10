@@ -226,3 +226,30 @@ export function getImage (item, key = 'pic', single = true) {
     return ''
   }
 }
+
+
+
+function exportPDFByStream () {
+  let params = {
+
+  }
+  let url = apiUrl()
+  var xhr = new XMLHttpRequest()
+  xhr.open('POST', url, true)
+  xhr.responseType = 'arraybuffer'
+  //发送合适的请求头信息
+  xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+  xhr.onload = function () {
+    // 请求结束后，在此处写处理代码
+    if (xhr.status === 200) {
+      var blob = new Blob([xhr.response], { type: 'application/pdf' })
+      var url2 = URL.createObjectURL(blob)
+      var link = document.createElement('a')
+      link.href = url2
+      window.open(url2)
+      link.download = '测试用例.pdf'
+      link.click()
+    }
+  }
+  xhr.send(JSON.stringify(params))
+}
