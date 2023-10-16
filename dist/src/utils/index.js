@@ -367,3 +367,16 @@ function getDictValue(target, value, valueKey) {
     return ((_b = (_a = store.getters.dictDataOnly(target)) === null || _a === void 0 ? void 0 : _a.find((dict) => +dict[valueKey || 'id'] === value)) === null || _b === void 0 ? void 0 : _b.name) || value;
 }
 exports.getDictValue = getDictValue;
+function scrollToElement(containerId, title) {
+    const container = document.getElementById(containerId);
+    const element = document.getElementById(title);
+    if (container && element) {
+        container.scrollTo({
+            top: element.offsetTop,
+            behavior: 'smooth'
+        });
+    }
+    else {
+        console.log('没有找到容器或匹配的元素');
+    }
+}

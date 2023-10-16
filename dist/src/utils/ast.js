@@ -459,6 +459,9 @@ class Ast {
             return node.key.name === mapType;
         })[0];
         if (required.includes(keyName)) {
+            filterNode.optional = false;
+        }
+        else {
             filterNode.optional = true;
         }
         // 字段名称

@@ -79,7 +79,30 @@ exports.tableColumn = [
 ];
 exports.formFields = [
     {
-        label: '场景名称', value: '1', key: 'key1', type: 'input', props: {
+        label: '活动名称', key: 'key99', type: 'input',
+        props: {
+            formItem: { required: true, },
+            clearable: true,
+            maxlength: 30,
+            'show-word-limit': true,
+            placeholder: '请输入活动名称,限30字内',
+        },
+    },
+    {
+        label: '审核结果', key: 'chooseType9Id', type: 'radio-group', options: [
+            { label: '93', value: '93', tValue: '审核通过', text: '审核通过' },
+            { label: '472', value: '472', tValue: '退回修改', text: '退回修改' },
+            { label: '94', value: '94', tValue: '审核未通过', text: '审核未通过' },
+        ],
+        props: {
+            formItem: { required: true, }
+        },
+    },
+    {
+        label: '活动类型', value: '', key: 'key1', type: 'checkbox-group', options: [
+            { value: 1, label: '问题咨询' },
+            { value: 2, label: '问题咨询2' },
+        ], props: {
             formItem: { required: true, }
         },
     },
@@ -91,10 +114,19 @@ exports.formFields = [
             formItem: { required: true, }
         },
     },
+    {
+        label: '活动时间', key: 'publishTimeGroup', type: 'datePicker', props: {
+            'value-format': 'x',
+            clearable: true,
+            type: 'daterange',
+            formItem: { required: true, },
+            placeholder: '请输入活动名称,限30字内',
+            gridItem: {
+                span: 13
+            }
+        }
+    },
     { label: '联系人', value: '', key: 'key2', type: 'input', props: { formItem: { required: true, } }, },
-    { label: '联系电话', value: '', key: 'key3', type: 'input', props: { formItem: { required: true, } }, },
-    { label: '联系地址', value: '', key: 'key4', type: 'input', props: { formItem: { required: true, } }, },
-    { label: '响应时间', value: '', key: 'key5', type: 'slot', slotName: 'xyTime' },
     { label: '场景描述', value: '', key: 'key6', type: 'slot', slotName: 'richText' },
     { label: '', value: '', key: 'key6', type: 'slot', slotName: 'btns' },
 ];

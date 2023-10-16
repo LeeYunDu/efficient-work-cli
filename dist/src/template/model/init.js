@@ -114,6 +114,9 @@ function generatorFile(modelFile, options) {
                 break;
             case 'vue':
                 componentsAst = new ast_1.Ast(sourcePath, { parseOptions: { language: 'vue' } });
+                let FormAst = new ast_1.Ast(sourcePath, { parseOptions: { language: 'vue' } });
+                let onChange = FormAst.getFunctoinNode('onClosed', componentsAst.jsAst);
+                console.log(onChange.attr('body.body')[1].expression.arguments[0].value = 555);
                 break;
         }
         setTimeout(() => {

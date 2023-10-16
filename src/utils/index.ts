@@ -349,3 +349,18 @@ export function getDictValue (target: any, value: any, valueKey?: string) {
   if (!value && !String(value)) return value
   return store.getters.dictDataOnly(target)?.find((dict: any) => +dict[valueKey || 'id'] === value)?.name || value
 }
+
+
+function scrollToElement (containerId, title) {
+  const container = document.getElementById(containerId);
+  const element = document.getElementById(title);
+
+  if (container && element) {
+    container.scrollTo({
+      top: element.offsetTop,
+      behavior: 'smooth'
+    });
+  } else {
+    console.log('没有找到容器或匹配的元素');
+  }
+}
