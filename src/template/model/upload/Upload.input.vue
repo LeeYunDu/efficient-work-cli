@@ -13,6 +13,7 @@
     :on-exceed="onExceed"
     :list-type="listType"
     :file-list="state.fileList"
+    :accept="accept"
     class="custom-upload"
   >
     <template v-if="!_.hasIn($slots,'default')" #default>
@@ -108,7 +109,7 @@ function onUploadSuccess (res) {
 }
 
 function getFileType (str) {
-  return str.substring(str.lastIndexOf('.') + 1)
+  return str.substring(str.lastIndexOf('.') )
 }
 
 function onBeforeUpload (UploadRawFile) {
