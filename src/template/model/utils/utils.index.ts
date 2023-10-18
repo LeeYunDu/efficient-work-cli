@@ -253,3 +253,26 @@ function exportPDFByStream () {
   }
   xhr.send(JSON.stringify(params))
 }
+
+// 输入地址获取地图上的经纬度
+export function getLngLat (address) {
+  return new Promise((resolve, reject) => {
+    if (address.indexOf('|' !== -1)) {
+      address = address.split('|')[0]
+    }
+
+    AMap.plugin('AMap.Geocoder', function () {
+      const geocoder = new AMap.Geocoder({
+        apiKey: '4de45b8fff6ae93a940c6e813092045f',
+        city: '杭州' // 城市设为杭州，默认：“全国”
+      })
+
+      geocoder.getLocation(address, (status, result) => {
+        if (status === 'complete' && result.geocodes.length) {
+          const lnglat = result.geocodes[0].location
+          resolve(lnglat)
+        }
+      })
+    })
+  })
+}
