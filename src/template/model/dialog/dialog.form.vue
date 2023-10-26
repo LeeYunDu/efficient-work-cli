@@ -13,7 +13,50 @@
       v-bind="addFormOptions"
       ref="formRef"
       :model="state.params"
-    />
+    >
+    <template #address="scopeProps">
+            <el-input
+              v-model="state.params[scopeProps.item.key]"
+              v-bind="scopeProps.item.props"
+              @change="throttleFn"
+            >
+              <template #append>
+                <img
+                  class="icon-position"
+                  src="@static/images/common/icon-position.png"
+                  alt=""
+                  @click="throttleFn"
+                >
+              </template>
+            </el-input>
+          </template>
+          <template #upload="scopeProps">
+            <UploadInput
+              v-model="state.params[scopeProps.item.key]"
+              :show-file-list="false"
+              :custom-show-file-list="true"
+              file-list-type="file"
+              v-bind="scopeProps.item.props"
+              tip=""
+            />
+          </template>
+          
+          <template #uploadVideo="scopeProps">
+            <UploadInput
+              v-model="state.params[scopeProps.item.key]"
+              :show-file-list="false"
+              :custom-show-file-list="true"
+              file-list-type="file"
+              v-bind="scopeProps.item.props"
+              tip=""
+            />
+
+            <!-- label附带提示语 -->
+          <template #label-address="{label,props}">
+            <FormTip :label="label" :tip="longitude" />
+          </template>
+          </template>
+    </UiForm>
   </SimpleModal>
 </template>
 
@@ -36,9 +79,8 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['update:modelValue','update:row','success'])
-
 const row = computed(() => props.row || {})
-
+let formRef = shallowRef<null|InstanceType<typeof UiForm>>()
 
 
 const dictData = store.getters.dictData
@@ -108,29 +150,36 @@ const dictData = store.getters.dictData
     },
   },
   {
-    label: '图片', key: 'map', type: 'slot', slotName: 'upload',
+    label: '现场照片', key: 'fileParams553', type: 'slot', slotName: 'upload',
     props: {
       formItem: { required: true, },
-      size: 2 * 1024,
+      size: 10 * 1024,
       limit: 5,
-      tip: '支持JPG / PNG，建议800*600,最多上传5张，单张限2M内',
-      accept: ['jpg', 'png', 'jpeg']
+      tip: '支持JPG/PNG，建议800*600，最多上传5张，单张限10M内',
+      accept: ['.jpg', '.png', '.jpeg'],
+      listType: 'picture-card'
     },
   },
   {
-    label: '视频', key: 'video', type: 'slot', slotName: 'upload',
+    label: '房源视频', key: 'fileParams527', type: 'slot', slotName: 'uploadVideo',
     props: {
       formItem: { required: false, },
-      size: 100 * 1024,
-      limit: 3,
-      tip: '支持各种格式，视频限100M内',
-      accept: ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mpeg']
+      size: 500 * 1024,
+      limit: 1,
+      tip: '支持 MP4/mkv 视频格式，最多上传一份，大小限制500M',
+      accept: ['.mp4', '.mkv']
     },
   },
   {
-    label: '地图坐标拾取', key: 'key6', type: 'slot', slotName: 'map',
+    label: '地理位置', key: 'address', type: 'slot', slotName: 'address',
     props: {
-      formItem: { required: false, },
+      gridItem: { span: 12 },
+      formItem: { required: true },
+      clearable: true,
+      append: 'append',
+      // maxlength: 30,
+      // 'show-word-limit': true,
+      placeholder: '输入地址，若有多个用|隔开',
     },
   },
   { label: '', key: 'key6', type: 'slot', slotName: 'btns' },
@@ -166,7 +215,6 @@ const state = reactive({
   }
 })
 
-let formRef = shallowRef<null|InstanceType<typeof UiForm>>()
 async function onConfirm (cb:any) {
   try {
     await formRef.value?.validate()

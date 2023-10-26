@@ -67,13 +67,13 @@
 </template>
 
 
-<script setup>
+<script setup lang="ts">
 import SimpleModal from '@/views/components/Simple.modal.vue'
 import FormItemCol from '@/views/components/FormItem.col.vue'
 import UploadInput from '@/views/components/Upload.input.vue'
 import Icon from '@/views/components/Icon.vue'
 import downLoadFile from '@/utils/download'
-
+import {computed,ref,reactive} from 'vue'
 const props = defineProps({
   modelValue: { type: Boolean, default: false }
 })
