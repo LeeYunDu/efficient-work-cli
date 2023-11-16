@@ -87,3 +87,19 @@
     }
   }
 }
+
+
+
+// 旋转动画
+.rotate-element{
+  animation: rotate 2s ease 0s infinite;
+}
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+

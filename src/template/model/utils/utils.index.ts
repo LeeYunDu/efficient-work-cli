@@ -276,3 +276,133 @@ export function getLngLat (address) {
     })
   })
 }
+
+
+/**
+ * 图片获取
+ * @param name 
+ * @param isNode // 是否前端node文件库的形式加载
+ * @returns 
+ */
+export function metaFilePath (path: string, isNode = false, aFid: number) {
+  // let { VITE_ENV, VITE_SERVER_PREFIX } = import.meta.env
+  // return `${VITE_ENV == 'irs' ? VITE_SERVER_PREFIX : ''}/node-szzt/file/download/${name}`
+  const fid = aFid || config.project.meta.folders[0]
+
+  /**
+   * 几百KB或者几M的图片就放到node上去处理
+   */
+  if (isNode) {
+    // return `/node-szzt/file/download/projectId/${path}`
+    return `${ApiProxy.node.main}/file/download/${fid}/${name}`
+  } else {
+    return new URL('@static/images/', import.meta.url) + '/' + path
+  }
+
+  /** 
+   *    
+   *   SCSS 动态引入图片写法
+   *   src: url(#{$node-path}/file/download/2147/SourceHanSansSC.otf)
+   *   动态写法还需要在vite.config 下关于scss的配置，添加 $node-path 变量     
+   *   preprocessorOptions.scss下添加以下代码
+   *   $node-path: '${process.env.VITE_BUILD_ENV == 'isr' ? 'https://lqt.linan.gov.cn:18570/node-szzt' : '/node-szzt'}';
+   * 
+   * 
+   *   SCSS 静态引入前端文件库资源写法
+   *   src: url('/node-szzt/file/download/2147/D-DIN.otf'),
+   */
+}
+
+
+
+// iframe 父级
+function addMessageListner () {
+  window.addEventListener('message', (t) => {
+    if (t.data && typeof t.data !== 'object') {
+      let e: any = {}
+      try {
+        e = JSON.parse(t.data)
+      } catch (t) {
+        return
+      }
+
+      switch (String(e.func)) {
+        case 'location':
+          resizeIframe('calc(100vh - 100px)')
+          window.scrollTo(0, 0)
+          sessionStorage.setItem(
+            'iframePath',
+            delSsoSessionId(String(e.params.path))
+          )
+
+          break
+        case 'login':
+          loginVisible.value = true
+          break
+        case 'resize':
+          resizeIframe(e.params?.height)
+          break
+        default:
+          break
+      }
+    }
+  })
+}
+
+async function resizeIframe (height) {
+  const docIframe = document.getElementById(
+    'activity-iframe'
+  ) as HTMLElement
+  if (!docIframe) return
+  docIframe.style.height = typeof height === 'number' ? `${height}px` : height
+}
+
+
+// 嵌套的iframe
+export function resizeWindow (height: number) {
+  const options = JSON.stringify({
+    func: 'resize',
+    params: { height: height + 80 }
+  })
+  window.parent.postMessage(options, '*')
+
+  if (1 > 2) {
+    // 这块代码迁移到 layout/main 下
+    function initMainHeightObserver () {
+      const targetNode = document.getElementById('layout-main')
+      const observer = new MutationObserver((mutation: any[]) => {
+        setTimeout(() => {
+          const dom = last(mutation)
+          resizeWindow(targetNode?.scrollHeight)
+        }, 500)
+      })
+      var config = {
+        characterData: true,
+        attributes: true,
+        childList: true,
+        subtree: true
+      }
+      observer.observe(targetNode, config)
+    }
+    onMounted(() => {
+      initMainHeightObserver()
+    })
+  }
+}
+
+export function goParentLogin () {
+  const options = JSON.stringify({
+    func: 'login',
+    params: { userType: 2 }
+  })
+  window.parent.postMessage(options, '*')
+}
+
+export function scrollReset (fullPath: string) {
+  const options = JSON.stringify({
+    func: 'location',
+    params: { path: fullPath }
+  })
+  window.parent.postMessage(options, '*')
+}
+
