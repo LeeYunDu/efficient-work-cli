@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getImage = exports.exportExcelByJson = exports.transformValue = exports.transformTableData = exports.getDictValue = exports.parseTime = void 0;
+exports.scrollReset = exports.goParentLogin = exports.resizeWindow = exports.metaFilePath = exports.getLngLat = exports.getImage = exports.exportExcelByJson = exports.transformValue = exports.transformTableData = exports.getDictValue = exports.parseTime = exports.getValue = void 0;
 const lodash_es_1 = require("lodash-es");
 function getValue(data, field) {
     let uValue = '-';
@@ -21,11 +21,18 @@ function getValue(data, field) {
             case !!field.valueFormat:
                 uValue = getDictValue(field.valueFormat, (0, lodash_es_1.get)(data, field.key, '-'));
                 break;
+            case (0, lodash_es_1.isArray)(field.key):
+                uValue = field.key.map((item) => {
+                    if (field.parseTime && (0, lodash_es_1.get)(data, item, '')) {
+                        return parseTime(new Date((0, lodash_es_1.get)(data, item, '')), field.parseTime);
+                    }
+                    else {
+                        return (0, lodash_es_1.get)(data, item, '-');
+                    }
+                }).join(field.split || '-');
+                break;
             case !!field.parseTime:
                 uValue = (0, lodash_es_1.get)(data, field.key, '') ? parseTime(new Date((0, lodash_es_1.get)(data, field.key, '')), field.parseTime) : '-';
-                break;
-            case (0, lodash_es_1.isArray)(field.key):
-                uValue = field.key.map((item) => (0, lodash_es_1.get)(data, item, '-')).join(field.split || ' - ');
                 break;
             default:
                 uValue = (0, lodash_es_1.get)(data, field.key, '-') + (field.unit || '');
@@ -39,6 +46,7 @@ function getValue(data, field) {
     }
     return uValue;
 }
+exports.getValue = getValue;
 /**
  * 时间转换
  */
@@ -97,34 +105,36 @@ function transformTableData(fields, data) {
     });
     needTransField.forEach((field) => {
         const { transform, key, unit } = field;
-        let tKey = '';
-        try {
-            tKey = key.split('_')[0];
-        }
-        catch (error) {
-            console.log(error);
-        }
-        // 目前就判断下是否为时间、字典
         let type = '';
-        if (transform.indexOf('x') > -1 || (transform.indexOf('{') > -1 && transform.indexOf('}') > -1)) {
-            type = 'time';
-        }
-        if (transform.indexOf('.') > -1) {
-            type = 'dict';
+        switch (true) {
+            case (0, lodash_es_1.isFunction)(transform):
+                type = 'function';
+                break;
+            case (transform.indexOf('x') > -1 || (transform.indexOf('{') > -1 && transform.indexOf('}') > -1)):
+                type = 'time';
+                break;
+            case ((transform.indexOf('.list') > -1) || transform.indexOf('.tree') > -1):
+                type = 'dict';
+                break;
         }
         data.map((e) => {
-            var _a;
             switch (type) {
                 case 'time':
-                    e[key] = parseTime(new Date(e[tKey]), transform) + (unit || '');
+                    e[key] = parseTime(new Date((0, lodash_es_1.get)(e, key, '')), transform) + (unit || '');
                     break;
                 case 'dict':
-                    e[key] = getDictValue(transform, e[tKey]) + (unit || '');
+                    if (key.indexOf('Name') > -1 && key.indexOf('chooseType') > -1) {
+                        const valueKey = key.slice(0, key.indexOf('Name'));
+                        e[key] = getDictValue(transform, (0, lodash_es_1.get)(e, valueKey, '')) + (unit || '');
+                    }
+                    else {
+                        e[key] = getDictValue(transform, (0, lodash_es_1.get)(e, key, '')) + (unit || '');
+                    }
                     break;
                 case 'function':
-                    e[key] = transform(e[key]);
+                    e[key] = transform((0, lodash_es_1.get)(e, key, ''), e);
                 default:
-                    e[key] = (_a = e[key]) !== null && _a !== void 0 ? _a : '-' + (unit || '');
+                    e[key] = (0, lodash_es_1.get)(e, key, '') + (unit || '');
                     break;
             }
             if (unit) {
@@ -259,3 +269,143 @@ function exportPDFByStream() {
     };
     xhr.send(JSON.stringify(params));
 }
+// 输入地址获取地图上的经纬度
+function getLngLat(address) {
+    return new Promise((resolve, reject) => {
+        if (address.indexOf('|' !== -1)) {
+            address = address.split('|')[0];
+        }
+        AMap.plugin('AMap.Geocoder', function () {
+            const geocoder = new AMap.Geocoder({
+                apiKey: '4de45b8fff6ae93a940c6e813092045f',
+                city: '杭州' // 城市设为杭州，默认：“全国”
+            });
+            geocoder.getLocation(address, (status, result) => {
+                if (status === 'complete' && result.geocodes.length) {
+                    const lnglat = result.geocodes[0].location;
+                    resolve(lnglat);
+                }
+            });
+        });
+    });
+}
+exports.getLngLat = getLngLat;
+/**
+ * 图片获取
+ * @param name
+ * @param isNode // 是否前端node文件库的形式加载
+ * @returns
+ */
+function metaFilePath(path, isNode = false, aFid) {
+    // let { VITE_ENV, VITE_SERVER_PREFIX } = import.meta.env
+    // return `${VITE_ENV == 'irs' ? VITE_SERVER_PREFIX : ''}/node-szzt/file/download/${name}`
+    const fid = aFid || config.project.meta.folders[0];
+    /**
+     * 几百KB或者几M的图片就放到node上去处理
+     */
+    if (isNode) {
+        // return `/node-szzt/file/download/projectId/${path}`
+        return `${ApiProxy.node.main}/file/download/${fid}/${name}`;
+    }
+    else {
+        return new URL('@static/images/', import.meta.url) + '/' + path;
+    }
+    /**
+     *
+     *   SCSS 动态引入图片写法
+     *   src: url(#{$node-path}/file/download/2147/SourceHanSansSC.otf)
+     *   动态写法还需要在vite.config 下关于scss的配置，添加 $node-path 变量
+     *   preprocessorOptions.scss下添加以下代码
+     *   $node-path: '${process.env.VITE_BUILD_ENV == 'isr' ? 'https://lqt.linan.gov.cn:18570/node-szzt' : '/node-szzt'}';
+     *
+     *
+     *   SCSS 静态引入前端文件库资源写法
+     *   src: url('/node-szzt/file/download/2147/D-DIN.otf'),
+     */
+}
+exports.metaFilePath = metaFilePath;
+// iframe 父级
+function addMessageListner() {
+    window.addEventListener('message', (t) => {
+        var _a;
+        if (t.data && typeof t.data !== 'object') {
+            let e = {};
+            try {
+                e = JSON.parse(t.data);
+            }
+            catch (t) {
+                return;
+            }
+            switch (String(e.func)) {
+                case 'location':
+                    resizeIframe('calc(100vh - 100px)');
+                    window.scrollTo(0, 0);
+                    sessionStorage.setItem('iframePath', delSsoSessionId(String(e.params.path)));
+                    break;
+                case 'login':
+                    loginVisible.value = true;
+                    break;
+                case 'resize':
+                    resizeIframe((_a = e.params) === null || _a === void 0 ? void 0 : _a.height);
+                    break;
+                default:
+                    break;
+            }
+        }
+    });
+}
+function resizeIframe(height) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const docIframe = document.getElementById('activity-iframe');
+        if (!docIframe)
+            return;
+        docIframe.style.height = typeof height === 'number' ? `${height}px` : height;
+    });
+}
+// 嵌套的iframe
+function resizeWindow(height) {
+    const options = JSON.stringify({
+        func: 'resize',
+        params: { height: height + 80 }
+    });
+    window.parent.postMessage(options, '*');
+    if (1 > 2) {
+        // 这块代码迁移到 layout/main 下
+        function initMainHeightObserver() {
+            const targetNode = document.getElementById('layout-main');
+            const observer = new MutationObserver((mutation) => {
+                setTimeout(() => {
+                    const dom = last(mutation);
+                    resizeWindow(targetNode === null || targetNode === void 0 ? void 0 : targetNode.scrollHeight);
+                }, 500);
+            });
+            var config = {
+                characterData: true,
+                attributes: true,
+                childList: true,
+                subtree: true
+            };
+            observer.observe(targetNode, config);
+        }
+        onMounted(() => {
+            initMainHeightObserver();
+        });
+    }
+}
+exports.resizeWindow = resizeWindow;
+function goParentLogin() {
+    const options = JSON.stringify({
+        func: 'login',
+        params: { userType: 2 }
+    });
+    window.parent.postMessage(options, '*');
+}
+exports.goParentLogin = goParentLogin;
+function scrollReset(fullPath) {
+    const options = JSON.stringify({
+        func: 'location',
+        params: { path: fullPath }
+    });
+    window.parent.postMessage(options, '*');
+}
+exports.scrollReset = scrollReset;

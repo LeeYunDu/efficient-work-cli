@@ -1,5 +1,5 @@
 import { get, isFunction, isArray } from 'lodash-es'
-function getValue (data, field) {
+export function getValue (data, field) {
   let uValue: any = '-'
   try {
     switch (true) {
@@ -8,13 +8,21 @@ function getValue (data, field) {
         break
       case !!field.valueFormat:
         uValue = getDictValue(field.valueFormat, get(data, field.key, '-'))
+
+        break
+      case isArray(field.key):
+        uValue = field.key.map((item: string) => {
+          if (field.parseTime && get(data, item, '')) {
+            return parseTime(new Date(get(data, item, '')), field.parseTime)
+          } else {
+            return get(data, item, '-')
+          }
+        }).join(field.split || '-')
         break
       case !!field.parseTime:
         uValue = get(data, field.key, '') ? parseTime(new Date(get(data, field.key, '')), field.parseTime) : '-'
         break
-      case isArray(field.key):
-        uValue = field.key.map((item: string) => get(data, item, '-')).join(field.split || ' - ')
-        break
+
       default:
         uValue = get(data, field.key, '-') + (field.unit || '')
         break
@@ -84,44 +92,48 @@ export function transformTableData (fields: FieldItem[], data: any) {
 
   needTransField.forEach((field: FieldItem) => {
     const { transform, key, unit } = field
-    let tKey = ''
-    try {
-      tKey = key.split('_')[0]
-    } catch (error) {
-      console.log(error)
-
-    }
-    // 目前就判断下是否为时间、字典
     let type = ''
-    if (transform.indexOf('x') > -1 || (transform.indexOf('{') > -1 && transform.indexOf('}') > -1)) {
-      type = 'time'
-    }
-    if (transform.indexOf('.') > -1) {
-      type = 'dict'
+    switch (true) {
+      case isFunction(transform):
+        type = 'function'
+        break
+      case (transform.indexOf('x') > -1 || (transform.indexOf('{') > -1 && transform.indexOf('}') > -1)):
+        type = 'time'
+        break
+      case ((transform.indexOf('.list') > -1) || transform.indexOf('.tree') > -1):
+        type = 'dict'
+        break
     }
     data.map((e: any) => {
       switch (type) {
         case 'time':
-          e[key] = parseTime(new Date(e[tKey]), transform) + (unit || '')
+          e[key] = parseTime(new Date(get(e, key, '')), transform) + (unit || '')
           break
         case 'dict':
-          e[key] = getDictValue(transform, e[tKey]) + (unit || '')
+          if (key.indexOf('Name') > -1 && key.indexOf('chooseType') > -1) {
+            const valueKey = key.slice(0, key.indexOf('Name'))
+            e[key] = getDictValue(transform, get(e, valueKey, '')) + (unit || '')
+          } else {
+            e[key] = getDictValue(transform, get(e, key, '')) + (unit || '')
+          }
           break
         case 'function':
-          e[key] = transform(e[key])
+          e[key] = transform(get(e, key, ''), e)
         default:
-          e[key] = e[key] ?? '-' + (unit || '')
+          e[key] = get(e, key, '') + (unit || '')
           break
       }
       if (unit) {
         e[key] = e[key]
       }
+
       return e
     })
   })
 
   return data
 }
+
 
 
 // 表单数据转化

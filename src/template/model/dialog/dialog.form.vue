@@ -13,6 +13,7 @@
       v-bind="addFormOptions"
       ref="formRef"
       :model="state.params"
+      :labels="formFields"
     >
     <template #address="scopeProps">
             <el-input
@@ -120,8 +121,8 @@ const dictData = store.getters.dictData
   },
   {
     label: '单选框', key: 'isApply', type: 'radio-group', options: [
-      { text: '需要报名', label: 0 },
-      { text: '无需报名', label: 1 },
+      { text: '是', label: 0 },
+      { text: '否', label: 1 },
     ] as any,
     props: {
       formItem: { required: true, }
@@ -134,10 +135,10 @@ const dictData = store.getters.dictData
       clearable: true,
       type: 'datetimerange',
       formItem: { required: true, },
-      startPlaceholder: '活动开始时间',
-      endPlaceholder: '活动结束时间',
+      startPlaceholder: '开始时间',
+      endPlaceholder: '结束时间',
       gridItem: {
-        span: 13
+        span: 24
       }
     }
   },
@@ -191,7 +192,9 @@ const addFormOptions = {
     inline: true,
     labelWidth: 'auto',
     labelPosition: 'left',
-    rules: []
+    rules: [],
+    'validate-on-rule-change': false,
+    ruleTrigger: 'change'
   },
   options: {
     gridItem: { span: 24 }
@@ -208,7 +211,7 @@ const state = reactive({
     },
     set: val =>  emits('update:modelValue', val)
   }),
-  title: '新增跟进',
+  title: '弹窗标题',
   data:{},
   params:{
 
@@ -238,6 +241,7 @@ function onClosed () {
   formRef.value?.resetFields()
   emits('update:row', {})
   emits('update:modelValue', false)
+  state.params = {}
 }
 
 const curParams:any = ref({
