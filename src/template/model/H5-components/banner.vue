@@ -1,7 +1,7 @@
 <template>
   <div class="banner-box">
     <div v-if="title" class="title-box">
-      <img src="static/images/layout/icon-title.png" alt="">
+      <img src="@static/images/layout/icon-title.png" alt="">
       {{ title }}
     </div>
     <img
@@ -13,7 +13,7 @@
     <img
       v-else
       class="banner"
-      :src="$loadImg(imgUrl)"
+      :src="$metaFilePath(imgUrl)"
       alt=""
     >
     <div class="slot-box">
@@ -21,12 +21,12 @@
     </div>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
 
 const url = defineProps({
   imgUrl:{
     type:String,
-    default:'static/images/home/banner.png'
+    default:'@static/images/home/banner.png'
   },
   pic:{
     type:String,
