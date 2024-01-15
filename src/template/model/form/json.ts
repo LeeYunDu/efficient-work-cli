@@ -1,6 +1,7 @@
 import { FieldItem, FormMode, ItemMode } from '@/typings/items'
 import store from '@/store'
-const dictData = store.getters.dictData
+import { computed } from 'vue'
+const dictData = computed(() => store.getters.dictData).value
 
 export const formFields: FormMode[] = [
   {
