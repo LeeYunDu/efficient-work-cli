@@ -30,14 +30,16 @@ export default defineConfig({
         items: [
           { text: 'RadioGroup', link: '/Select/RadioGroup' },
           { text: 'TabGroup', link: '/Select/TabGroup' },
-
-
         ]
       },
       {
         text: 'Drawer',
+        items: []
+      },
+      {
+        text: 'Other Component',
         items: [
-
+          { text: '无限滚动列表 Roll List', link: '/Other/RollList' },
         ]
       }
     ],

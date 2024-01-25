@@ -1,3 +1,100 @@
+
+
+<script setup>
+import { ref} from 'vue'
+import RollList from '../../src/template/model/other/roll.list.vue'
+let  data = ref([
+  {x1:'杭州市',y1:'1'},
+  {x1:'温州市',y1:'2'},
+  {x1:'金华市',y1:'3'},
+  {x1:'昆明市',y1:'4'},
+  {x1:'绍兴市',y1:'5'},
+])
+
+function onRadioChange(){
+
+}
+</script>
+# RollList
+
+无限滚动列表,附带源码,拓展性高。
+
+## 使用说明
+常用于驾驶舱、数据分析场景，展现数据项，然后无限滚动。
+组件实现逻辑是复制了一份默认插槽的DOM节点,所以要避免数据量过大导致页面卡顿。
+
+功能介绍
+
+1. 无限滚动列表
+2. 参数配置丰富
+
+## 示例
+
+<RollList :data="data" height="100px" :scroll="true">
+  <div>数据1</div>
+  <div>数据2</div>
+  <div>数据3</div>
+  <div>数据4</div>
+  <div>数据5</div>
+</RollList>
+
+``` vue
+<template>
+  <RollList :data="data" height="100px" :scroll="true">
+    <div>数据1</div>
+    <div>数据2</div>
+    <div>数据3</div>
+    <div>数据4</div>
+    <div>数据5</div>
+  </RollList>
+</template>
+<script lang="ts" setup>
+import { ref} from 'vue'
+import RollList from './roll.list.vue'
+let  data = ref([
+  {x1:'杭州市',y1:'1'},
+  {x1:'温州市',y1:'2'},
+  {x1:'金华市',y1:'3'},
+  {x1:'昆明市',y1:'4'},
+  {x1:'绍兴市',y1:'5'},
+])
+</script>
+```
+## Attributes
+
+| 属性名      | 说明        |  类型         |  默认值       | 
+| :---        | :---   |   :---  |:----: |
+| data   | 数据集合        | array      |—  |
+| options   | 滚动列表参数配置 <span style="color:blue;">options</span>      | object      | —  |
+| height   | 组件高度        | number / string      | 100%  |
+| scroll   | 是否自动滚动        | boolean      | true |
+
+## options
+
+| 属性名      | 说明        |  类型         |  默认值       | 
+| :---        | :---   |   :---  |:----: |
+| step   | 数值越大速度滚动越快       | number   |	'0.2' |
+| limitMoveNum   | 开始无缝滚动的数据量       | number   |	2 |
+| hoverStop   | 是否开启鼠标悬停stop       | boolean   |	true |
+| direction   | 0向下 1向上 2向左 3向右       | number   |	1 |
+| openWatch   | 开启数据实时监控刷新dom       | boolean   |	true |
+| singleHeight   | 单步运动停止的高度(默认值0是无缝不停止的滚动) direction => 0/1       | number   |	0 |
+| singleWidth   | 单步运动停止的宽度(默认值0是无缝不停止的滚动) direction => 2/3       | number   |0 |
+| waitTime   | 单步运动停止的时间(默认值1000ms)       | number   |	1000 |
+
+## 插槽
+
+| 插槽名      | 说明        |  子标签         |
+| :---        | :---   |   :---  |
+| -   | 自定义默认内容       |  —  |
+| empty   | 当数据为空时自定义的内容       |  —  |
+
+
+
+## RollList 源代码
+::: details 查看源代码
+
+``` vue
 <template>
   <div class="roll-list-component" :style="{height:useHeight}">
     <div class="no-data" v-if="useData.length == 0">
@@ -423,5 +520,19 @@ function arrayEqual (arr1, arr2) {
 
 .roll-list-component{
   overflow: hidden;
+}
+</style>
+
+
+
+``` 
+
+
+:::
+
+<style module>
+.button {
+  color: red;
+  font-weight: bold;
 }
 </style>
