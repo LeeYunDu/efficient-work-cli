@@ -1,7 +1,13 @@
 import {
+  del,
+  isVue2,
+  isVue3,
+  set
+} from "./chunk-6NMAXBHK.js";
+import {
   Fragment,
   TransitionGroup,
-  computed,
+  computed2 as computed,
   customRef,
   defineComponent,
   effectScope,
@@ -33,27 +39,7 @@ import {
   version,
   watch,
   watchEffect
-} from "./chunk-2YWP3TL2.js";
-
-// node_modules/vue-demi/lib/index.mjs
-var isVue2 = false;
-var isVue3 = true;
-function set(target, key, val) {
-  if (Array.isArray(target)) {
-    target.length = Math.max(target.length, key);
-    target.splice(key, 1, val);
-    return val;
-  }
-  target[key] = val;
-  return val;
-}
-function del(target, key) {
-  if (Array.isArray(target)) {
-    target.splice(key, 1);
-    return;
-  }
-  delete target[key];
-}
+} from "./chunk-UTXOFFT5.js";
 
 // node_modules/@vueuse/shared/index.mjs
 function computedEager(fn, options) {
@@ -8949,4 +8935,4 @@ export {
   useWindowScroll,
   useWindowSize
 };
-//# sourceMappingURL=chunk-67CBSK2U.js.map
+//# sourceMappingURL=chunk-ALW2XT7F.js.map

@@ -1,3 +1,89 @@
+
+
+<script setup>
+import { ref} from 'vue'
+import TabGroup from '../../src/template/model/group/tab.group.vue'
+let active = ref(1)
+let countData = ref({})
+const useOptions = ref([
+  {label:'选项1',value:1},
+  {label:'选项2',value:2},
+  {label:'选项3',value:3},
+  {label:'选项4',value:4},
+])
+function onRadioChange(){
+
+}
+</script>
+# TabGroup
+基于element-plus el-tabs 封装
+## 使用说明
+常用于列表上方的类型统计组件。当值发生变化时请求数据。
+
+功能介绍
+
+1. 双向绑定
+2. el-tabs 样式调整
+
+## 示例
+
+当前选中： {{active}}
+
+<TabGroup
+  v-model="active"
+  :options="useOptions"
+  :data="countData"
+  @query="onRadioChange"
+/>
+
+
+
+``` vue
+<template>
+  <TabGroup
+    v-model="active"
+    :options="useOptions"
+    :data="countData"
+    @query="onRadioChange"
+  />
+</template>
+<script lang="ts" setup>
+import { ref} from 'vue'
+import TabGroup from './radio.group.vue'
+let active = ref(1)
+let countData = ref({})
+const useOptions = ref([
+  {label:'选项1',value:1},
+  {label:'选项2',value:2},
+  {label:'选项3',value:3},
+  {label:'选项4',value:4},
+])
+function onRadioChange(){
+  // 请求数据
+}
+</script>
+```
+## Attributes
+
+| 属性名      | 说明        |  类型         |  默认值       | 
+| :---        | :---   |   :---  |:----: |
+| data   | 统计值数据的集合        | object      |—  |
+| options   | 选项集合,支持数组或字典        | array/string      | []  /  1.list  |
+| tabProps   | 查看下方  <span style="color:blue;">tabProps</span>  配置        | object      | —  |
+| components   | 组件展示类型   | Array[icon/value]      | ['value','icon']  |
+
+## tabProps
+
+| 属性名      | 说明        |  类型         |  默认值       | 
+| :---        | :---   |   :---  |:----: |
+| label   | 名称取值       | string   |	'label' |
+| value   | 双向绑定值的key值       | string   |	'value' |
+| dataKey   | 数据统计值的key值       | string   |	'count' |
+
+## TabGroup 源代码
+::: details 查看源代码
+
+``` vue
 <template>
   <div class="tabs-component">
     <el-tabs v-bind="$attrs"  class="demo-tabs">
@@ -97,4 +183,17 @@ function metaFilePath():any{
   }
 }
 
+</style>
+
+
+``` 
+
+
+:::
+
+<style module>
+.button {
+  color: red;
+  font-weight: bold;
+}
 </style>

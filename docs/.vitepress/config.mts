@@ -18,6 +18,27 @@ export default defineConfig({
           { text: 'Markdown Examples', link: '/markdown-examples' },
           { text: 'Runtime API Examples', link: '/api-examples' }
         ]
+      },
+      {
+        text: '弹窗',
+        items: [
+          { text: 'Dialog', link: '/Dialog/SimpleModal' },
+        ]
+      },
+      {
+        text: 'Group',
+        items: [
+          { text: 'RadioGroup', link: '/Select/RadioGroup' },
+          { text: 'TabGroup', link: '/Select/TabGroup' },
+
+
+        ]
+      },
+      {
+        text: 'Drawer',
+        items: [
+
+        ]
       }
     ],
 

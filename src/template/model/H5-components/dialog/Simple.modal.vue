@@ -50,7 +50,7 @@ const onConfirm = () => {
 }
 
 const onCancel = () => {
-  if (_.hasIn($attrs,'onCancel')) return emits('onCancel')
+  if (!(_.hasIn($attrs,'onCancel'))) return emits('onCancel')
   show.value = false
 }
 

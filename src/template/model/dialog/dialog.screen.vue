@@ -58,7 +58,7 @@ const onConfirm = () => {
 }
 
 const onCancel = () => {
-  if (_.hasIn($attrs,'onCancel')) return emits('onCancel')
+  if (!(_.hasIn($attrs,'onCancel'))) return emits('onCancel')
   show.value = false
 }
 
@@ -146,31 +146,6 @@ const onCancel = () => {
       display: flex;
       flex-direction: column;
       padding: 26px 17px;
-    }
-  }
-  .pass-box {
-    text-align: center;
-    .btn {
-      font-size: 14px;
-      font-weight: 400;
-      width: 96px;
-      height: 36px;
-      border-radius: 4px;
-      padding: 0 20px;
-      display: inline-block;
-      line-height: 36px;
-      cursor: pointer;
-      min-height: initial;
-    }
-    .poss-confirm {
-      margin-left: 20px;
-      color: #FFFFFF;
-      background: linear-gradient(56deg, #3061FF 0%, #3DA0FD 100%);
-    }
-    .poss-cancel {
-      color: rgba(0, 0, 0, 0.65);
-      background: #FFFFFF;
-      border: 1px solid rgba(0, 0, 0, 0.15);
     }
   }
 }

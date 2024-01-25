@@ -1,7 +1,7 @@
 <template>
   <SimpleModal
     v-model="state.show"
-    title="僵尸企业导入"
+    title="导入模板弹窗"
     :footer-show="false"
     confirm-text="提交"
     width="40%"
@@ -52,11 +52,10 @@
               :show-file-list="false"
               :custom-show-file-list="true"
               :drag="true"
-              api-path="/pc/ads/undisabled/company/importExcel"
+              :api-path="apiUrl"
               req-name="file"
               :success="onUploadSuccess"
             >
-              <Icon icon="uploadFilled" />
               <div class="el-upload__text">点击或将文件拖拽到这里上传</div>
             </UploadInput>
           </template>
@@ -71,20 +70,14 @@
 import SimpleModal from '@/views/components/Simple.modal.vue'
 import FormItemCol from '@/views/components/FormItem.col.vue'
 import UploadInput from '@/views/components/Upload.input.vue'
-import Icon from '@/views/components/Icon.vue'
 import downLoadFile from '@/utils/download'
 import {computed,ref,reactive} from 'vue'
 const props = defineProps({
   modelValue: { type: Boolean, default: false }
 })
 
+const apiUrl = '/api/excel/import'
 const emits = defineEmits(['update:modelValue'])
-// -------- inject --------
-
-// -------- ref --------
-const formRef = ref(null)
-// -------- computed --------
-
 
 function onDownload (){
   downLoadFile('/opt/digov/data/file/2023/06/模板文件_1686303224876.xlsx','模板文件.xlsx')
@@ -110,14 +103,9 @@ function onUploadSuccess (res,file,cb) {
 }
 
 function onClose () {
-  formRef.value?.resetFields()
   state.show = false
 }
-// -------- watch --------
 
-// -------- provide --------
-
-// -------- expose --------
 
 </script>
 
@@ -125,9 +113,6 @@ function onClose () {
 <style lang='scss' scoped>
 :deep .el-form-item {
   .el-form-item__content {
-    .custom-upload {
-      width: 100%;
-    }
     .el-input__wrapper {
         width: 100%;
     }
