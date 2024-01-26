@@ -10,53 +10,53 @@
     @onCancel="onClosed"
   >
     <UiForm
-      v-bind="addFormOptions"
+      v-bind="formOptions"
       ref="formRef"
       :model="state.params"
       :labels="formFields"
     >
-    <template #address="scopeProps">
-            <el-input
-              v-model="state.params[scopeProps.item.key]"
-              v-bind="scopeProps.item.props"
-              @change="throttleFn"
+      <template #address="scopeProps">
+        <el-input
+          v-model="state.params[scopeProps.item.key]"
+          v-bind="scopeProps.item.props"
+          @change="throttleFn"
+        >
+          <template #append>
+            <img
+              class="icon-position"
+              src="@static/images/common/icon-position.png"
+              alt=""
+              @click="throttleFn"
             >
-              <template #append>
-                <img
-                  class="icon-position"
-                  src="@static/images/common/icon-position.png"
-                  alt=""
-                  @click="throttleFn"
-                >
-              </template>
-            </el-input>
           </template>
-          <template #upload="scopeProps">
-            <UploadInput
-              v-model="state.params[scopeProps.item.key]"
-              :show-file-list="false"
-              :custom-show-file-list="true"
-              file-list-type="file"
-              v-bind="scopeProps.item.props"
-              tip=""
-            />
-          </template>
-          
-          <template #uploadVideo="scopeProps">
-            <UploadInput
-              v-model="state.params[scopeProps.item.key]"
-              :show-file-list="false"
-              :custom-show-file-list="true"
-              file-list-type="file"
-              v-bind="scopeProps.item.props"
-              tip=""
-            />
+        </el-input>
+      </template>
+      <template #upload="scopeProps">
+        <UploadInput
+          v-model="state.params[scopeProps.item.key]"
+          :show-file-list="false"
+          :custom-show-file-list="true"
+          file-list-type="file"
+          v-bind="scopeProps.item.props"
+          tip=""
+        />
+      </template>
 
-            <!-- label附带提示语 -->
-          <template #label-address="{label,props}">
-            <FormTip :label="label" :tip="longitude" />
-          </template>
-          </template>
+      <template #uploadVideo="scopeProps">
+        <UploadInput
+          v-model="state.params[scopeProps.item.key]"
+          :show-file-list="false"
+          :custom-show-file-list="true"
+          file-list-type="file"
+          v-bind="scopeProps.item.props"
+          tip=""
+        />
+
+        <!-- label附带提示语 -->
+        <template #label-address="{label,props}">
+          <FormTip :label="label" :tip="longitude" />
+        </template>
+      </template>
     </UiForm>
   </SimpleModal>
 </template>
@@ -85,7 +85,7 @@ let formRef = shallowRef<null|InstanceType<typeof UiForm>>()
 
 
 const dictData = store.getters.dictData
- const formFields: FormMode[] = [
+const formFields: FormMode[] = [
   {
     label: '标题带字数限制', key: 'title', type: 'input',
     props: {
@@ -187,7 +187,7 @@ const dictData = store.getters.dictData
 ]
 
 
-const addFormOptions = {
+const formOptions = {
   props: {
     inline: true,
     labelWidth: 'auto',
@@ -230,7 +230,7 @@ async function onConfirm (cb:any) {
     ElMessage.success(`${({ edit: '编辑', add: '新增', default: '操作' }[props.modalType || 'default'] ?? '')}成功!`)
     onClosed()
     emits('success', true)
-    
+
     cb()
   } catch (error) {
     cb()

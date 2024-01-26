@@ -1,25 +1,34 @@
-// import { FieldItem, FormMode, ItemMode } from '@/typings/items'
+import { FieldItem, FormMode, ItemMode } from '@/typings/items'
+import store from '@/store'
+import { get } from 'lodash-es'
+import { computed } from 'vue'
+const dictData = computed(() => store.getters.dictData).value
 
-/**
- * common
- */
-export const tableQueryFormFields: FormMode[] = [
-  { label: '场景名称', key: 'name', type: 'input', },
-  {
-    label: '场景类型', key: 'key2', type: 'select', options: [
-      { label: '选项1', value: 'valaue1', tValue: 'valuet1' }
-    ]
-  },
-  { label: '发布部门', key: 'key3', type: 'input', },
-  {
-    label: '发布时间', key: 'key4', type: 'datePicker', props: {
-      'value-format': 'x'
-    }
-  },
-]
+export const tableQueryFormFields = (params): FormMode[] => {
+  let fields: FormMode[] = [
+    { label: '场景名称', key: 'name', type: 'input', },
+    {
+      label: '场景类型', key: 'key2', type: 'select', options: [
+        { label: '选项1', value: 'valaue1' }
+      ]
+    },
+    {
+      label: '场景类型', key: 'key2', type: 'select', options: get(dictData, 'dict_area.tree', [])
+    },
+    { label: '发布部门', key: 'key3', type: 'input', },
+    {
+      label: '发布时间', key: 'key4', type: 'datePicker', props: {
+        'value-format': 'x'
+      }
+    },
+  ].filter((field: FormMode) => {
+    return get(field, 'show', true)
+  })
+  return fields
+}
 
 export const tableQueryFormOptions = {
-  labels: tableQueryFormFields,
+  labels: tableQueryFormFields({}),
   props: {
     inline: true,
     labelWidth: '80px',
@@ -30,33 +39,35 @@ export const tableQueryFormOptions = {
   }
 }
 
-export const tableColumn: FieldItem[] = [
-  {
-    label: '序号',
-    key: 'index',
-    props: {
-      width: '80px'
-    }
-  },
-  { label: '字段1', key: 'deptType', },
-  { label: '字典字段2', key: 'deptName_t', transform: '1.dist' },
-  { label: '时间字段3', key: 'hadFinished_t', transform: '{y}-{m}-{d}' },
-  {
-    label: '系统推送',
-    key: 'key9',
-    type: 'slot',
-    slotName: 'msg',
-  },
-  {
-    label: '操作',
-    key: 'hadFinishedRate',
-    type: 'slot',
-    slotName: 'action',
-    props: {
-      width: '210px',
+export const tableColumn = (params: any) => {
+  [
+    {
+      label: '序号',
+      key: 'index',
+      props: {
+        width: '80px'
+      }
     },
-  },
-]
+    { label: '字段1', key: 'deptType', },
+    { label: '字典字段2', key: 'deptName_t', transform: '1.dist' },
+    { label: '时间字段3', key: 'hadFinished_t', transform: '{y}-{m}-{d}' },
+    {
+      label: '系统推送',
+      key: 'key9',
+      type: 'slot',
+      slotName: 'msg',
+    },
+    {
+      label: '操作',
+      key: 'hadFinishedRate',
+      type: 'slot',
+      slotName: 'action',
+      props: {
+        width: '210px',
+      },
+    },
+  ]
+}
 
 export const formFields: FormMode[] = [
   {
