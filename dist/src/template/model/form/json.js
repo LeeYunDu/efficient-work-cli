@@ -5,7 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addFormOptions = exports.formFields = void 0;
 const store_1 = __importDefault(require("@/store"));
-const dictData = store_1.default.getters.dictData;
+const vue_1 = require("vue");
+const dictData = (0, vue_1.computed)(() => store_1.default.getters.dictData).value;
 exports.formFields = [
     {
         label: '标题带字数限制', key: 'title', type: 'input',
