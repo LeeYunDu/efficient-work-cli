@@ -7,28 +7,36 @@
     body-padding="20"
     @closed="onClosed"
   >
-  <ui-table
-      v-bind="tableOptions"
-      @change="onChange"
-      @sort="sortChange"
-    >
-      <template #action="{row,config}">
-        <template v-for="btn in actionButtons" :key="btn.key">
-          <span
-            v-if="showBtns(btn.key, row)"
-            class="action-btn"
-            type="text"
-            @click="onAction(btn.key, row)"
-          >{{ btn.label }}</span>
-        </template>
-      </template>
-    </ui-table>
+    <div class="page-view">
+      <div class="content">
+        <div class="page-center">
+          <div class="table-box">
+            <ui-table
+              v-bind="tableOptions"
+              @change="onChange"
+              @sort="sortChange"
+            >
+              <template #action="{row,config}">
+                <template v-for="btn in actionButtons" :key="btn.key">
+                  <span
+                    v-if="showBtns(btn.key, row)"
+                    class="action-btn"
+                    type="text"
+                    @click="onAction(btn.key, row)"
+                  >{{ btn.label }}</span>
+                </template>
+              </template>
+            </ui-table>
+          </div>
+        </div>
+      </div>
+    </div>
   </SimpleModal>
 </template>
 
 <script setup lang="ts">
 import SimpleModal from '@/views/common/Simple.modal.vue'
-import {reactive,ref,inject,computed} from 'vue'
+import { reactive,ref,inject,computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { get } from 'lodash-es'
 import { tableColumn  } from './json'
@@ -56,8 +64,6 @@ const state = reactive({
   row:{},
   dialogShow:false
 })
-
-
 
 let tableOptions = reactive({
   props:{
