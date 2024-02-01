@@ -2,7 +2,7 @@
 
 <script setup>
 import { ref} from 'vue'
-import TabGroup from '../../src/template/model/group/tab.group.vue'
+import TabSelect from './tabSelect.vue'
 let active = ref(1)
 let countData = ref({})
 const useOptions = ref([
@@ -15,7 +15,7 @@ function onRadioChange(){
 
 }
 </script>
-# TabGroup
+# TabSelect
 基于element-plus el-tabs 封装
 ## 使用说明
 常用于列表上方的类型统计组件。当值发生变化时请求数据。
@@ -29,7 +29,7 @@ function onRadioChange(){
 
 当前选中： {{active}}
 
-<TabGroup
+<TabSelect
   v-model="active"
   :options="useOptions"
   :data="countData"
@@ -40,7 +40,7 @@ function onRadioChange(){
 
 ``` vue
 <template>
-  <TabGroup
+  <TabSelect
     v-model="active"
     :options="useOptions"
     :data="countData"
@@ -49,7 +49,7 @@ function onRadioChange(){
 </template>
 <script lang="ts" setup>
 import { ref} from 'vue'
-import TabGroup from './radio.group.vue'
+import TabSelect from './radio.group.vue'
 let active = ref(1)
 let countData = ref({})
 const useOptions = ref([
@@ -80,7 +80,7 @@ function onRadioChange(){
 | value   | 双向绑定值的key值       | string   |	'value' |
 | dataKey   | 数据统计值的key值       | string   |	'count' |
 
-## TabGroup 源代码
+## TabSelect 源代码
 ::: details 查看源代码
 
 ``` vue

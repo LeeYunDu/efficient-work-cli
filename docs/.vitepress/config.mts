@@ -10,36 +10,44 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Examples', link: '/markdown-examples' }
     ],
-
     sidebar: [
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      },
       {
         text: '弹窗',
         items: [
-          { text: 'Dialog', link: '/Dialog/SimpleModal' },
+          { text: 'SimpleDialog', link: '/src/components/dialog/simpleDialog/readme' },
         ]
       },
       {
-        text: 'Group',
+        text: '选择器',
         items: [
-          { text: 'RadioGroup', link: '/Select/RadioGroup' },
-          { text: 'TabGroup', link: '/Select/TabGroup' },
+          { text: 'RadioSelect', link: '/src/components/select/radioSelect/readme' },
+          { text: 'TabSelect', link: '/src/components/select/tabSelect/readme' },
         ]
       },
+      // {
+      //   text: 'Block',
+      //   items: [
+      //     { text: 'Block-1  ', link: '/Block/Block-1' },
+      //     { text: 'Block-2  ', link: '/Block/Block-1' },
+      //     { text: 'Block-3  ', link: '/Block/Block-1' },
+      //     { text: 'Block-4  ', link: '/Block/Block-1' },
+      //   ]
+      // },
+      // {
+      //   text: 'Group',
+      //   items: [
+      //     { text: 'RadioGroup', link: '/Select/RadioGroup' },
+      //     { text: 'TabGroup', link: '/Select/TabGroup' },
+      //   ]
+      // },
       {
         text: 'Drawer',
         items: []
       },
       {
-        text: 'Other Component',
+        text: '无知如何分类的组件',
         items: [
-          { text: '无限滚动列表 Roll List', link: '/Other/RollList' },
+          { text: '无限滚动列表 RollList', link: '/src/components/other/rollList/readme' },
         ]
       }
     ],

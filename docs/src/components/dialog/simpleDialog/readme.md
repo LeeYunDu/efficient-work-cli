@@ -3,7 +3,7 @@
 <script setup>
 import { ref } from 'vue'
 </script>
-# SimpleModal
+# SimpleDialog
 基于element-plus Dialog 封装，又拓展了很多业务场景的Dialog，方便使用。
 ## 使用说明
 通过脚手架可以下载多种类型的Dialog,各类型的Dialog都写了双向绑定和关闭事件、弹窗打开请求数据、props定义。
@@ -18,7 +18,7 @@ Dialog里空空如也,并且标题不显示。
 Excel导入弹窗，内置功能 上传组件、模版文件下载、导入提示语
 ## Screen Dialog 用法
 大屏项目使用的simple.dialog，写了el-dialog 中 header、body 的样式
-## SimpleModal 源代码
+## SimpleDialog 源代码
 ::: details 查看源代码
 
 ``` vue

@@ -1,10 +1,10 @@
 <template>
-  <section class="items">
+  <section class="block-item-container">
     <template v-for="(item, index) in loopItems" :key="index">
       <section class="item">
         <div class="main">
           <div v-if="icon" class="icon-box">
-            <img :src="`static/images/home/${getIcon(item)}.png`" alt>
+            <img :src="`${metaFilePath(`home/${getIcon(item)}.png`)}`" alt>
           </div>
           <div class="info-box">
             <div class="label"><span>{{ getName(item) }}</span></div>
@@ -44,7 +44,8 @@
 <script lang="ts" setup>
 import { get } from 'lodash-es'
 import { computed,PropType } from 'vue'
-import { FieldItem } from '@/typings/items'
+// import { FieldItem } from '@/typings/items'
+// import { metaFilePath } from '@/utils/init'
 const props = defineProps({
   data: {
     type: Object||Array,
@@ -90,7 +91,6 @@ const propsFields = computed(()=> props.fields||[
 const isLoopData = computed(()=>Array.isArray(propsData.value))
 
 const loopItems = computed<any>(()=>{
-  // 待开发 sort 排序
   return Array.isArray(propsData.value)?propsData.value:propsFields.value
 })
 
@@ -140,7 +140,7 @@ function getUnit (item:any){
 
 
 <style lang="scss" scoped>
-.items {
+.block-item-container {
   display: flex;
   flex-wrap: wrap;
   margin-left: -5px;

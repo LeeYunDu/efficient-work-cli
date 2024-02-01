@@ -60,7 +60,6 @@ const propsFields = computed(()=> props.fields||[
   .item {
     width: 50%;
     padding: 5px;
-
     .main {
       background: white;
       padding: 11px 12px;

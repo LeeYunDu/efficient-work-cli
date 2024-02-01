@@ -2,41 +2,24 @@
 
 <script setup>
 import { ref} from 'vue'
-import RadioGroup from '../../src/template/model/group/radio.group.vue'
-let active = ref(1)
-let countData = ref({})
-const useOptions = ref([
-  {label:'选项1',value:1},
-  {label:'选项2',value:2},
-  {label:'选项3',value:3},
-  {label:'选项4',value:4},
+import Block1 from '../../src/template/model/block/block-1.vue'
+
+let data = ref([
+  
 ])
-function onRadioChange(){
-
-}
 </script>
-# RadioGroup
-基于element-plus radio-group 封装
+# BackgroundBlock
+关于指标统计的数据模块
 ## 使用说明
-常用于列表上方的类型统计组件。当值发生变化时请求数据。
-
 功能介绍
 
 1. 双向绑定
-2. el-radio 样式调整
-3. 组件表现为 Icon + 类型 + 数值
-
 
 ## 示例
 
 当前选中： {{active}}
 
-<RadioGroup
-  v-model="active"
-  :options="useOptions"
-  :data="countData"
-  @query="onRadioChange"
-/>
+<Block1 />
 
 
 
