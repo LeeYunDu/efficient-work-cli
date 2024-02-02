@@ -56,25 +56,11 @@ const props = defineProps({
     type:String,
     default:''
   },
-  sort:{
-    type:Boolean,
-    default:true
-  },
   rate:{
     type:Boolean,
-    default:false
+    default:true
   }
 })
-
-
-
-/**
- * 这个组件应该要接收两种数据格式
- * 1、[{name:'数据1'},{name:'数据2'}]
- * 2、{y1:'数据1的数值',y2:'数据2的数值'}
- * 根据传入的数据类型,判断出列表渲染时的写法
- */
-
 
 const propsData = computed(() => props.data||[])
 const propsFields = computed(()=> props.fields||[
@@ -89,10 +75,9 @@ const loopItems = computed<any>(()=>{
   return Array.isArray(propsData.value)?propsData.value:propsFields.value
 })
 
-
 function getName (item){
   if(isLoopData.value){
-    return  item[propsFields.value[0].key]||''
+    return  get(item,get(props.fields,'0.key',''),0) 
   }else{
     return get(propsData,item.key)
   }
@@ -108,26 +93,24 @@ function getIcon (item:any){
 
 function getValue (item:any){
   if(isLoopData.value){
-    return  get(item,props.fields[1].key)||0
+    return get(item,get(props.fields,'1.key',''),0) 
   }else{
     return get(propsData.value,item.key,'0')
   }
 }
-
-
 
 const  valueSum = computed(()=>{
   let sum = 0
   try {
     if(isLoopData.value){
       propsData.value.map(val=>{
-        sum += (Number(val[propsFields.value[1].key]||0))
+        sum += Number(get(val,get(propsFields.value,'1.key',''),0))
       })
     }else{
       for (const key in propsData.value) {
         if (Object.prototype.hasOwnProperty.call(propsData.value, key)) {
           const val = propsData.value[key]
-          sum += Number(val[propsFields.value[1].key]||0)
+          sum += Number(get(val,get(propsFields.value,'1.key',''),0))
         }
       }
     }
@@ -137,12 +120,10 @@ const  valueSum = computed(()=>{
   return sum
 })
 
-
 // 占比
 function getProportion (item:any){
   return ((getValue(item) / valueSum.value) * 100).toFixed(2)
 }
-
 
 
 </script>

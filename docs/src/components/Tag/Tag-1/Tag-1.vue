@@ -22,21 +22,16 @@ let props = defineProps({
 </script>
 
 <style lang="scss" scoped>
-.tag-box{
-  display: flex;
-}
 
 .tag{
   display: inline-block;
-  width: 64px;
-  height: 19px;
+  padding: 6px 12px;
   background: rgba(132,147,172,0.1);
-  border-radius: 1px 1px 1px 1px;
+  border-radius: 4px;
   opacity: 1;
   color: #8493AC;
   font-size: 12px;
   text-align: center;
-  line-height: 19px;
 
   &~.tag{
     margin-left: 5px;

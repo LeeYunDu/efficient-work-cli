@@ -3,13 +3,13 @@
 layout: home
 
 hero:
-  name: "efwork library"
-  text: "efwork-CLI  instructions"
-  tagline: My great project tagline
+  name: "Web Library"
+  text: "favorites"
+  tagline: My assistant at work
   actions:
     - theme: brand
-      text: Components Examples
-      link: /api-examples
+      text: Start
+      link: /src/components/dialog/simpleDialog/readme
 
 features:
   - title: Feature A

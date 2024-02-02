@@ -1,19 +1,12 @@
 
 <template>
-  <div
-    class="info-box"
-    @click="goDetail(item)"
-  >
-    <div
-      v-for="(item,index) in data"
-      :key="index"
-      class="main"
-    >
-      <div class="view">
+  <div class="info-box"  >
+    <div  v-for="(item,index) in data"  :key="index"  class="main" >
+      <div class="view" >
         <div class="img-box">
-          <img src="static/images/common/icon-app.png" alt="">
+          <img class="icon" :src="`static/images/${item.icon}.png`" alt="">
         </div>
-        <div class="right">
+        <div class="right" @click="onChange(item)">
           <div class="title">应用名称</div>
           <div class="content">一行文字简要概述</div>
         </div>
@@ -24,22 +17,17 @@
 
 <script lang="ts" setup>
 import { PropType, ref } from 'vue'
-import { useRouter } from 'vue-router'
 let props = defineProps({
   data:{
     type:Array as PropType<any[]>,
     default:()=>[]
   },
-  active:{
-    type:Number
-  }
 })
 
 
-let router = useRouter()
-function goDetail (item){
-  let { id } = item
-  // router.push({ path:'/activity/detail',query:{ id,type:'activity' } })
+let emits = defineEmits(['change'])
+function onChange(item){
+  emits('change',item)
 }
 
 </script>
