@@ -32,7 +32,7 @@ let  data = ref([  { y1:'10000',y2:55 }])
 | :---        | :---   |   :---  |:----: |
 | data   | 数据集合        | array      |—  |
 
-## Block 源代码
+## Progress 源代码
 
 ::: details 查看源代码
 ``` vue 

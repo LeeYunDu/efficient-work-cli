@@ -68,6 +68,20 @@ export default defineConfig({
         items: [
           { text: '无限滚动列表 RollList', link: '/src/components/other/rollList/readme' },
         ]
+      },
+      {
+        text: '正则表达式',
+        items: [
+          { text: '表单校验集合', link: '/src/components/regular/group/readme' },
+        ]
+      },
+      {
+        text: '高德地图',
+        items: [
+          { text: 'use-amap Hook', link: '/src/components/amap/hook/readme' },
+          { text: '周边配套信息查询', link: '/src/components/amap/service/readme' },
+          { text: '高德地图 utils', link: '/src/components/amap/utils/readme' },
+        ]
       }
     ],
 

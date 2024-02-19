@@ -51,7 +51,7 @@ let fields = ref([
 | fields   | 字段      | FieldItem[]      | —  |
 | unit   | 单位      | string      | —  |
 
-## Block 源代码
+## Progress 源代码
 
 ::: details 查看源代码
 ``` vue
