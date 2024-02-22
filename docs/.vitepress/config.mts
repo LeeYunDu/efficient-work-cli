@@ -1,5 +1,4 @@
 import { defineConfig } from 'vitepress'
-
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Web Library",
@@ -12,6 +11,15 @@ export default defineConfig({
     ],
     sidebar: [
       {
+        text: 'UI Table',
+        items: [
+          { text: '多级表头', link: '/src/components/UITable/levelHeader/readme' },
+          { text: '对比表格', link: '/src/components/UITable/comparisonTable/readme' },
+          { text: '填报型表格', link: '/src/components/UITable/fillDataTable/readme' },
+          { text: '表格字段JSON', link: '/src/components/UITable/tableJSON/readme' },
+        ]
+      },
+      {
         text: '弹窗',
         items: [
           { text: 'SimpleDialog', link: '/src/components/dialog/simpleDialog/readme' },
@@ -22,6 +30,7 @@ export default defineConfig({
         items: [
           { text: 'Table Form', link: '/src/components/dialog/simpleDialog/readme' },
           { text: 'UI Form', link: '/src/components/dialog/simpleDialog/readme' },
+          { text: '表单字段JSON', link: '/src/components/form/formJSON/readme' },
         ]
       },
       {
@@ -42,23 +51,16 @@ export default defineConfig({
       {
         text: 'Progress',
         items: [
-          { text: 'Progress-1  ', link: '/src/components/Progress/Progress-1/readme' },
-          { text: 'Progress-2  ', link: '/src/components/Progress/Progress-2/readme' },
+          { text: 'Progress-1', link: '/src/components/Progress/Progress-1/readme' },
+          { text: 'Progress-2', link: '/src/components/Progress/Progress-2/readme' },
         ]
       },
       {
         text: 'Tag',
         items: [
-          { text: 'Tag-1  ', link: '/src/components/Tag/Tag-1/readme' },
+          { text: 'Tag-1', link: '/src/components/Tag/Tag-1/readme' },
         ]
       },
-      // {
-      //   text: 'Group',
-      //   items: [
-      //     { text: 'RadioGroup', link: '/Select/RadioGroup' },
-      //     { text: 'TabGroup', link: '/Select/TabGroup' },
-      //   ]
-      // },
       {
         text: 'Drawer',
         items: []
@@ -67,6 +69,8 @@ export default defineConfig({
         text: '无知如何分类的组件',
         items: [
           { text: '无限滚动列表 RollList', link: '/src/components/other/rollList/readme' },
+          { text: '富文本编辑器 ', link: '/src/components/other/richTextEditor/readme' },
+          { text: '封面 Cover', link: '/src/components/other/cover/readme' },
         ]
       },
       {
@@ -80,7 +84,6 @@ export default defineConfig({
         items: [
           { text: 'use-amap Hook', link: '/src/components/amap/hook/readme' },
           { text: '周边配套信息查询', link: '/src/components/amap/service/readme' },
-          { text: '高德地图 utils', link: '/src/components/amap/utils/readme' },
         ]
       }
     ],

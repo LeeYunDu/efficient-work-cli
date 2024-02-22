@@ -8,7 +8,7 @@ import {
   reactive,
   watch
 } from "./chunk-UTXOFFT5.js";
-import "./chunk-LQ2VYIYD.js";
+import "./chunk-GFT2G5UO.js";
 
 // node_modules/vuex/dist/vuex.esm-bundler.js
 var storeKey = "store";

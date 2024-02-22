@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import SimpleModal from '@/views/common/Simple.modal.vue'
-import { reactive,ref,inject,computed } from 'vue'
+import { reactive,ref,inject,computed, provide } from 'vue'
 import { ElMessage } from 'element-plus'
 import { get } from 'lodash-es'
 import { tableColumn  } from './json'
@@ -50,6 +50,8 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue','update:row'])
 
 const row = computed(() => props.row || {})
+
+
 
 const state = reactive({
   show: computed({
@@ -127,6 +129,17 @@ function onClosed () {
 const curParams:any = ref({
   pageNum: 1,
   pageSize: 10
+})
+
+// 加这段是为了修复列表分页页数为1时，组件未变化。
+provide('szzt-components-core-engine',{
+  dataRef:null,
+  paramsRef: curParams,
+  // group:{
+  //   _base:{
+  //     SINGLE_ASYNC:'tableFilter'
+  //   }
+  // }
 })
 
 function onChange (opts:any){

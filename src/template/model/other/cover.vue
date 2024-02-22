@@ -25,11 +25,7 @@
       </template>
     </template>
     <template v-else>
-      <img
-        src="static/images/common/icon-house-noimg"
-        class="cover-image"
-        alt=""
-      >
+     <div class="cover-image">暂无图片</div>
     </template>
   </div>
 </template>
@@ -37,8 +33,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { get, isArray, isString } from 'lodash-es'
-
-
 /**
  * 预览图结合
  * https://github.com/mirari/v-viewer/tree/v3
@@ -48,10 +42,6 @@ let props = defineProps({
   data:{
     type:Array||String,
     default:()=>[]
-  },
-  dataKey:{
-    type:String,
-    default:''
   },
   itemClass:{
     type:String,
@@ -75,9 +65,7 @@ let useCover = computed(()=>{
   }
   const { VITE_FILE_PATH }  = import.meta.env
   if(isArray(props.data)){
-    let filterFileList = props.data.filter(fileGroup=>{
-      return props.dataKey.includes(fileGroup.chooseType23Id)
-    })
+    let filterFileList = []
     if(filterFileList.length==0)return result
     let files = []
     for (let index = 0; index < filterFileList.length; index++) {
@@ -89,11 +77,9 @@ let useCover = computed(()=>{
         files = files.concat(parseArray)
       }
     }
-
     if(files.length == 0 ){
       return result
     }
-
     let videoFile =  files.find(item=>{
       let type = getFileType(item.name)
       return videoType.includes(type)
@@ -130,51 +116,28 @@ let useCover = computed(()=>{
   }
 })
 
-
 function getFileType (str:string) {
   return str.substring(str.lastIndexOf('.'))
 }
 
-
 </script>
 
 <style lang="scss" scoped>
-.list-cover{
-  .cover-video{
-    display: block;
-    width: 100%;
-    height: 150px;
-    border-radius: 4px;
-    object-fit: cover;
-    background-color: #eeeeee68;
-  }
-  .cover-image{
-    display: block;
-    width: 100%;
-    height: 150px;
-    border-radius: 4px;
-    object-fit: cover;
-    background-color: #eeeeee68;
-  }
-
-  .cover-image{
-    width: 104px;
-    height: 74px;
-    margin-right: 10px;
-  }
+.cover-video{
+  display: block;
+  width: 100%;
+  height: 150px;
+  border-radius: 4px;
+  object-fit: cover;
+  background-color: #eeeeee68;
 }
-
-.detail-cover{
-  position: absolute;
-
-  .cover-image,.cover-video {
-    width: 100%;
-    border-radius: 4px 4px 4px 4px;
-    opacity: 1;
-    object-fit: none;
-  }
-
+.cover-image{
+  display: block;
+  width: 100%;
+  height: 150px;
+  border-radius: 4px;
+  object-fit: cover;
+  background-color: #eeeeee68;
 }
-
 
 </style>

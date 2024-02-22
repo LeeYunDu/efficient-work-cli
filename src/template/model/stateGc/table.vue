@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import { GroupItem } from '@static/lib/group-content'
 import { useModule, useSingleAsync, useSubscribe } from '@static/lib/hooks'
-import { ref, defineProps, PropType, watch, reactive } from 'vue'
+import { ref, defineProps, PropType, watch, reactive,provide} from 'vue'
 import { BtnItem } from '@static/lib/typings/items'
 import { useRouter } from 'vue-router'
 import { cloneDeep, get } from 'lodash-es'
@@ -51,6 +51,16 @@ const { btns: tBtns } = useModule({ id: 116009 })
 const curParams = ref<any>({
   pageNum: 1,
   pageSize: 10
+})
+
+provide('szzt-components-core-engine',{
+  dataRef:null,
+  paramsRef: curParams,
+  // group:{
+  //   _base:{
+  //     SINGLE_ASYNC:'tableFilter'
+  //   }
+  // }
 })
 
 const useTabOptions = computed(() => {

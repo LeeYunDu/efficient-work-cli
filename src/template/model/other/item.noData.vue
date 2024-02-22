@@ -18,7 +18,7 @@ let props = defineProps({
     default:()=>({})
   },
   imgStyle:{
-    type:Array||Object,
+    type:Object,
     default:()=>({
       width:'383px',
       height:'340px'

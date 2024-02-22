@@ -1,5 +1,3 @@
-
-
 <script setup>
 import { ref} from 'vue'
 import Progress from './progress-1.vue'
