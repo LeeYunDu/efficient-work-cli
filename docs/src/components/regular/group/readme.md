@@ -4,8 +4,8 @@
 </script>
 # Regular
 ## 使用说明
-正则表达式集合
-## Regular 源代码
+element-form 表单正则表达式集合
+## 正则表达式集合
 
 ``` js 
 // 验证手机号

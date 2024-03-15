@@ -22,7 +22,7 @@ const props = defineProps({
   row: { type: Object, default: () => ({}) }
 })
 
-const emits = defineEmits(['update:modelValue','update:row'])
+const emits = defineEmits(['update:modelValue','update:row','success'])
 
 const row = computed(() => props.row || {})
 
@@ -41,8 +41,13 @@ const state = reactive({
 
 function onClosed () {
   emits('update:row', {})
+  emits('update:modelValue',false)
 }
 
+function onSuccess(){
+  ElMessage.success('操作成功')
+  onClosed()
+}
 const curParams:any = ref({
   pageNum: 1,
   pageSize: 10

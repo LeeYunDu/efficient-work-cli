@@ -1,5 +1,7 @@
 import 'element-plus/theme-chalk/index.css'
 import DefaultTheme from 'vitepress/theme'
+import 'viewerjs/dist/viewer.css'
+import VueViewer from 'v-viewer'
 import {
   ElCol,
   ElRow,
@@ -52,6 +54,8 @@ import {
   ElCheckbox,
   ElCheckboxGroup,
 } from 'element-plus'
+
+
 
 export default {
   ...DefaultTheme,
@@ -107,7 +111,6 @@ export default {
     app.component(ElCheckbox.name, ElCheckbox)
     app.component(ElCheckboxGroup.name, ElCheckboxGroup)
     // 注册ElementPlus
-
-
+    app.use(VueViewer)
   }
 }

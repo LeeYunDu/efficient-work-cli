@@ -5,7 +5,7 @@
     :title="state.title"
     :footer-show="true"
     @onOK="onConfirm"
-    @onCancel="onClosed"
+    @closed="onClosed"
   >
     <template >
       

@@ -7,7 +7,7 @@
     width="700px"
     body-padding="20"
     @onOK="onConfirm"
-    @onCancel="onClosed"
+    @closed="onClosed"
   >
     <UiForm
       v-bind="formOptions"

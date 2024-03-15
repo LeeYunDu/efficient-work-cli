@@ -39,7 +39,8 @@
     "viewerjs": "^1.11.6",
     "vitepress": "^1.0.0-rc.36",
     "vue": "^3.4.15",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "vant": "^3.0.16"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",

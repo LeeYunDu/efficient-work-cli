@@ -38,6 +38,7 @@ export default defineConfig({
         items: [
           { text: 'RadioSelect', link: '/src/components/select/radioSelect/readme' },
           { text: 'TabSelect', link: '/src/components/select/tabSelect/readme' },
+          { text: '移动端 selectPanel', link: '/src/components/select/selectPanel/readme' },
         ]
       },
       {
@@ -46,6 +47,7 @@ export default defineConfig({
           { text: 'Block-1  ', link: '/src/components/block/block-1/readme' },
           { text: 'Block-2  ', link: '/src/components/block/block-2/readme' },
           { text: 'Block-3  ', link: '/src/components/block/block-3/readme' },
+          { text: 'Block-4  ', link: '/src/components/block/block-4/readme' },
         ]
       },
       {
@@ -76,7 +78,9 @@ export default defineConfig({
       {
         text: '正则表达式',
         items: [
-          { text: '表单校验集合', link: '/src/components/regular/group/readme' },
+          { text: 'el-form 表单校验集合', link: '/src/components/regular/group/readme' },
+          { text: 'van-form 表单校验集合', link: '/src/components/regular/group/readmeH5' },
+          { text: '数据脱敏', link: '/src/components/regular/group/readmeDesensitization' },
         ]
       },
       {
@@ -84,6 +88,13 @@ export default defineConfig({
         items: [
           { text: 'use-amap Hook', link: '/src/components/amap/hook/readme' },
           { text: '周边配套信息查询', link: '/src/components/amap/service/readme' },
+        ]
+      },
+      {
+        text: '应用上架指南',
+        items: [
+          { text: '浙里办', link: '/src/components/appGuide/zlb/readme' },
+          { text: '浙政钉', link: '/src/components/appGuide/zzd/readme' },
         ]
       }
     ],

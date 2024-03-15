@@ -1,7 +1,17 @@
 
 <template>
-    <SimpleModal v-model="state.show"    :title="state.title"    :footer-show="true"    width="700px"    body-padding="20"    @onOK="onConfirm"    @onCancel="onClosed"   >
-      <UiForm v-bind="addFormOptions"    ref="formRef"    :model="state.params"   />
+    <SimpleModal v-model="state.show" @closed=
+   :title="state.title" 
+   :footer-show="true" 
+   width="700px" 
+   body-padding="20" 
+   @onOK="onConfirm" 
+   @onCancel="onClosed" 
+  >
+      <UiForm v-bind="addFormOptions" 
+   ref="formRef" 
+   :model="state.params" 
+  />
     </SimpleModal>
 </template>
 
