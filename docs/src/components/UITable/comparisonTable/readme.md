@@ -1,5 +1,8 @@
 <script setup>
 import { ref} from 'vue'
+import img01 from './dome.png'
+import img02 from './dome02.png'
+import imagePreview from '@/global/components/imagePreview.vue'
 // import table from './table.vue'
 </script>
 
@@ -8,13 +11,10 @@ import { ref} from 'vue'
 ui-table 组件的对比表格的实践。对比表格即表格第一列为对比字段，后续为对比项目。
 
 该文档不支持加载ui-table组件,具体表现请查看云南招商投促项目的招商推介模块中的智能比对。
-## 已知有多少个对比项时的对比表格示例
-实现思路
+## 第一种情况，已知有多少个对比项时的对比表格示例
 
-1. 确认好表头列
+<imagePreview :data="[img01]"></imagePreview>
 
-示例图片
-![示例图片](./dome.png)
 接口数据结构
 
 ``` ts
@@ -237,5 +237,87 @@ const asyncData = async () => {
 <style lang="scss" scoped>
  
 </style>
+
+```
+
+
+## 第二种情况，根据数据项渲染对比项
+
+
+<imagePreview :data="[img02]"></imagePreview>
+
+实现思路：
+1. 创建渲染列表的表头,包含对比字段和对比项，对比项的数量看接口数据返回的个数
+2. 每个表头的对比项都设置为slot类型,并且根据循环的下标设置表头key
+3. 循环对比字段，组装表格数据
+4. ui-form 循环加载 slot类型的表格列
+
+```vue
+<template>
+  <ui-table
+    v-bind="tableOptions"
+    :columns="state.useColumn"
+    :data="state.data"
+  >
+    <template v-for="(item,index) in state.useColumn" #[String(item.key)]="{row}" :key="index">
+      <template v-if="row.keyValue == 'count'">
+        <div class="flex f-aic count" @click="onView(row,index)">
+          <span>{{ get(row,item.key) }}</span>
+          <el-icon color="#0366f1" width="20"><View /></el-icon>
+        </div>
+      </template>
+      <template v-else-if="row.keyValue == 'chooseType40IdName'">
+        <div class="flex f-aic count">
+          <template v-if="get(row,`y${index}extInfo.chooseType40Id`) == '3359'">
+            <el-tooltip :content="`核减原因：${get(row,`y${index}extInfo.reason`,'')}`">
+              <span>{{ get(row,item.key) }}</span>
+              <el-icon color="#0366f1" width="20"><View /></el-icon>
+            </el-tooltip>
+          </template>
+          <template v-else>
+            <span>{{ get(row,item.key) }}</span>
+          </template>
+        </div>
+      </template>
+      <template v-else>
+        {{ get(row,item.key) }}
+      </template>
+    </template>
+  </ui-table>
+</template>
+
+```
+
+``` ts
+// 创建对比项表头
+let arr = new Array(data.list.length + 1 ).fill('')
+let useColumn = []
+arr.forEach((item,index)=>{
+  // 第一列为对比字段说明
+  if(index==0){
+    useColumn.push({
+      label:'序号',key:'key',type:''
+    })
+  }else{
+    useColumn.push( { label:'日志' + index,key:`y${index}`,type:'slot',slotName:`y${index}` })
+  }
+})
+let result = []
+logTableComlumns.forEach(item=>{
+  result.push({
+    key:item.label,
+    keyValue:item.key
+  })
+})
+apiData.forEach((item,index)=>{
+  result.map(o=>{
+    set(o,`y${index + 1}`,get(item,o.keyValue,''))
+    set(o,`y${index + 1}extInfo`,item)
+  })
+})
+state.apiData = apiData
+state.data = result
+state.useColumn = useColumn
+
 
 ```

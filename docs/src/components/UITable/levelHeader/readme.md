@@ -1,5 +1,8 @@
 <script setup>
 import { ref} from 'vue'
+import img01 from './dome.png'
+import imagePreview from '@/global/components/imagePreview.vue'
+
 // import table from './table.vue'
 </script>
 
@@ -9,8 +12,8 @@ ui-table 组件的多级表头的实践。
 
 该文档不支持加载ui-table组件,具体表现请查看云南招商投促项目的报表中心模块。
 ## 示例
-示例图片
-![示例图片](./dome.png)
+
+<imagePreview :data="[img01]"></imagePreview>
 ``` vue 
 <template>
   <ui-table

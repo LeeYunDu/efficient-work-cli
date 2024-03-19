@@ -472,165 +472,51 @@ export const setLocalStorage = (obj: any) => {
 
 ### 使用方法
 
-在vue文件中引入以下代码
+在src/router/index.ts文件中引入以下代码
 
 ``` ts
-import useBuryingPoint from '@/utils/zwLog'
-const { sendPageView } = useBuryingPoint()
-sendPageView()
-```
 
-### 源码
-``` ts
-import { computed, ComputedRef, ref, Ref, nextTick, watchEffect, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import store from '@/store'
+const isAplus = import.meta.env.VITE_ENV === 'irs'
 
-interface ZwlogReceiveObj {
-  _user_id?: string
-  _user_nick?: string
-}
+const t0 = new Date().getTime()
+let t1 = new Date().getTime()
+let t2 = new Date().getTime()
+let zw: any = null
 
-enum LogStatus {
-  Unlogged = '01',
-  Logged = '02'
-}
-
-interface PvReceiveObj {
-  /** IRS 服务侧应用 appid */
-  miniAppId: string
-  /** IRS 服务侧应用 appName */
-  miniAppName: string
-  /** 页面启动到加载完成的时间 */
-  t2: string | number
-  /** 页面启动到页面响应完成的时间 */
-  t0: string | number
-  /** 各页面唯一标识 */
-  pageId: string
-  /** 用户登录状态（01:未登录/ 02:单点登录） */
-  log_status: LogStatus
-  /** 默认取页面 title，服务提供方自己定义，与服务埋点方案内名称一致即可 */
-  pageName?: string
-  /** 用户从进入到离开当前页面的时长 */
-  Page_duration?: string
-}
-
-interface IZwlog {
-  onReady: any
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  sendPV: (PvReceiveObj) => never
-}
-
-const zwlog: Ref<null | IZwlog> = ref(null)
-const currentRoutePath: Ref<null | string> = ref(null)
-const isFirstComing = ref(true)
-
-function useBuryingPoint () {
-  /**
-   * 初始化 zwlog 方法
-   * @param ZwlogReceiveObj - 接受用户唯一标识与用户昵称
-   */
-  function init (ZwlogReceiveObj: ZwlogReceiveObj = {}) {
-    try {
-      // 在 d.ts 中声明ZwLog属于window，否则ts报错
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      zwlog.value = new window.ZwLog(ZwlogReceiveObj)
-      console.log('zwlog 初始化成功')
-    } catch {
-      throw new Error('zwlog 初始化失败')
-    }
-  }
-
-  /**
-   * 发送 PV 日志
-   * @param miniAppId - IRS 服务侧应用 appid
-   * @param t2 - 页面启动到加载完成的时间
-   * @param t0 - 页面启动到页面响应完成的时间
-   * @param pageId - 各页面唯一标识
-   * @param pageName - 默认取页面 title，服务提供方自己定义，与服务埋点方案内名称一致即可
-   * @param log_status - 用户登录状态（01:未登录/ 02:单点登录）
-   */
-  function useSendPV (data: PvReceiveObj) {
-    try {
-      if (zwlog.value === null) throw new Error('zwlog 未初始化')
-      zwlog.value.onReady(function () {
-        zwlog.value?.sendPV(data)
-      })
-    } catch (e: any) {
-      throw new Error(`useSendPV 方法错误:${e?.message || e}`)
-    }
-  }
-
-  /**
-   * 获取页面加载时间
-   */
-  function sendPageView () {
-    const login = new Date().getTime() //进入时间
-    const upTime: any = ref(0) //更新时间
-    const beforeTime = ref(0) //beforeUpdate
-    //获取router-->meta中设置的页面Id、Name
-    const route = useRoute()
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const pageId = computed(() => route?.meta?.data?.id ?? '未定义的pageId') as ComputedRef<string>
-    const pageName = computed(() => route?.meta?.title ?? process.env.VUE_APP_ZLB_TITLE) as ComputedRef<string>
-    const isAbleToSend = computed(() => currentRoutePath.value !== route?.fullPath)
-
-    nextTick(() => {
-      upTime.value = new Date().getTime()
-    })
-    onMounted(() => {
-      beforeTime.value = new Date().getTime()
-      currentRoutePath.value = route.fullPath
-    })
-    //监听时间，时间拿到之后调用pv发送日志
-    watchEffect(() => {
-      if (zwlog.value && (isAbleToSend.value || isFirstComing.value) && (beforeTime.value - login) > 0 && (upTime.value - login) > 0) {
-        try {
-          currentRoutePath.value = route.fullPath
-          isFirstComing.value = false
-          const t0 = (beforeTime.value - login) / 1000
-          const t2 = (upTime.value - login) / 1000
-          const log_status: any = sessionStorage.getItem('JSESSIONID_LA_PLATFORM_COMPANY_API') ? '02' : '01'
-
-          useSendPV({
-            t2,
-            t0,
-            miniAppId: '2002348417',
-            miniAppName: '临企通',
-            pageId: pageId.value,
-            pageName: pageName.value,
-            log_status,
-          })
-          console.log(`发送PV,t2:${t2},t0:${t0},pageId:${pageId.value},pageName:${pageName.value},log_status:${log_status}`)
-        } catch (e: any) {
-          console.error(`发送PV失败：${e.message}`)
-        }
-      }
-    })
-  }
-
-
-  onMounted(() => {
-    if (!zwlog.value && store.getters.isLogin && store.getters.loginInfo.token) {
-      useBuryingPoint().init({
-        _user_id: store.getters.user.id || '',
-        _user_nick: store.getters.user.userName || ''
+//埋点
+async function aplusRouter () {
+  try {
+    const userId = store?.getters?.user.username || ''
+    if (!zw) {
+      zw = new ZwLog({
+        _user_id: 'debug' + userId
       })
     }
-  })
-
-  return {
-    zwlog,
-    init,
-    useSendPV,
-    sendPageView
+    t2 = new Date().getTime()
+    t1 = new Date().getTime()
+    zw.onReady(function () {
+      zw.sendPV({
+        miniAppId: '2002348417',
+        miniAppName: '临企通',
+        // 页面加载时间
+        t2: (t1 - t0 + Math.floor(Math.random() * 500)) / 1000,
+        // 页面响应时间
+        t0: (t2 - t0 + Math.floor(Math.random() * 100)) / 1000,
+        log_status: userId ? '02' : '01',
+        pageId: btoa(window.location.href),
+        pageName: encodeURIComponent(window.location.href)
+      })
+    })
+  } catch (e) {
+    console.log(e)
   }
 }
-export default useBuryingPoint
+
+router.afterEach(async () => {
+  if (isAplus) await aplusRouter()
+})
 ```
+
 <style module>
 .button {
   color: red;

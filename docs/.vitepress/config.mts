@@ -38,6 +38,7 @@ export default defineConfig({
         items: [
           { text: 'RadioSelect', link: '/src/components/select/radioSelect/readme' },
           { text: 'TabSelect', link: '/src/components/select/tabSelect/readme' },
+          { text: 'sort', link: '/src/components/select/sort/readme' },
           { text: '移动端 selectPanel', link: '/src/components/select/selectPanel/readme' },
         ]
       },
@@ -73,6 +74,12 @@ export default defineConfig({
           { text: '无限滚动列表 RollList', link: '/src/components/other/rollList/readme' },
           { text: '富文本编辑器 ', link: '/src/components/other/richTextEditor/readme' },
           { text: '封面 Cover', link: '/src/components/other/cover/readme' },
+        ]
+      },
+      {
+        text: 'utils',
+        items: [
+          { text: '导出', link: '/src/components/utils/export/readme' },
         ]
       },
       {

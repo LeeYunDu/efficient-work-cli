@@ -2,46 +2,61 @@
   "hash": "ba3c4ab9",
   "configHash": "79fbd8f0",
   "lockfileHash": "5354f724",
-  "browserHash": "b2f44cd0",
+  "browserHash": "0210c14e",
   "optimized": {
     "vue": {
       "src": "../../../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
-      "fileHash": "6d12a32f",
+      "fileHash": "e54f6d7e",
       "needsInterop": false
     },
     "vitepress > @vue/devtools-api": {
       "src": "../../../../node_modules/@vue/devtools-api/lib/esm/index.js",
       "file": "vitepress___@vue_devtools-api.js",
-      "fileHash": "5ca0c84d",
+      "fileHash": "a165b087",
       "needsInterop": false
     },
     "vitepress > @vueuse/core": {
       "src": "../../../../node_modules/@vueuse/core/index.mjs",
       "file": "vitepress___@vueuse_core.js",
-      "fileHash": "1426c2be",
+      "fileHash": "1dfd03e3",
       "needsInterop": false
     },
     "v-viewer": {
       "src": "../../../../node_modules/v-viewer/dist/index.mjs",
       "file": "v-viewer.js",
-      "fileHash": "c518ae1f",
+      "fileHash": "5e544847",
       "needsInterop": false
     },
     "element-plus": {
       "src": "../../../../node_modules/element-plus/es/index.mjs",
       "file": "element-plus.js",
-      "fileHash": "6532a4e4",
+      "fileHash": "068dcc41",
       "needsInterop": false
     },
     "lodash-es": {
       "src": "../../../../node_modules/lodash-es/lodash.js",
       "file": "lodash-es.js",
-      "fileHash": "77acd582",
+      "fileHash": "38a6f84f",
+      "needsInterop": false
+    },
+    "vuex": {
+      "src": "../../../../node_modules/vuex/dist/vuex.esm-bundler.js",
+      "file": "vuex.js",
+      "fileHash": "c1a69c16",
+      "needsInterop": false
+    },
+    "@element-plus/icons-vue": {
+      "src": "../../../../node_modules/@element-plus/icons-vue/dist/index.js",
+      "file": "@element-plus_icons-vue.js",
+      "fileHash": "d6c4d187",
       "needsInterop": false
     }
   },
   "chunks": {
+    "chunk-DM3E7FM3": {
+      "file": "chunk-DM3E7FM3.js"
+    },
     "chunk-VFYRJR7J": {
       "file": "chunk-VFYRJR7J.js"
     },
@@ -50,6 +65,9 @@
     },
     "chunk-UTXOFFT5": {
       "file": "chunk-UTXOFFT5.js"
+    },
+    "chunk-J4VLYDXT": {
+      "file": "chunk-J4VLYDXT.js"
     },
     "chunk-LQ2VYIYD": {
       "file": "chunk-LQ2VYIYD.js"
