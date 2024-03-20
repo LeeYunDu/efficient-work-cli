@@ -11,6 +11,13 @@ export default defineConfig({
     ],
     sidebar: [
       {
+        text: 'Home',
+        items: [
+          { text: '工具网站集合', link: '/src/components/website/readme' },
+
+        ]
+      },
+      {
         text: 'UI Table',
         items: [
           { text: '多级表头', link: '/src/components/UITable/levelHeader/readme' },
@@ -40,6 +47,7 @@ export default defineConfig({
           { text: 'TabSelect', link: '/src/components/select/tabSelect/readme' },
           { text: 'sort', link: '/src/components/select/sort/readme' },
           { text: '移动端 selectPanel', link: '/src/components/select/selectPanel/readme' },
+          { text: '移动端 picker', link: '/src/components/select/simpleSelect/readme' },
         ]
       },
       {
