@@ -3,6 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Web Library",
   description: "favorites",
+  base: '/efwork/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
