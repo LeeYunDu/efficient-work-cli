@@ -1,6 +1,6 @@
 # 浙政钉上架
 
-[专有钉钉——开发平台]('https://openplatform-portal.dg-work.cn/portal/#/helpdoc?apiType=jsapi&docKey=2765503')
+[专有钉钉——开发平台](https://openplatform-portal.dg-work.cn/portal/#/helpdoc?apiType=jsapi&docKey=2765503)
 
 ## 浙政钉PC端扫码登录
 

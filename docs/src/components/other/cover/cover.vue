@@ -34,7 +34,7 @@
 import { computed } from 'vue'
 import { get, isArray, isString } from 'lodash-es'
 import 'viewerjs/dist/viewer.css'
-import { component as Viewer } from "v-viewer"
+import Viewer from "v-viewer"
 
 let props = defineProps({
   data:{

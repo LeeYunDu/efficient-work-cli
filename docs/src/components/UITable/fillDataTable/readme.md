@@ -14,7 +14,6 @@ ui-table 组件的填报表格的实践。
 1. 确认好表头列
 
 示例图片
-![示例图片](./dome.png)
 ``` vue
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
