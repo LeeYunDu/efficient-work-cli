@@ -14,6 +14,7 @@ export default defineConfig({
         text: 'Home',
         items: [
           { text: '工具网站集合', link: '/src/components/website/readme' },
+          { text: 'Szzt CLI', link: '/src/components/SzztCLI/readme' },
 
         ]
       },

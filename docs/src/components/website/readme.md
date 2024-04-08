@@ -8,7 +8,7 @@
 
 无次数限制，无需注册账号，已稳定使用一年
 
-3. [zLibrary]('https://zh.zlibrary-sg.se/')
+3. [zLibrary](https://zh.zlibrary-sg.se/)
 
 Z-Library 是世界上最大的在线图书馆之一，它拥有超过14,900,000的书籍和84,837,000的文章。
 
@@ -16,9 +16,24 @@ Z-Library 是世界上最大的在线图书馆之一，它拥有超过14,900,000
 
 这是由微软开源的面向初学者的生成式 AI 免费课程，课程共 18 节，教程涵盖了创建生成式 AI 应用所需要了解的一切，包括生成式 AI 和 LLMs 的简介、提示词、构建文本生成应用、聊天应用、图像生成应用、向量数据库等方面。
 
-5. [GPTS]('https://mygpts.dev/')
+5. [GPTS](https://mygpts.dev/)
 
 这是爬取GitHub上开源的GPTS网站，里面可以看到别人编写的GPTS代码，可以作为学习的参考。目前已有20万+的GPTS代码。
+
+6. [Prompt Library](https://docs.anthropic.com/claude/prompt-library)
+
+Claude3官网发布的一个提词器库
+
+7. [Prompt Base](https://promptbase.com/create)
+
+Gpts 交易市场
+
+8. [suno 生成歌曲AI](https://www.suno.ai/)
+
+9. [arcads 打造自己的数字人AI](https://www.arcads.ai/)
+
+10.[earthworm 一个开源的，协作的，用户友好的英语学习工具。](https://earthworm.cuixueshe.com/)
+
 
 ## 工具类网站
 
@@ -42,7 +57,7 @@ echarts 图表库,可以查看别人写的options代码,可以作为学习的参
 
 用CSS绘制最常见的40种形状和图形
 
-2. [灵感中心]('https://galacean.antgroup.com/effects/inspiration/')
+2. [灵感中心](https://galacean.antgroup.com/effects/inspiration/)
 
 各种动画效果
 
