@@ -1,13 +1,13 @@
 import {
+  setupDevtoolsPlugin
+} from "./chunk-J4VLYDXT.js";
+import {
   computed2 as computed,
   effectScope,
   inject,
   reactive,
   watch
 } from "./chunk-UTXOFFT5.js";
-import {
-  setupDevtoolsPlugin
-} from "./chunk-J4VLYDXT.js";
 import "./chunk-LQ2VYIYD.js";
 
 // node_modules/vuex/dist/vuex.esm-bundler.js

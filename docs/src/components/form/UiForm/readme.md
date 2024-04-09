@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { get } from 'lodash-es'
 import { ref } from 'vue'
-
+import { UiForm } from 'static/lib/entry'
 let model = ref({})
 const formFields2 = [
   {
@@ -147,6 +147,8 @@ function onRadioChange(){
     />
   </template>
 </UiForm>
+
+### 表单字段JSON配置
 
 ::: details 查看源码，查看表单字段JSON配置
 ``` vue

@@ -24,7 +24,7 @@ export default defineConfig({
         items: [
           { text: '多级表头', link: '/src/components/UITable/levelHeader/readme' },
           { text: '对比表格', link: '/src/components/UITable/comparisonTable/readme' },
-          { text: '填报型表格', link: '/src/components/UITable/fillDataTable/readme' },
+          // { text: '填报型表格', link: '/src/components/UITable/fillDataTable/readme' },
           { text: '表格字段JSON', link: '/src/components/UITable/tableJSON/readme' },
         ]
       },
@@ -37,9 +37,7 @@ export default defineConfig({
       {
         text: 'Form',
         items: [
-          { text: 'Table Form', link: '/src/components/dialog/simpleDialog/readme' },
-          { text: 'UI Form', link: '/src/components/dialog/simpleDialog/readme' },
-          { text: '表单字段JSON', link: '/src/components/form/formJSON/readme' },
+          { text: 'PC端 UI Form', link: '/src/components/form/UiForm/readme' },
         ]
       },
       {
