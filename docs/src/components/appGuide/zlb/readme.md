@@ -2,6 +2,7 @@
 
 <script setup>
 import imagePreview from '@/global/components/imagePreview.vue'
+import filePreview from '@/global/components/filePreview.vue'
 import img01 from './img01.jpg'
 </script>
 # 浙里办上架指南
@@ -16,12 +17,11 @@ https://op-irs.zj.gov.cn/mobile/login?goto=/mobile/dev/app/management/serverList
 <script type="text/javascript"  src="https://assets.zjzwfw.gov.cn/assets/ZWJSBridge/1.1.0/zwjsbridge.js"></script>
 <script type="text/javascript" src="//assets.zjzwfw.gov.cn/assets/zwlog/1.0.0/zwlog.js"></script>
 ```
+## 《“浙里办”服务开发指引+V1.3.8》
 
-## 上架会审核 -  禁止网站页面缩放设置
-HTML文件中修改 meta 标签，添加以下内容：
-```  html
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-```
+
+## 浙里办服务上架审核要求20240201
+
 
 ## 微应用嵌入解决方案
 
@@ -127,6 +127,30 @@ import VueViewer from 'v-viewer'
 </script>
 ```
 
+## 上架会审核 - App只面向法人时,需要提示并且关闭该应用页面
+在代码中zlbLogin接口的后续处理逻辑中添加以下代码;该方法可以在[zw.ts](#zw-ts-——-浙里办封装方法集合)中查询 
+```  ts
+Toast.fail({
+  message: '该服务仅面向法人，请用法人账号访问',
+  onClose: () => {
+    // zwJS
+    window.ZWJSBridge.onReady(() => {
+      window.ZWJSBridge.close().then((res: any) => {
+        resolve({ success: true, data: res })
+      }).catch((error: any) => {
+        resolve({ success: false, errMsg: JSON.stringify(error), data: {} })
+      })
+    })
+  }
+})
+```
+
+## 上架会审核 -  禁止网站页面缩放设置
+HTML文件中修改 meta 标签，添加以下内容：
+```  html
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+```
+
 ## 上架会审核 -  禁止页面放大缩小、滑动
 
 在index.html文件中的script标签中添加以下代码
@@ -178,7 +202,7 @@ export const downloadFile = (url: any) => {
 
 ## 上架会审核 - 浙里办打开外链
 
-上架会审核是否需要采用浙里办的插件方式打开外链
+上架会审核是否需要采用浙里办的插件方式打开外链。该方法可以在[zw.ts](#zw-ts-——-浙里办封装方法集合)中查询 
 ``` ts
 /**
  * 在一个新的窗口加载一个新的页面
@@ -266,7 +290,7 @@ export function setRem (uiType: string) {
 
 ## 上架会审核 - 联系方式拨打电话功能
 
-涉及到联系方式的信息需要支持拨打电话功能
+涉及到联系方式的信息需要支持拨打电话功能；该方法可以在[zw.ts](#zw-ts-——-浙里办封装方法集合)中查询 
 
 ``` ts
 phoneCall(15168777777)

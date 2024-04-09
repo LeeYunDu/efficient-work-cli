@@ -4,7 +4,8 @@
     <div  v-for="(item,index) in data"  :key="index"  class="main" >
       <div class="view" >
         <div class="img-box">
-          <img class="icon" :src="`static/images/${item.icon}.png`" alt="">
+          <!-- <img class="icon" :src="`static/images/${item.icon}.png`" alt=""> -->
+          <img class="icon" src="./dome-01.png" alt="">
         </div>
         <div class="right" @click="onChange(item)">
           <div class="title">应用名称</div>

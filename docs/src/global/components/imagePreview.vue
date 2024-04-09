@@ -19,13 +19,6 @@ let props = defineProps({
     default:()=>[]
   },
 })
-
-let state = reactive({
-  data:[],
-  show:false
-})
-
-
 </script>
 
 <style lang="scss" scoped>

@@ -139,7 +139,7 @@ let useButtons = ref([
   padding: 14px;
   ::v-deep(.filter-popup){
     border-radius: 0px!important;
-    width: 78vw;
+    width: 78%;
     height: 100vh;
   }
 }

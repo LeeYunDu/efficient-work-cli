@@ -122,3 +122,78 @@ export const ApiProxy = {
 }
 
 ```
+### 浙政钉多端统一JSAPI
+
+此 JSAPI 支持运行于 android, ios, pc(win) 客户端的 H5 应用和政务钉钉小程序环境，且保持开发体验一致。
+
+[gdt-jsapi](https://www.npmjs.com/package/gdt-jsapi)
+
+1. 支持返回原生 Promise
+2. 支持模块化引入 api，模块化引入平台
+3. 支持 typescript 的接口定义，接口定义还在持续添加中，如有纰漏欢迎反馈
+
+``` npm 
+npm i gdt-jsapi
+```
+
+## 浙政钉移动端
+
+安装浙政钉依赖
+``` npm 
+npm i dingtalk-jsapi
+```
+
+## JSBridge.ts —— 浙政钉封装方法
+
+
+## 浙政钉移动端埋点相关代码
+
+往Html文件的head标签里添加以下代码
+
+``` javascript
+<script src='https://wpkgate-emas.ding.zj.gov.cn/static/wpk-jssdk.1.0.2/wpkReporter.js' crossorigin='true'></script>
+<script>
+  (function(w, d, s, q, i) {
+    w[q] = w[q] || [];
+    var f = d.getElementsByTagName(s)[0],j = d.createElement(s);
+    j.async = true;
+    j.id = 'beacon-aplus';
+    j.src = 'https://alidt.alicdn.com/alilog/mlog/aplus_cloud.js';
+    f.parentNode.insertBefore(j, f);
+  })(window, document, 'script', 'aplus_queue');
+
+  aplus_queue.push({
+    action: 'aplus.setMetaInfo',
+    arguments: ['aplus-rhost-v', 'alog-api.ding.zj.gov.cn']
+  });
+  aplus_queue.push({
+    action: 'aplus.setMetaInfo',
+    arguments: ['aplus-rhost-g', 'alog-api.ding.zj.gov.cn']
+  });
+
+  var u = navigator.userAgent
+  var isAndroid = u.indexOf('Android') > -1
+  var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+
+  aplus_queue.push({
+    action: 'aplus.setMetaInfo',
+    arguments: ['appId', isAndroid ? '28302650' : isIOS ? '28328447' : '47130293']
+  })
+</script>
+
+<script>
+  //稳定性监控
+  try {
+    const config = {
+      bid: 'XHQF-SZPT_dingoa',
+      signkey: '1234567890abcdef',
+      gateway: 'https://wpk-gate.zjzwfw.gov.cn'
+    }
+    const wpk = new wpkReporter(config)
+    wpk.installAll()
+    window._wpk = wpk
+  } catch (err) {
+    console.error('WpkReporter init fail', err)
+  }
+</script>
+```

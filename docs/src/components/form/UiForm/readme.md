@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { get } from 'lodash-es'
 import { ref } from 'vue'
-import { UiForm } from 'static/lib/entry'
+// import { UiForm } from 'static/lib/entry'
+import imagePreview from '@/global/components/imagePreview.vue'
+import img01 from './dome.png'
+
 let model = ref({})
 const formFields2 = [
   {
@@ -131,8 +134,10 @@ function onRadioChange(){
 1. 结合配置系统使用
 2. 自定义表单字段JSON使用
 
-## 基础示例
-参数：{{model}}
+## 示例
+
+<imagePreview :data="[img01]"></imagePreview>
+
 <UiForm
   v-bind="formOptions"
   ref="formRef"
@@ -150,7 +155,7 @@ function onRadioChange(){
 
 ### 表单字段JSON配置
 
-::: details 查看源码，查看表单字段JSON配置
+
 ``` vue
 <template>
   <UiForm
@@ -270,7 +275,6 @@ const formOptions = ref({
 })
 </script>
 ```
-:::
 
 ## 表单的label插槽示例
 <UiForm

@@ -2,7 +2,7 @@
 
 <script setup>
 import { ref , reactive } from 'vue'
-import selectPanel from './selectPanel.vue'
+import SelectPanel from './selectPanel.vue'
 let state = reactive({
   data:[],
   show:false,
@@ -32,10 +32,31 @@ function asyncData(){}
 </script>
 # SelectPanel
 
+
 ## 使用说明
+
 移动端筛选弹窗
 
+## 可用版本
+vant 3.0+ 和 vant 4.0+ 都可以使用
+
+
+
 ## 示例
+
+<el-button type="primary" @click="state.show = true">打开</el-button>
+<el-button type="primary" @click="state.show = false">关闭</el-button>
+
+参数：{{curParams}}
+
+<div class="moble-box">
+  <SelectPanel
+    v-model="state.show"
+    v-model:params="curParams"
+    :groups="items"
+    @submit="asyncData"
+  />
+</div>
 
 ``` vue
 <template>
@@ -242,7 +263,7 @@ let useButtons = ref([
   padding: 14px;
   ::v-deep(.filter-popup){
     border-radius: 0px!important;
-    width: 78vw;
+    width: 78%;
     height: 100vh;
   }
 }
@@ -358,9 +379,7 @@ let useButtons = ref([
 }
 </style>
 
-
-``` 
-
+```
 
 :::
 
@@ -368,5 +387,9 @@ let useButtons = ref([
 .button {
   color: red;
   font-weight: bold;
+}
+
+.moble-box{
+  width:375px;
 }
 </style>

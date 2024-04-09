@@ -2,6 +2,8 @@ import 'element-plus/theme-chalk/index.css'
 import DefaultTheme from 'vitepress/theme'
 import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
+import VantComponents from './vant'
+
 import {
   ElCol,
   ElRow,
@@ -112,5 +114,14 @@ export default {
     app.component(ElCheckboxGroup.name, ElCheckboxGroup)
     // 注册ElementPlus
     app.use(VueViewer)
+
+
+    VantComponents.map(item => {
+      if (item._options) {
+        app.use(item.component, item._options)
+      } else {
+        app.use(item)
+      }
+    })
   }
 }

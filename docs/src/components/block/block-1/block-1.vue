@@ -3,7 +3,8 @@
     <template v-for="(item, index) in useFields" :key="item.key">
       <div class="item" @click="onChange(item)">
         <div class="main">
-          <img class="icon" :src="`static/images/${item.icon}.png`" alt="">
+          <!-- <img class="icon" :src="`static/images/${item.icon}.png`" alt=""> -->
+          <img class="icon" src="./dome-01.png" alt="">
           <div class="info-box">
             <span class="label">{{ item.label }}</span>
             <div class="value-box">

@@ -43,9 +43,6 @@ import {
   zoom_out_default
 } from "./chunk-DM3E7FM3.js";
 import {
-  isVue2
-} from "./chunk-6NMAXBHK.js";
-import {
   castArray_default,
   cloneDeep_default,
   clone_default,
@@ -66,6 +63,9 @@ import {
   throttle_default,
   union_default
 } from "./chunk-VFYRJR7J.js";
+import {
+  isVue2
+} from "./chunk-6NMAXBHK.js";
 import {
   Comment,
   Fragment,

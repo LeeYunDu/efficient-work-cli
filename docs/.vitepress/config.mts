@@ -28,12 +28,12 @@ export default defineConfig({
           { text: '表格字段JSON', link: '/src/components/UITable/tableJSON/readme' },
         ]
       },
-      {
-        text: '弹窗',
-        items: [
-          { text: 'SimpleDialog', link: '/src/components/dialog/simpleDialog/readme' },
-        ]
-      },
+      // {
+      //   text: '弹窗',
+      //   items: [
+      //     { text: 'SimpleDialog', link: '/src/components/dialog/simpleDialog/readme' },
+      //   ]
+      // },
       {
         text: 'Form',
         items: [
