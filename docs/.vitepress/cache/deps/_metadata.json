@@ -2,66 +2,72 @@
   "hash": "40dc90be",
   "configHash": "79fbd8f0",
   "lockfileHash": "1a4a4b8d",
-  "browserHash": "c9285309",
+  "browserHash": "25a52d7b",
   "optimized": {
     "vue": {
       "src": "../../../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
-      "fileHash": "09d6ebf3",
+      "fileHash": "293cee2e",
       "needsInterop": false
     },
     "vitepress > @vue/devtools-api": {
       "src": "../../../../node_modules/@vue/devtools-api/lib/esm/index.js",
       "file": "vitepress___@vue_devtools-api.js",
-      "fileHash": "880e2847",
+      "fileHash": "844b4dda",
       "needsInterop": false
     },
     "vitepress > @vueuse/core": {
       "src": "../../../../node_modules/@vueuse/core/index.mjs",
       "file": "vitepress___@vueuse_core.js",
-      "fileHash": "0a668df3",
+      "fileHash": "9447b122",
       "needsInterop": false
     },
     "v-viewer": {
       "src": "../../../../node_modules/v-viewer/dist/index.mjs",
       "file": "v-viewer.js",
-      "fileHash": "99102499",
+      "fileHash": "eb6a26cc",
       "needsInterop": false
     },
     "element-plus": {
       "src": "../../../../node_modules/element-plus/es/index.mjs",
       "file": "element-plus.js",
-      "fileHash": "e0431eff",
+      "fileHash": "0805d9de",
       "needsInterop": false
     },
     "vant": {
       "src": "../../../../node_modules/vant/es/index.mjs",
       "file": "vant.js",
-      "fileHash": "1ee868da",
+      "fileHash": "a08e808c",
       "needsInterop": false
     },
     "vuex": {
       "src": "../../../../node_modules/vuex/dist/vuex.esm-bundler.js",
       "file": "vuex.js",
-      "fileHash": "978b2a70",
+      "fileHash": "4fd82e77",
       "needsInterop": false
     },
     "lodash-es": {
       "src": "../../../../node_modules/lodash-es/lodash.js",
       "file": "lodash-es.js",
-      "fileHash": "cdf99405",
+      "fileHash": "44490f85",
       "needsInterop": false
     },
     "@element-plus/icons-vue": {
       "src": "../../../../node_modules/@element-plus/icons-vue/dist/index.js",
       "file": "@element-plus_icons-vue.js",
-      "fileHash": "6dcfdca6",
+      "fileHash": "53045a45",
+      "needsInterop": false
+    },
+    "xlsx": {
+      "src": "../../../../node_modules/xlsx/xlsx.mjs",
+      "file": "xlsx.js",
+      "fileHash": "74867904",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-J4VLYDXT": {
-      "file": "chunk-J4VLYDXT.js"
+    "chunk-6NMAXBHK": {
+      "file": "chunk-6NMAXBHK.js"
     },
     "chunk-DM3E7FM3": {
       "file": "chunk-DM3E7FM3.js"
@@ -69,8 +75,8 @@
     "chunk-VFYRJR7J": {
       "file": "chunk-VFYRJR7J.js"
     },
-    "chunk-6NMAXBHK": {
-      "file": "chunk-6NMAXBHK.js"
+    "chunk-J4VLYDXT": {
+      "file": "chunk-J4VLYDXT.js"
     },
     "chunk-UTXOFFT5": {
       "file": "chunk-UTXOFFT5.js"

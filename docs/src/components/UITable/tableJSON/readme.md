@@ -21,10 +21,10 @@ import { FieldItem, FormMode, ItemMode } from '@/typings/items'
 import store from '@/store'
 import { get } from 'lodash-es'
 import { computed } from 'vue'
-const dictData = computed(() => store.getters.dictData).value
+  const dictData = store.getters.dictData
 
 export const tableColumn = (params: any): FieldItem[] => {
-  [
+  return [
     { label: '序号',  key: 'index',  props: { width: '80px'  } },
     { label: '文本字段', key: 'y1', },
     { label: '字典字段', key: 'chooseType12Name', transform: '12.dist' },
@@ -49,14 +49,6 @@ export const tableColumn = (params: any): FieldItem[] => {
   ]
 }
 
-export const sortOptions = [
-  { label: '按签约时间升序', value: 'signTime+' },
-  { label: '按签约时间降序', value: 'signTime-' },
-  { label: '按更新时间升序', value: 'modifyTime+' },
-  { label: '按更新时间降序', value: 'modifyTime-' },
-  { label: '按创建时间升序', value: 'createTime+' },
-  { label: '按创建时间降序', value: 'createTime-' },
-]
 ```
 
 ## 数值转化函数
@@ -109,7 +101,6 @@ export function transformTableData (fields: FieldItem[], data: any) {
       return e
     })
   })
-
   return data
 }
 

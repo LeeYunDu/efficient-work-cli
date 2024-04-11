@@ -18,7 +18,6 @@ VITE_ZZD_CLIENT_ID = 'LQT-QYFW_dingoa'
 <template>
   <section v-loading="loading" class="form-zzd">
     <iframe :src="zzdLink"></iframe>
-    <!-- <img :src="$loadImg('home/login-code.png')" alt=""> -->
   </section>
 </template>
 
@@ -104,10 +103,9 @@ onMounted(() => monitorMessage())
 
 ## 上架前代码审查
 
-1. 打包环境判断，检查接口访问地址是否为绝对路径,相对定位的话在浙政钉环境会出现接口请求失败的问题。
-
+###  打包环境判断
+检查接口访问地址是否为绝对路径,相对定位的话在浙政钉环境会出现接口请求失败的问题。
 ``` ts
-
 export const ApiProxy = {
   java: {
     // 主应用
@@ -115,14 +113,19 @@ export const ApiProxy = {
     build: (VITE_ENV == 'irs' ? 'https://lqt.linan.gov.cn:18570' : '') + '/building_gov_api',
     project: (VITE_ENV == 'irs' ? 'https://lqt.linan.gov.cn:18570' : '') + '/la_project_gov_api',
   },
-
   node: {
-    main: '/node-szzt'
+    main: (VITE_ENV == 'irs' ? 'https://lqt.linan.gov.cn:18570' : '') + '/node-szzt'
   }
 }
-
 ```
-### 浙政钉多端统一JSAPI
+
+### 页面禁止缩放
+在index.html文件中添加 meta 标签，添加以下内容：
+```  html
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+```
+
+## 浙政钉多端统一JSAPI
 
 此 JSAPI 支持运行于 android, ios, pc(win) 客户端的 H5 应用和政务钉钉小程序环境，且保持开发体验一致。
 
@@ -135,65 +138,17 @@ export const ApiProxy = {
 ``` npm 
 npm i gdt-jsapi
 ```
-
-## 浙政钉移动端
-
+## 浙政钉移动端依赖
 安装浙政钉依赖
 ``` npm 
 npm i dingtalk-jsapi
 ```
 
-## JSBridge.ts —— 浙政钉封装方法
+## 浙政钉移动端Debug插件
 
+在index.html的head标签内文件下添加以下代码，可以在专有钉钉/浙政钉的环境下打开控制台。
 
-## 浙政钉移动端埋点相关代码
-
-往Html文件的head标签里添加以下代码
-
-``` javascript
-<script src='https://wpkgate-emas.ding.zj.gov.cn/static/wpk-jssdk.1.0.2/wpkReporter.js' crossorigin='true'></script>
-<script>
-  (function(w, d, s, q, i) {
-    w[q] = w[q] || [];
-    var f = d.getElementsByTagName(s)[0],j = d.createElement(s);
-    j.async = true;
-    j.id = 'beacon-aplus';
-    j.src = 'https://alidt.alicdn.com/alilog/mlog/aplus_cloud.js';
-    f.parentNode.insertBefore(j, f);
-  })(window, document, 'script', 'aplus_queue');
-
-  aplus_queue.push({
-    action: 'aplus.setMetaInfo',
-    arguments: ['aplus-rhost-v', 'alog-api.ding.zj.gov.cn']
-  });
-  aplus_queue.push({
-    action: 'aplus.setMetaInfo',
-    arguments: ['aplus-rhost-g', 'alog-api.ding.zj.gov.cn']
-  });
-
-  var u = navigator.userAgent
-  var isAndroid = u.indexOf('Android') > -1
-  var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
-
-  aplus_queue.push({
-    action: 'aplus.setMetaInfo',
-    arguments: ['appId', isAndroid ? '28302650' : isIOS ? '28328447' : '47130293']
-  })
-</script>
-
-<script>
-  //稳定性监控
-  try {
-    const config = {
-      bid: 'XHQF-SZPT_dingoa',
-      signkey: '1234567890abcdef',
-      gateway: 'https://wpk-gate.zjzwfw.gov.cn'
-    }
-    const wpk = new wpkReporter(config)
-    wpk.installAll()
-    window._wpk = wpk
-  } catch (err) {
-    console.error('WpkReporter init fail', err)
-  }
-</script>
+``` js
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init()</script>
 ```

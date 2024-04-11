@@ -1,4 +1,7 @@
 import {
+  isVue2
+} from "./chunk-6NMAXBHK.js";
+import {
   arrow_down_default,
   arrow_left_default,
   arrow_right_default,
@@ -63,9 +66,6 @@ import {
   throttle_default,
   union_default
 } from "./chunk-VFYRJR7J.js";
-import {
-  isVue2
-} from "./chunk-6NMAXBHK.js";
 import {
   Comment,
   Fragment,

@@ -125,7 +125,7 @@ function onRadioChange(){
 </script>
 # UiForm
 
-基于element-plus的el-form封装
+Lib下的通用组件，基于element-plus的el-form封装
 
 ## 使用说明
 
@@ -189,7 +189,14 @@ const formFields = [
     },
   },
   {
-    label: '输入框单位', key: 'y2', type: 'input',
+    label: '不显示label', key: 'y1', type: 'input'
+    props: {
+      gridItem: { span: 24 },
+      formItem: { required: true,labelWidth:0 },
+    },
+  },
+  {
+    label: '数字类型输入框', key: 'y2', type: 'input',
     props: {
       clearable: true, 
       gridItem: { span: 24 }, 
@@ -257,6 +264,10 @@ const formFields = [
         emitPath: false
       }
     }
+  },
+   {
+    label: '插槽字段',  key: 'y9', slotName: 'slotName', type: 'slot'
+    props: {}
   },
 ]
 
@@ -337,19 +348,17 @@ const uiFormProps = {
 | 属性名      | 说明        |  类型         |  默认值       | 
 | :---        | :---   |   :---  |:----: |
 | label   | 名称       | string   |	— |
-| key   | 键       | LabelType   |	— |
+| key   | 键       | string   |	— |
 | type   | 组件类型,<span style="color:blue;">下方查看枚举</span>     | string   |	— |
 | props   | 表单组件官网属性       | LabelProps    |	— |
 | slotName   | 插槽名称       | string   |	— |
-| gridProps   | 表格属性       | GridProps   |	— |
-| formItemProps   | el-form-item 官网属性       | FormItemProps   |— |
+| gridItem   | 表格属性       | GridProps   |	— |
+| formItem   | el-form-item 官网属性       | FormItemProps   |— |
 | options   | 选项集合       | LabelOptionItem   |	— |
 | child   |  多选框、单选框的options的选项的配置      |  LabelItem  |	— |
 | rules   |  表单校验      | array  参考element-plus写法  |	— |
 | show   | 是否显示        | string / Function(model,labelItem)   |	— |
 | change   |     change事件   |  Function(value,model,labelItem)  |	— |
-| _visible   |   可见？有效？     |  boolean  |	— |
-
 
 ``` ts
 
@@ -428,15 +437,21 @@ type FormProps = {
 
 ``` 
 
-## 插槽
+## Slots
 
 | 插槽名      | 说明        |  子标签         |
 | :---        | :---   |   :---  |
-| label + Key   | 表单字段的自定义label插槽       |  —  |
+| label-[字段的key]   | 表单字段的自定义label插槽       |  —  |
 | slotFields   | 字段type类型为slot时       |  —  |
 
 
+## Event
 
+| 事件名称      | 说明        |  类型         |
+| :---        | :---   |   :---  |
+| resetFields   | 	重置该表单项，将其值重置为初始值，并移除校验结果       |  ()=>void  |
+| validate   |     对整个表单的内容进行验证。 接收一个回调函数，或返回 Promise。   |  ()=>Promis  |
+| validateField   |    	验证具体的某个字段。   |  (key,callback)=>FormValidationResult  |
 <style module>
 .button {
   color: red;

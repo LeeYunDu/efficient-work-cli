@@ -4,6 +4,11 @@
 import imagePreview from '@/global/components/imagePreview.vue'
 import filePreview from '@/global/components/filePreview.vue'
 import img01 from './img01.jpg'
+import download from '@/utils/download'
+
+function onDownload(url,fileName){
+  download(url,fileName)
+}
 </script>
 # 浙里办上架指南
 上架应用规范要求
@@ -19,37 +24,40 @@ https://op-irs.zj.gov.cn/mobile/login?goto=/mobile/dev/app/management/serverList
 ```
 ## 《“浙里办”服务开发指引+V1.3.8》
 
+<el-button type="primary" @click="onDownload('./file01.pdf','《“浙里办”服务开发指引+V1.3.8》')">下载</el-button>
 
 ## 浙里办服务上架审核要求20240201
+
+<el-button type="primary" @click="onDownload('./file02.pdf','浙里办服务上架审核要求20240201')">下载</el-button>
 
 
 ## 微应用嵌入解决方案
 
 [采用micro-app方案实现](https://micro-zoe.github.io/micro-app/docs.html#/)。简单、便捷。
 
+安装依赖
 ``` npm
 npm install @micro-zoe/micro-app
 ```
-
+在main.ts文件引入
 ``` ts
 import microApp from '@micro-zoe/micro-app'
 microApp.start()
 ```
-
+创建组件micro 子应用示例，定义路由为“/resource-recommend/view”
 ``` vue
 <template>
   <div
     id="intermediary-iframe"
     class="view-container"
   >
-  <micro-app
-    name="resource"
-    iframe
-    :url="iframeUrl"
-    :data="{}"
-  >
-
-  </micro-app>
+    <micro-app
+      name="resource"
+      iframe
+      :url="iframeUrl"
+      :data="{}"
+    >
+    </micro-app>
   </div>
 </template>
 
@@ -76,14 +84,14 @@ const iframeUrl = computed(() => {
 </style>
 
 ```
-
-子应用路由
-
+其他页面路由跳转进入“/resource-recommend/view”
 ``` vue
 router.push({
   path:'主应用下的子应用路由地址  /resource-recommend/view',
   query:{
-    resource:'#/recommend?type=recommend&id=2',// 子应用路由并且携带参数示例
+    // 子应用路由并且携带参数
+    // 其中 #/recommend 是子应用的路由,“?”后面为传入的url地址栏参数
+    resource:'#/recommend?type=recommend&id=2',
   }
 })
 
@@ -112,8 +120,8 @@ npm i v-viewer
 
 ``` vue
 <template>
-  <viewer :images="[useCover.url]" class="flex">
-    <template v-for="(item,index) in [useCover.url]" :key="index">
+  <viewer :images="imgList" class="flex">
+    <template v-for="(item,index) in imgList" :key="index">
       <img
         class="cover-image"
         :src="item"
@@ -124,6 +132,8 @@ npm i v-viewer
 <script>
 import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
+
+let imgList = ['图片地址1','图片地址2','图片地址3']
 </script>
 ```
 
@@ -233,11 +243,15 @@ export const openLink = (url: any, type?: any) => {
 在App.vue文件中添加一下代码
 
 ``` ts
-import { isZlb } from './utils'
 import { getUiStyle } from './utils/zw'
 import { setRem } from './utils/rem'
 
-
+function isZlb () {
+  const sUserAgent = window.navigator.userAgent.toLowerCase()
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return sUserAgent.indexOf('dtdreamweb') > -1
+}
 async function getUiStatus () {
   const res = await getUiStyle()
   if (!res.success) return Toast.fail('获取UI类型失败!')
