@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import imagePreview from '@/global/components/imagePreview.vue'
+import img01 from './dome.png'
+
+</script>
+
 # RichTextEditor 富文本编辑器
 ## 使用说明
 富文本编辑器,功能如下
@@ -18,6 +24,10 @@ npm install @wangeditor/editor-for-vue
 ```
 
 ## 示例
+
+<imagePreview :data="[img01]"></imagePreview>
+
+
 ``` vue
 <template>
   <RichTextEditor v-model="value"  > </RichTextEditor>

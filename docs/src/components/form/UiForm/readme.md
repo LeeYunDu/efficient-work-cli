@@ -5,6 +5,8 @@ import { ref } from 'vue'
 import imagePreview from '@/global/components/imagePreview.vue'
 import img01 from './dome.png'
 
+
+
 let model = ref({})
 const formFields2 = [
   {
@@ -178,7 +180,7 @@ import { ref} from 'vue'
 import { UiForm } from 'static/lib/entry'
 const formFields = [
   {
-    label: '文本显示字数限制', key: 'y1', type: 'input'
+    label: '文本显示字数限制', key: 'y1', type: 'input',
     props: {
       gridItem: { span: 24 },
       formItem: { required: true },
@@ -189,7 +191,7 @@ const formFields = [
     },
   },
   {
-    label: '不显示label', key: 'y1', type: 'input'
+    label: '不显示label', key: 'y1', type: 'input',
     props: {
       gridItem: { span: 24 },
       formItem: { required: true,labelWidth:0 },
