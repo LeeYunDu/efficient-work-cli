@@ -1,16 +1,6 @@
 
 
 <script setup>
-import { ref} from 'vue'
-import itemSort from './sort.vue'
-
-
-function handleSearch (params){
-  alert('sort值发生变化')
-}
-let sortItem = [
-  { label:'发布时间',key:'publishTime' }
-]
 
 </script>
 # Sort
@@ -21,25 +11,11 @@ let sortItem = [
 
 ## 示例
 
+:::preview 
 
-<itemSort :sort-item="sortItem" @handleSearch="handleSearch" />
+demo-preview=./demo.vue
 
-
-``` vue
-<template>
- <itemSort :sort-item="sortItem" @handleSearch="handleSearch" />
-</template>
-
-<script lang="ts" setup>
-let sortItem = [
-  { label:'发布时间',key:'publishTime' }
-]
-function handleSearch (params){
-  curParams.value.sort = params.sort
-  asyncData()
-}
-</script>
-```
+:::
 
 ## 源码
 

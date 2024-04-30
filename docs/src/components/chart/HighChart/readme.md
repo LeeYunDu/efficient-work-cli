@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { get } from 'lodash-es'
 import { ref } from 'vue'
-import imagePreview from '@/global/components/imagePreview.vue'
 
 </script>
 # HighChart
 收集HighChart 相关的图表，做到复制即可用
-
 
 
 ## 3D饼图

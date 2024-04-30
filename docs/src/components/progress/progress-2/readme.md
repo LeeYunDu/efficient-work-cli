@@ -1,9 +1,6 @@
 
 
 <script setup>
-import { ref} from 'vue'
-import Progress from './progress-2.vue'
-let  data = ref([  { y1:'10000',y2:55 }])
 
 </script>
 # Progress
@@ -13,19 +10,14 @@ Svg 实现环形进度条，常用驾驶舱项目
 自定义环形颜色、支持渐变色
 
 ## 示例
-<Progress :data="data" > </Progress>
-``` vue
-<template>
-  <Progress :data="data" > </Progress>
-</template>
-<script lang="ts" setup>
-import { ref} from 'vue'
-import Progress from './progress-1.vue'
-let  data = ref([  { y1:'10000',y2:55 }])
 
 
-</script>
-```
+:::preview 
+
+demo-preview=./demo.vue
+
+:::
+
 ## Attributes
 
 | 属性名      | 说明        |  类型         |  默认值       | 

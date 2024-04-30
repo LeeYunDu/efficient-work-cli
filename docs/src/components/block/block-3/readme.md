@@ -1,35 +1,16 @@
 
-
-<script setup>
-import { ref} from 'vue'
-import Block from './block-3.vue'
-let  data = ref([
-  {x1:'应用名称1',content:'一行文字简要概述'},
-  {x1:'应用名称2',content:'一行文字简要概述'},
-  {x1:'应用名称3',content:'一行文字简要概述'},
-])
-</script>
 # Block
 ## 使用说明
 常用于移动端
 
 应用模块Block - 左边图片，右边信息
 ## 示例
-<Block :data="data" :fields="fields" > </Block>
-``` vue
-<template>
-  <Block :data="data" :fields="fields" > </Block>
-</template>
-<script lang="ts" setup>
-import { ref} from 'vue'
-import Block from './block-3.vue'
-let  data = ref([
-  {x1:'应用名称1',content:'一行文字简要概述'},
-  {x1:'应用名称2',content:'一行文字简要概述'},
-  {x1:'应用名称3',content:'一行文字简要概述'},
-])
-</script>
-```
+
+:::preview 
+
+demo-preview=./demo.vue
+
+:::
 ## Attributes
 
 | 属性名      | 说明        |  类型         |  默认值       | 

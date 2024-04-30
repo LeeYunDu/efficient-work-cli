@@ -78,8 +78,8 @@ export default defineConfig({
       {
         text: 'Progress',
         items: [
-          { text: 'Progress-1', link: '/src/components/Progress/Progress-1/readme' },
-          { text: 'Progress-2', link: '/src/components/Progress/Progress-2/readme' },
+          { text: 'Progress-1', link: '/src/components/progress/progress-1/readme' },
+          { text: 'Progress-2', link: '/src/components/progress/progress-2/readme' },
         ]
       },
       {

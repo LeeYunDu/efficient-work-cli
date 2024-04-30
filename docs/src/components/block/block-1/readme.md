@@ -1,35 +1,15 @@
 
 
-<script setup>
-import { ref} from 'vue'
-import Block from './block-1.vue'
-let  data = ref({y1:'1',y2:'2',y3:'3'})
-let fields = ref([
-  {label:'字段1',key:'y1',unit:'个'},
-  {label:'字段2',key:'y2',unit:'个'},
-  {label:'字段3',key:'y3',unit:'个'},
-])
-</script>
+
 # Block
 ## 使用说明
 指标统计组件 - 左边图片，右边标题 + 数值 + 单位
 ## 示例
-<Block :data="data" :fields="fields" > </Block>
-``` vue
-<template>
-  <Block :data="data" :fields="fields" > </Block>
-</template>
-<script lang="ts" setup>
-import { ref} from 'vue'
-import Block from './block-1.vue'
-let  data = ref({y1:'1',y2:'2',y3:'3'})
-let fields = ref([
-  {label:'字段1',key:'y1',unit:'个'},
-  {label:'字段2',key:'y2',unit:'个'},
-  {label:'字段3',key:'y3',unit:'个'},
-])
-</script>
-```
+:::preview 
+
+demo-preview=./demo.vue
+
+:::
 ## Attributes
 
 | 属性名      | 说明        |  类型         |  默认值       | 

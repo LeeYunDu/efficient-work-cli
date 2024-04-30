@@ -1,23 +1,20 @@
 
 
 <script setup>
-import { ref} from 'vue'
-import RollList from './rollList.vue'
-let  data = ref([
-  {x1:'杭州市',y1:'1'},
-  {x1:'温州市',y1:'2'},
-  {x1:'金华市',y1:'3'},
-  {x1:'昆明市',y1:'4'},
-  {x1:'绍兴市',y1:'5'},
-])
 
-function onRadioChange(){
-
-}
 </script>
 # RollList
 
 无限滚动列表,附带源码,拓展性高。
+
+
+## 示例
+
+::: preview 
+
+demo-preview=./demo.vue
+
+:::
 
 ## 使用说明
 常用于驾驶舱、数据分析场景，展现数据项，然后无限滚动。
@@ -30,36 +27,7 @@ function onRadioChange(){
 
 ## 示例
 
-<RollList :data="data" height="100px" :scroll="true">
-  <div>数据1</div>
-  <div>数据2</div>
-  <div>数据3</div>
-  <div>数据4</div>
-  <div>数据5</div>
-</RollList>
 
-``` vue
-<template>
-  <RollList :data="data" height="100px" :scroll="true">
-    <div>数据1</div>
-    <div>数据2</div>
-    <div>数据3</div>
-    <div>数据4</div>
-    <div>数据5</div>
-  </RollList>
-</template>
-<script lang="ts" setup>
-import { ref} from 'vue'
-import RollList from './roll.list.vue'
-let  data = ref([
-  {x1:'杭州市',y1:'1'},
-  {x1:'温州市',y1:'2'},
-  {x1:'金华市',y1:'3'},
-  {x1:'昆明市',y1:'4'},
-  {x1:'绍兴市',y1:'5'},
-])
-</script>
-```
 ## Attributes
 
 | 属性名      | 说明        |  类型         |  默认值       | 

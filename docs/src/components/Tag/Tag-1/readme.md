@@ -1,23 +1,19 @@
 
 
 <script setup>
-import Tag from './Tag-1.vue'
 </script>
 # Block
 ## 使用说明
 一个项目公用的Tag组件，自定义多种类型
 ## 示例
-<Tag label="标签normal"> </Tag>
-<Tag label="标签blue" type="blue"> </Tag>
-``` vue
-<template>
-  <Tag label="标签normal"> </Tag>
-  <Tag label="标签blue" type="blue"> </Tag>
-</template>
-<script lang="ts" setup>
-import Tag from './Tag-1.vue'
-</script>
-```
+
+
+:::preview 
+
+demo-preview=./demo.vue
+
+:::
+
 ## Attributes
 
 | 属性名      | 说明        |  类型         |  默认值       | 
