@@ -40,7 +40,7 @@ import {
   watch,
   watchEffect
 } from "./chunk-UTXOFFT5.js";
-import "./chunk-LQ2VYIYD.js";
+import "./chunk-GFT2G5UO.js";
 
 // node_modules/@vueuse/shared/index.mjs
 function computedEager(fn, options) {

@@ -1,6 +1,6 @@
 import {
   __commonJS
-} from "./chunk-LQ2VYIYD.js";
+} from "./chunk-GFT2G5UO.js";
 
 // node_modules/highcharts/highcharts.js
 var require_highcharts = __commonJS({

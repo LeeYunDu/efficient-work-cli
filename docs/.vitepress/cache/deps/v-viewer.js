@@ -11,7 +11,7 @@ import {
   renderSlot,
   watch
 } from "./chunk-UTXOFFT5.js";
-import "./chunk-LQ2VYIYD.js";
+import "./chunk-GFT2G5UO.js";
 
 // node_modules/viewerjs/dist/viewer.esm.js
 function ownKeys(e, r) {

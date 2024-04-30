@@ -20,9 +20,15 @@
 
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-import { ApiProxy } from '@/config/index.ts'
+// import { ApiProxy } from '@/config/index.ts'
+let ApiProxy  = {
+  java:{
+    main:''
+  }
+}
 import { computed,inject,ref,shallowRef,onBeforeUnmount  } from 'vue'
 import { useStore } from 'vuex'
+import { get } from 'request';
 
 const props = defineProps({
   modelValue: { type: String, default: '' }
@@ -37,7 +43,7 @@ const message = inject('message')
 // -------- ref --------
 
 // -------- computed --------
-const sessionId = computed(() => store.getters.loginInfo?.token)
+const sessionId = computed(() => get(store,'store.getters.loginInfo?.token') )
 
 const toolbarConfig = computed(() => ({
   excludeKeys: ['insertVideo','uploadVideo','editVideoSize','group-video']
