@@ -37,7 +37,7 @@ let fields = ref([
 | data   | 数据集合        | array      |—  |
 | fields   | 字段      | FieldItem[]      | —  |
 
-## Event
+## Events
 
 | 属性名      | 说明        |  类型         |  默认值       | 
 | :---        | :---   |   :---  |:----: |

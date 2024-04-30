@@ -58,10 +58,17 @@ import {
 } from 'element-plus'
 
 
-
+import { ElementPlusContainer, AntDesignContainer, NaiveUIContainer } from '@vitepress-demo-preview/component'
+import '@vitepress-demo-preview/component/dist/style.css'
+import 'vant/lib/index.css'
 export default {
   ...DefaultTheme,
   enhanceApp ({ app }) {
+
+    app.component('demo-preview', NaiveUIContainer)
+
+
+
     app.component(ElConfigProvider.name, ElConfigProvider)
     app.component(ElButton.name, ElButton)
     app.component(ElInput.name, ElInput)
@@ -117,11 +124,7 @@ export default {
 
 
     VantComponents.map(item => {
-      if (item._options) {
-        app.use(item.component, item._options)
-      } else {
-        app.use(item)
-      }
+      app.component(item.name, item)
     })
   }
 }

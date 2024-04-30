@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress'
+import { containerPreview, componentPreview } from '@vitepress-demo-preview/plugin'
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Web Library",
@@ -41,6 +43,13 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Form H5',
+        items: [
+          { text: 'H5端 UI Form', link: '/src/components/form/UiFormH5/form/readme' },
+          { text: 'Picker', link: '/src/components/form/UiFormH5/select/readme' },
+        ]
+      },
+      {
         text: '选择器',
         items: [
           { text: 'RadioSelect', link: '/src/components/select/radioSelect/readme' },
@@ -59,17 +68,18 @@ export default defineConfig({
           { text: 'Block-4  ', link: '/src/components/block/block-4/readme' },
         ]
       },
+
+      {
+        text: 'Tag',
+        items: [
+          { text: 'Tag-1', link: '/src/components/Tag/Tag-1/readme' },
+        ]
+      },
       {
         text: 'Progress',
         items: [
           { text: 'Progress-1', link: '/src/components/Progress/Progress-1/readme' },
           { text: 'Progress-2', link: '/src/components/Progress/Progress-2/readme' },
-        ]
-      },
-      {
-        text: 'Tag',
-        items: [
-          { text: 'Tag-1', link: '/src/components/Tag/Tag-1/readme' },
         ]
       },
       {
@@ -117,5 +127,11 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
     ]
+  },
+  markdown: {
+    config (md) {
+      md.use(containerPreview)
+      md.use(componentPreview)
+    }
   }
 })

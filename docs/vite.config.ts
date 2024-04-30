@@ -1,6 +1,5 @@
 import { defineConfig, BuildOptions } from 'vite'
 import * as path from 'path'
-
 export default () => {
   return defineConfig({
     base: './',

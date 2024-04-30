@@ -24,11 +24,11 @@ https://op-irs.zj.gov.cn/mobile/login?goto=/mobile/dev/app/management/serverList
 ```
 ## 《“浙里办”服务开发指引+V1.3.8》
 
-<el-button type="primary" @click="onDownload('./file01.pdf','《“浙里办”服务开发指引+V1.3.8》')">下载</el-button>
+<el-button type="primary" @click="onDownload('static/file/file01.pdf','《“浙里办”服务开发指引+V1.3.8》')">下载</el-button>
 
 ## 浙里办服务上架审核要求20240201
 
-<el-button type="primary" @click="onDownload('./file02.pdf','浙里办服务上架审核要求20240201')">下载</el-button>
+<el-button type="primary" @click="onDownload('static/file/file02.pdf','浙里办服务上架审核要求20240201')">下载</el-button>
 
 
 ## 微应用嵌入解决方案

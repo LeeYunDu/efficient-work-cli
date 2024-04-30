@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { get } from 'lodash-es'
 import { ref } from 'vue'
-// import { UiForm } from 'static/lib/entry'
 import imagePreview from '@/global/components/imagePreview.vue'
-import img01 from './dome.png'
-
 
 
 let model = ref({})
@@ -127,14 +124,13 @@ function onRadioChange(){
 </script>
 # UiForm
 
-Lib下的通用组件，基于element-plus的el-form封装
+基于vant4.0组件库封装
 
 ## 使用说明
 
 功能介绍
 
-1. 结合配置系统使用
-2. 自定义表单字段JSON使用
+1. 自定义表单字段JSON使用
 
 ## 示例
 

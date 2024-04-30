@@ -39,7 +39,6 @@ import SimpleModal from '@/views/common/Simple.modal.vue'
 import { reactive,ref,inject,computed, provide } from 'vue'
 import { ElMessage } from 'element-plus'
 import { get } from 'lodash-es'
-import { tableColumn  } from './json'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -70,13 +69,14 @@ const state = reactive({
 let tableOptions = reactive({
   props:{
     border: false,
-    height: undefined,
+    height: '100%',
     select: false,
     rowKey: 'id',
     stripe: false,
     currentRowkey: 'id'
   },
   options:{
+    autoScroll:false,
     pagination:{
       total:0,
       mapper:{
@@ -89,7 +89,7 @@ let tableOptions = reactive({
     },
   },
   data:[],
-  columns:tableColumn,
+  columns:[],
 })
 
 const actionButtons = ref([

@@ -170,7 +170,7 @@ function changeSort (key: string) {
 | label   | 名称       | string   |	- |
 | key   | key值       | string   |	- |
 
-## Events
+## Eventss
 
 | 事件名称      | 说明        |  类型         |  默认值       | 
 | :---        | :---   |   :---  |:----: |

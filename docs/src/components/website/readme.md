@@ -32,8 +32,11 @@ Gpts 交易市场
 
 9. [arcads 打造自己的数字人AI](https://www.arcads.ai/)
 
-10.[earthworm 一个开源的，协作的，用户友好的英语学习工具。](https://earthworm.cuixueshe.com/)
+10. [earthworm 一个开源的，协作的，用户友好的英语学习工具。](https://earthworm.cuixueshe.com/)
 
+11. [一个模特换衣的 AI 模型，只要上传服饰平铺图，就可以生成模特的试衣结果。](https://github.com/ihmily/outfit-anyone/blob/main/README_CN.md)
+
+12. [Meta 公司还有一个专门的 Llama 聊天网站 llama.dev ](https://llama3.dev/)
 
 ## 工具类网站
 
