@@ -84,7 +84,9 @@ let isMultiple = computed(()=>{
 let useOptions = computed(()=>{
   return get(props.field,'options',[]).map(option=>{
     return {
-      text:get(option,mapper.value.text),
+      // text:get(option,mapper.value.text),
+      name:get(option,mapper.value.text),
+      // label:get(option,mapper.value.text),
       id:get(option,mapper.value.value),
     }
   })
@@ -126,14 +128,8 @@ function onConfirm (item){
   }else{
     set(model.value,props.field.key,selectedValues.join(''))
   }
-  console.log(item,'item');
-  
-  if(isArray(currentValue.value)){
-    state.text = currentValue.value.map(item=>getValue(item)).join(',')
-  }else{
-    
-    state.text = getValue(selectedValues.join(','))
-  }
+
+  state.text = currentValue.value.map(item=>getValue(item)).join(',')
   active.value = []
   emits('choose',item.selectedOptions)
   emits('selectChange',{

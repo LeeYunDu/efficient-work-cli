@@ -38,6 +38,7 @@ demo-preview=./dome.vue
 
 ## 源码
 
+
 ``` vue
 <template>
   <van-field
@@ -96,7 +97,7 @@ demo-preview=./dome.vue
 </template>
 
 <script lang="ts" setup>
-import { cloneDeep, get, set } from 'lodash-es'
+import { cloneDeep, get, isArray, set } from 'lodash-es'
 import { onMounted } from 'vue'
 import { computed } from 'vue'
 import { reactive, ref } from 'vue'
@@ -123,7 +124,14 @@ let isMultiple = computed(()=>{
   return get(props.field,'props.multiple',false)
 })
 let useOptions = computed(()=>{
-  return get(props.field,'options',[])
+  return get(props.field,'options',[]).map(option=>{
+    return {
+      // text:get(option,mapper.value.text),
+      name:get(option,mapper.value.text),
+      // label:get(option,mapper.value.text),
+      id:get(option,mapper.value.value),
+    }
+  })
 })
 let currentValue = computed(()=>{
   return get(model.value,props.field.key,[])
@@ -162,6 +170,7 @@ function onConfirm (item){
   }else{
     set(model.value,props.field.key,selectedValues.join(''))
   }
+
   state.text = currentValue.value.map(item=>getValue(item)).join(',')
   active.value = []
   emits('choose',item.selectedOptions)

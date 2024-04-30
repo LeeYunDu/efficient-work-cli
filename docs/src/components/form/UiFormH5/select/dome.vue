@@ -1,6 +1,5 @@
 <template>
   <div>
-    model:{{ model }}
     <van-form>
       <SimpleSelect v-model:params="model" :field="field" @choose="setParams" />
     </van-form>
@@ -15,7 +14,7 @@ import SimpleSelect from './soundCode.vue'
 
 let model = ref({})
 let field = ref({
-  label: '项目阶段', key: 'chooseType37Id', type: 'select', options: [
+  label: '预审部门', key: 'deptIds', type: 'select', options: [
     { name: '选项1', id: 1 },
     { name: '选项2', id: 2 },
     { name: '选项3', id: 3 },
@@ -25,14 +24,16 @@ let field = ref({
     required: true,
     clearable: true,
     placeholder: '',
-    colon: true
+    colon: true,
+    multiple: true,
+    'columns-field-names': { text: 'name', value: 'id', children: 'children' }
   },
 })
 
 
 function setParams (option) {
   console.log(option);
-  
+
 }
 
 </script>

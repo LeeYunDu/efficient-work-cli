@@ -83,6 +83,13 @@ export default defineConfig({
         ]
       },
       {
+        text: '图表',
+        items: [
+          { text: 'Bar', link: '/src/components/chart/Bar/readme' },
+          { text: 'High Chart', link: '/src/components/chart/HighChart/readme' },
+        ]
+      },
+      {
         text: 'Drawer',
         items: []
       },

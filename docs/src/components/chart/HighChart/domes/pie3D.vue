@@ -2,7 +2,6 @@
   <div class="pie-3d">
     <div ref="pieChart" class="pie-box">
     </div>
-
   </div>
 </template>
 
@@ -11,20 +10,12 @@ import { onMounted, reactive, ref } from 'vue'
 import Highcharts from 'highcharts'
 import highcharts3d from 'highcharts/highcharts-3d'
 highcharts3d(Highcharts) // 启用 Highcharts 的 3D 功能
-import chartBottom from '@static/images/chart/chart-bottom.png'
+import chartBottom from 'static/images/chart-bottom.png'
 let props = defineProps({
   data:{
     type:Array,
     default:()=>[]
   },
-  group: {
-    type: Object,
-    default: () => ({})
-  },
-  fields:{
-    type:Array,default:()=>{[]}
-  }
-
 })
 
 let pieChart = ref(null)
@@ -42,7 +33,6 @@ function init (){
       events:{
         load:function (){
           let chart = this
-          console.log(chart)
           var chartWidth = chart.plotWidth
           var chartHeight = chart.plotHeight
 
@@ -161,5 +151,7 @@ onMounted(()=>{
   position: relative;
   display: flex;
   align-items: center;
+  background: rgba(9, 29, 68, 0.6);
+  
 }
 </style>
