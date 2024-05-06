@@ -99,6 +99,7 @@ export default defineConfig({
           { text: '无限滚动列表 RollList', link: '/src/components/other/rollList/readme' },
           { text: '富文本编辑器 ', link: '/src/components/other/richTextEditor/readme' },
           { text: '封面 Cover', link: '/src/components/other/cover/readme' },
+          { text: '虚拟列表 VirtualList', link: '/src/components/other/virtualList/readme' },
         ]
       },
       {
