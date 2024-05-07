@@ -114,7 +114,6 @@ function initPosition(){
 }
 
 function binarySearch(list:IPosInfo[],value:number){
-  
   let left = 0
   let right = list.length - 1
   let templateIndex = -1
@@ -128,9 +127,6 @@ function binarySearch(list:IPosInfo[],value:number){
       right = midIndex
     }
   }
-
-  
-
   return templateIndex;
 }
 

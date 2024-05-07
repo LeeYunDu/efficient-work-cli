@@ -30,6 +30,14 @@ export default defineConfig({
           { text: '表格字段JSON', link: '/src/components/UITable/tableJSON/readme' },
         ]
       },
+      {
+        text: '列表',
+        items: [
+          { text: '无限滚动列表 RollList', link: '/src/components/list/rollList/readme' },
+          { text: '虚拟列表 VirtualList', link: '/src/components/list/virtualList/readme' },
+          { text: '虚拟列表-瀑布流 VirtualWaterFallList', link: '/src/components/list/virtualWaterFallList/readme' },
+        ]
+      },
       // {
       //   text: '弹窗',
       //   items: [
@@ -96,10 +104,8 @@ export default defineConfig({
       {
         text: '无知如何分类的组件',
         items: [
-          { text: '无限滚动列表 RollList', link: '/src/components/other/rollList/readme' },
           { text: '富文本编辑器 ', link: '/src/components/other/richTextEditor/readme' },
           { text: '封面 Cover', link: '/src/components/other/cover/readme' },
-          { text: '虚拟列表 VirtualList', link: '/src/components/other/virtualList/readme' },
         ]
       },
       {
