@@ -38,6 +38,8 @@ Gpts 交易市场
 
 12. [Meta 公司还有一个专门的 Llama 聊天网站 llama.dev ](https://llama3.dev/)
 
+13. [Remini.ai 高质量修复老照片](https://remini.ai/)
+
 ## 工具类网站
 
 1. [在线excel转json](https://wejson.cn/excel2json/)
