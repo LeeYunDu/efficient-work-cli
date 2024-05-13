@@ -35,7 +35,7 @@ export default defineConfig({
         items: [
           { text: '无限滚动列表 RollList', link: '/src/components/list/rollList/readme' },
           { text: '虚拟列表 VirtualList', link: '/src/components/list/virtualList/readme' },
-          { text: '虚拟列表-瀑布流 VirtualWaterFallList', link: '/src/components/list/virtualWaterFallList/readme' },
+          // { text: '虚拟列表-瀑布流 VirtualWaterFallList', link: '/src/components/list/virtualWaterFallList/readme' },
         ]
       },
       // {
@@ -93,7 +93,7 @@ export default defineConfig({
       {
         text: '图表',
         items: [
-          { text: 'Bar', link: '/src/components/chart/Bar/readme' },
+          { text: 'Bar', link: '/src/components/chart/bar/readme' },
           { text: 'High Chart', link: '/src/components/chart/HighChart/readme' },
         ]
       },

@@ -7,7 +7,6 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
 import VirtualWaterFallList from './virtualWaterFallList.vue'
-import { ElMessage } from 'element-plus'
 
 let state = reactive({
   data:[],
@@ -27,7 +26,6 @@ const asyncData = async () => {
   const  {status, success, msg, data } = {status:200, success:true,msg:'',data:{
     list:new Array(100).fill({}),total:10
   } }
-  ElMessage.success('加载成功')
   state.data = state.data.concat(data.list.map((e,index)=>{
     return {
       ...e,

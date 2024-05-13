@@ -136,6 +136,9 @@ let props = defineProps({
 const state = reactive({
   show: computed({
     get: () => {
+      if(props.modelValue){
+        useParams.value = props.params
+      }
       return props.modelValue
     },
     set: val => emits('update:modelValue', val)
@@ -145,7 +148,7 @@ const state = reactive({
 
 const emits = defineEmits(['update:params','update:modelValue','submit','cancel','change'])
 
-let useParams = ref(props.params)
+let useParams = ref({})
 
 function onClick (option,group){
   let { id,value } = option
@@ -169,11 +172,11 @@ function onSubmit (){
 let useButtons = ref([
   { label:'重置',key:'reset',click:()=>{
     let params = useParams.value
-    for (const key in params) {
-      if (Object.prototype.hasOwnProperty.call(params, key)) {
-        params[key] = ''
-      }
-    }
+
+    props.groups.forEach(e=>{
+      let { key } = e
+      params[key] = ''
+    })
 
   } },
   { label:'确定',key:'submit',click:()=>{
@@ -304,7 +307,7 @@ let useButtons = ref([
 }
 </style>
 
-```
+``` 
 
 :::
 

@@ -6,7 +6,6 @@
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
-import { ElMessage } from 'element-plus'
 
 let props = defineProps({
   data:{
@@ -41,7 +40,7 @@ const asyncData = async () => {
       name:'mock'
     }),total:10
   } }
-  if (!(status===200)) return ElMessage.error(msg)
+  // if (!(status===200)) return ElMessage.error(msg)
   state.data= data.list
 }
 
