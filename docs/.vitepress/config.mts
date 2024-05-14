@@ -17,8 +17,15 @@ export default defineConfig({
         text: 'Home',
         items: [
           { text: '工具网站集合', link: '/src/components/website/readme' },
-          { text: 'Szzt CLI', link: '/src/components/SzztCLI/readme' },
-
+        ]
+      },
+      {
+        text: 'Szzt CLI',
+        items: [
+          { text: 'init', link: '/src/components/SzztCLI/init/readme' },
+          { text: 'upload', link: '/src/components/SzztCLI/upload/readme' },
+          { text: 'g', link: '/src/components/SzztCLI/g/readme' },
+          { text: 'add', link: '/src/components/SzztCLI/add/readme' },
         ]
       },
       {
@@ -134,6 +141,12 @@ export default defineConfig({
         items: [
           { text: '浙里办', link: '/src/components/appGuide/zlb/readme' },
           { text: '浙政钉', link: '/src/components/appGuide/zzd/readme' },
+        ]
+      },
+      {
+        text: 'AST',
+        items: [
+          { text: '解析 Vue文件', link: '/src/components/Ast/vue/readme' },
         ]
       }
     ],
