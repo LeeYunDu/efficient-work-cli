@@ -25,7 +25,6 @@ export default defineConfig({
           { text: 'init', link: '/src/components/SzztCLI/init/readme' },
           { text: 'upload', link: '/src/components/SzztCLI/upload/readme' },
           { text: 'g', link: '/src/components/SzztCLI/g/readme' },
-          { text: 'add', link: '/src/components/SzztCLI/add/readme' },
         ]
       },
       {

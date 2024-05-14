@@ -2,90 +2,96 @@
   "hash": "538a09bf",
   "configHash": "79fbd8f0",
   "lockfileHash": "a6eda776",
-  "browserHash": "1658b3e0",
+  "browserHash": "c3523cf7",
   "optimized": {
     "vue": {
       "src": "../../../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
-      "fileHash": "1ee725ba",
+      "fileHash": "aba96aef",
       "needsInterop": false
     },
     "vitepress > @vue/devtools-api": {
       "src": "../../../../node_modules/@vue/devtools-api/lib/esm/index.js",
       "file": "vitepress___@vue_devtools-api.js",
-      "fileHash": "8bf5c32b",
+      "fileHash": "b4bbe901",
       "needsInterop": false
     },
     "vitepress > @vueuse/core": {
       "src": "../../../../node_modules/@vueuse/core/index.mjs",
       "file": "vitepress___@vueuse_core.js",
-      "fileHash": "c632c9a2",
+      "fileHash": "839a42b1",
       "needsInterop": false
     },
     "v-viewer": {
       "src": "../../../../node_modules/v-viewer/dist/index.mjs",
       "file": "v-viewer.js",
-      "fileHash": "de63512b",
+      "fileHash": "3963ad4c",
       "needsInterop": false
     },
     "element-plus": {
       "src": "../../../../node_modules/element-plus/es/index.mjs",
       "file": "element-plus.js",
-      "fileHash": "cf398bb7",
+      "fileHash": "f1e4a644",
       "needsInterop": false
     },
     "@vitepress-demo-preview/component": {
       "src": "../../../../node_modules/@vitepress-demo-preview/component/dist/preview-component.js",
       "file": "@vitepress-demo-preview_component.js",
-      "fileHash": "d1857a31",
+      "fileHash": "0da4059e",
       "needsInterop": false
     },
     "vant": {
       "src": "../../../../node_modules/vant/es/index.mjs",
       "file": "vant.js",
-      "fileHash": "b19411b0",
+      "fileHash": "8ba1dbc4",
       "needsInterop": false
     },
     "lodash-es": {
       "src": "../../../../node_modules/lodash-es/lodash.js",
       "file": "lodash-es.js",
-      "fileHash": "f16f92bc",
+      "fileHash": "2c19a5f4",
       "needsInterop": false
     },
     "vuex": {
       "src": "../../../../node_modules/vuex/dist/vuex.esm-bundler.js",
       "file": "vuex.js",
-      "fileHash": "30296929",
+      "fileHash": "7a734f53",
       "needsInterop": false
     },
     "@element-plus/icons-vue": {
       "src": "../../../../node_modules/@element-plus/icons-vue/dist/index.js",
       "file": "@element-plus_icons-vue.js",
-      "fileHash": "7f336c28",
+      "fileHash": "f946c6c9",
       "needsInterop": false
     },
     "highcharts": {
       "src": "../../../../node_modules/highcharts/highcharts.js",
       "file": "highcharts.js",
-      "fileHash": "b80120c1",
+      "fileHash": "d6030b6a",
       "needsInterop": true
     },
     "highcharts/highcharts-3d": {
       "src": "../../../../node_modules/highcharts/highcharts-3d.js",
       "file": "highcharts_highcharts-3d.js",
-      "fileHash": "02fa483b",
+      "fileHash": "b600c88c",
       "needsInterop": true
     },
     "@wangeditor/editor-for-vue": {
       "src": "../../../../node_modules/@wangeditor/editor-for-vue/dist/index.esm.js",
       "file": "@wangeditor_editor-for-vue.js",
-      "fileHash": "fe50eeb7",
+      "fileHash": "fba0e20d",
       "needsInterop": false
     },
     "request": {
       "src": "../../../../node_modules/request/index.js",
       "file": "request.js",
-      "fileHash": "bf996c3d",
+      "fileHash": "af7790ec",
+      "needsInterop": true
+    },
+    "gogocode": {
+      "src": "../../../../node_modules/gogocode/umd/gogocode.js",
+      "file": "gogocode.js",
+      "fileHash": "f4be1049",
       "needsInterop": true
     }
   },
@@ -93,17 +99,17 @@
     "chunk-J4VLYDXT": {
       "file": "chunk-J4VLYDXT.js"
     },
-    "chunk-DM3E7FM3": {
-      "file": "chunk-DM3E7FM3.js"
-    },
     "chunk-6NMAXBHK": {
       "file": "chunk-6NMAXBHK.js"
     },
-    "chunk-UTXOFFT5": {
-      "file": "chunk-UTXOFFT5.js"
+    "chunk-DM3E7FM3": {
+      "file": "chunk-DM3E7FM3.js"
     },
     "chunk-VFYRJR7J": {
       "file": "chunk-VFYRJR7J.js"
+    },
+    "chunk-UTXOFFT5": {
+      "file": "chunk-UTXOFFT5.js"
     },
     "chunk-GFT2G5UO": {
       "file": "chunk-GFT2G5UO.js"
