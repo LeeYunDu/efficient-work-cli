@@ -56,11 +56,6 @@ export class Ast {
         case 'javascript':
           // 根据抽象语法树类型枚举过滤node
           this.ast.attr('program.body').forEach((node: any, index: number) => {
-            if (index === 0) {
-              // console.log(node.declaration.declarations[0].id.name, 'node.type');
-
-            }
-
             if (node.type in this.enumTypeNode) {
               this.enumTypeNode[node.type].push(node)
             }
