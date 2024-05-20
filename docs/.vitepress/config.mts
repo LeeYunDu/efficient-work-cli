@@ -147,6 +147,12 @@ export default defineConfig({
         items: [
           { text: 'CSS', link: '/src/components/CSS/readme' },
         ]
+      },
+      {
+        text: 'Factory',
+        items: [
+          { text: 'form', link: '/src/components/factory/form/readme' },
+        ]
       }
     ],
 

@@ -1,118 +1,106 @@
 {
-  "hash": "538a09bf",
-  "configHash": "79fbd8f0",
-  "lockfileHash": "a6eda776",
-  "browserHash": "c3523cf7",
+  "hash": "a67ff046",
+  "configHash": "370bf8f9",
+  "lockfileHash": "a7b8c2ed",
+  "browserHash": "9916d132",
   "optimized": {
     "vue": {
       "src": "../../../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
-      "fileHash": "aba96aef",
+      "fileHash": "9e46850a",
       "needsInterop": false
     },
     "vitepress > @vue/devtools-api": {
-      "src": "../../../../node_modules/@vue/devtools-api/lib/esm/index.js",
+      "src": "../../../../node_modules/vitepress/node_modules/@vue/devtools-api/dist/index.js",
       "file": "vitepress___@vue_devtools-api.js",
-      "fileHash": "b4bbe901",
+      "fileHash": "53f22f6a",
       "needsInterop": false
     },
     "vitepress > @vueuse/core": {
       "src": "../../../../node_modules/@vueuse/core/index.mjs",
       "file": "vitepress___@vueuse_core.js",
-      "fileHash": "839a42b1",
+      "fileHash": "85e68626",
       "needsInterop": false
     },
     "v-viewer": {
       "src": "../../../../node_modules/v-viewer/dist/index.mjs",
       "file": "v-viewer.js",
-      "fileHash": "3963ad4c",
+      "fileHash": "63b1bafc",
       "needsInterop": false
     },
     "element-plus": {
       "src": "../../../../node_modules/element-plus/es/index.mjs",
       "file": "element-plus.js",
-      "fileHash": "f1e4a644",
+      "fileHash": "44edbb63",
       "needsInterop": false
     },
     "@vitepress-demo-preview/component": {
       "src": "../../../../node_modules/@vitepress-demo-preview/component/dist/preview-component.js",
       "file": "@vitepress-demo-preview_component.js",
-      "fileHash": "0da4059e",
+      "fileHash": "9c49dc98",
       "needsInterop": false
     },
     "vant": {
       "src": "../../../../node_modules/vant/es/index.mjs",
       "file": "vant.js",
-      "fileHash": "8ba1dbc4",
+      "fileHash": "2727882e",
       "needsInterop": false
+    },
+    "jsoneditor": {
+      "src": "../../../../node_modules/jsoneditor/dist/jsoneditor.min.js",
+      "file": "jsoneditor.js",
+      "fileHash": "f03da288",
+      "needsInterop": true
     },
     "lodash-es": {
       "src": "../../../../node_modules/lodash-es/lodash.js",
       "file": "lodash-es.js",
-      "fileHash": "2c19a5f4",
+      "fileHash": "f73c6f9e",
       "needsInterop": false
     },
-    "vuex": {
-      "src": "../../../../node_modules/vuex/dist/vuex.esm-bundler.js",
-      "file": "vuex.js",
-      "fileHash": "7a734f53",
+    "acorn": {
+      "src": "../../../../node_modules/acorn/dist/acorn.mjs",
+      "file": "acorn.js",
+      "fileHash": "8d2855cb",
       "needsInterop": false
     },
-    "@element-plus/icons-vue": {
-      "src": "../../../../node_modules/@element-plus/icons-vue/dist/index.js",
-      "file": "@element-plus_icons-vue.js",
-      "fileHash": "f946c6c9",
-      "needsInterop": false
-    },
-    "highcharts": {
-      "src": "../../../../node_modules/highcharts/highcharts.js",
-      "file": "highcharts.js",
-      "fileHash": "d6030b6a",
+    "escodegen": {
+      "src": "../../../../node_modules/escodegen/escodegen.js",
+      "file": "escodegen.js",
+      "fileHash": "725cca94",
       "needsInterop": true
     },
-    "highcharts/highcharts-3d": {
-      "src": "../../../../node_modules/highcharts/highcharts-3d.js",
-      "file": "highcharts_highcharts-3d.js",
-      "fileHash": "b600c88c",
-      "needsInterop": true
-    },
-    "@wangeditor/editor-for-vue": {
-      "src": "../../../../node_modules/@wangeditor/editor-for-vue/dist/index.esm.js",
-      "file": "@wangeditor_editor-for-vue.js",
-      "fileHash": "fba0e20d",
-      "needsInterop": false
-    },
-    "request": {
-      "src": "../../../../node_modules/request/index.js",
-      "file": "request.js",
-      "fileHash": "af7790ec",
+    "prismjs": {
+      "src": "../../../../node_modules/prismjs/prism.js",
+      "file": "prismjs.js",
+      "fileHash": "bacf375f",
       "needsInterop": true
     },
     "gogocode": {
       "src": "../../../../node_modules/gogocode/umd/gogocode.js",
       "file": "gogocode.js",
-      "fileHash": "f4be1049",
+      "fileHash": "c37ead7a",
+      "needsInterop": true
+    },
+    "lodash": {
+      "src": "../../../../node_modules/lodash/lodash.js",
+      "file": "lodash.js",
+      "fileHash": "368eaa95",
       "needsInterop": true
     }
   },
   "chunks": {
-    "chunk-J4VLYDXT": {
-      "file": "chunk-J4VLYDXT.js"
-    },
-    "chunk-6NMAXBHK": {
-      "file": "chunk-6NMAXBHK.js"
-    },
-    "chunk-DM3E7FM3": {
-      "file": "chunk-DM3E7FM3.js"
-    },
     "chunk-VFYRJR7J": {
       "file": "chunk-VFYRJR7J.js"
     },
-    "chunk-UTXOFFT5": {
-      "file": "chunk-UTXOFFT5.js"
+    "chunk-O3YQPVDG": {
+      "file": "chunk-O3YQPVDG.js"
     },
-    "chunk-GFT2G5UO": {
-      "file": "chunk-GFT2G5UO.js"
+    "chunk-HL5V7ANH": {
+      "file": "chunk-HL5V7ANH.js"
+    },
+    "chunk-BQWMX7FD": {
+      "file": "chunk-BQWMX7FD.js"
     }
   }
 }

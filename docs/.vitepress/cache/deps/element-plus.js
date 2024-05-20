@@ -1,51 +1,4 @@
 import {
-  isVue2
-} from "./chunk-6NMAXBHK.js";
-import {
-  arrow_down_default,
-  arrow_left_default,
-  arrow_right_default,
-  arrow_up_default,
-  back_default,
-  calendar_default,
-  caret_right_default,
-  caret_top_default,
-  check_default,
-  circle_check_default,
-  circle_check_filled_default,
-  circle_close_default,
-  circle_close_filled_default,
-  clock_default,
-  close_default,
-  d_arrow_left_default,
-  d_arrow_right_default,
-  delete_default,
-  document_default,
-  full_screen_default,
-  hide_default,
-  info_filled_default,
-  loading_default,
-  minus_default,
-  more_default,
-  more_filled_default,
-  picture_filled_default,
-  plus_default,
-  question_filled_default,
-  refresh_left_default,
-  refresh_right_default,
-  scale_to_original_default,
-  search_default,
-  sort_down_default,
-  sort_up_default,
-  star_default,
-  star_filled_default,
-  success_filled_default,
-  view_default,
-  warning_filled_default,
-  zoom_in_default,
-  zoom_out_default
-} from "./chunk-DM3E7FM3.js";
-import {
   castArray_default,
   cloneDeep_default,
   clone_default,
@@ -61,11 +14,15 @@ import {
   isUndefined_default,
   memoize_default,
   merge_default,
+  omit_default,
   pick_default,
   set_default,
   throttle_default,
   union_default
 } from "./chunk-VFYRJR7J.js";
+import {
+  isVue2
+} from "./chunk-O3YQPVDG.js";
 import {
   Comment,
   Fragment,
@@ -87,6 +44,7 @@ import {
   createSlots,
   createTextVNode,
   createVNode,
+  customRef,
   defineComponent,
   effectScope,
   getCurrentInstance,
@@ -152,11 +110,11 @@ import {
   withDirectives,
   withKeys,
   withModifiers
-} from "./chunk-UTXOFFT5.js";
+} from "./chunk-HL5V7ANH.js";
 import {
   __commonJS,
   __toESM
-} from "./chunk-GFT2G5UO.js";
+} from "./chunk-BQWMX7FD.js";
 
 // node_modules/dayjs/dayjs.min.js
 var require_dayjs_min = __commonJS({
@@ -1036,6 +994,39 @@ function throttleFilter(ms, trailing = true, leading = true, rejectOnCancel = fa
 function identity(arg) {
   return arg;
 }
+function computedWithControl(source, fn2) {
+  let v2 = void 0;
+  let track;
+  let trigger;
+  const dirty = ref(true);
+  const update = () => {
+    dirty.value = true;
+    trigger();
+  };
+  watch(source, update, { flush: "sync" });
+  const get = isFunction2(fn2) ? fn2 : fn2.get;
+  const set2 = isFunction2(fn2) ? void 0 : fn2.set;
+  const result = customRef((_track, _trigger) => {
+    track = _track;
+    trigger = _trigger;
+    return {
+      get() {
+        if (dirty.value) {
+          v2 = get();
+          dirty.value = false;
+        }
+        track();
+        return v2;
+      },
+      set(v22) {
+        set2 == null ? void 0 : set2(v22);
+      }
+    };
+  });
+  if (Object.isExtensible(result))
+    result.trigger = update;
+  return result;
+}
 function tryOnScopeDispose(fn2) {
   if (getCurrentScope()) {
     onScopeDispose(fn2);
@@ -1202,6 +1193,21 @@ function onClickOutside(target2, handler, options = {}) {
   ].filter(Boolean);
   const stop = () => cleanup.forEach((fn2) => fn2());
   return stop;
+}
+function useActiveElement(options = {}) {
+  var _a2;
+  const { window: window2 = defaultWindow } = options;
+  const document2 = (_a2 = options.document) != null ? _a2 : window2 == null ? void 0 : window2.document;
+  const activeElement = computedWithControl(() => null, () => document2 == null ? void 0 : document2.activeElement);
+  if (window2) {
+    useEventListener(window2, "blur", (event) => {
+      if (event.relatedTarget !== null)
+        return;
+      activeElement.trigger();
+    }, true);
+    useEventListener(window2, "focus", activeElement.trigger, true);
+  }
+  return activeElement;
 }
 function useSupported(callback, sync = false) {
   const isSupported = ref();
@@ -1566,13 +1572,13 @@ var isInContainer = (el, container) => {
   return elRect.top < containerRect.bottom && elRect.bottom > containerRect.top && elRect.right > containerRect.left && elRect.left < containerRect.right;
 };
 var getOffsetTop = (el) => {
-  let offset2 = 0;
+  let offset3 = 0;
   let parent = el;
   while (parent) {
-    offset2 += parent.offsetTop;
+    offset3 += parent.offsetTop;
     parent = parent.offsetParent;
   }
-  return offset2;
+  return offset3;
 };
 var getOffsetTopDistance = (el, containerEl) => {
   return Math.abs(getOffsetTop(el) - getOffsetTop(containerEl));
@@ -1596,6 +1602,16 @@ var getClientXY = (event) => {
   };
 };
 
+// node_modules/element-plus/es/utils/easings.mjs
+function easeInOutCubic(t, b2, c2, d2) {
+  const cc = c2 - b2;
+  t /= d2 / 2;
+  if (t < 1) {
+    return cc / 2 * t * t * t + b2;
+  }
+  return cc / 2 * ((t -= 2) * t * t + 2) + b2;
+}
+
 // node_modules/element-plus/es/utils/types.mjs
 var isUndefined = (val) => val === void 0;
 var isBoolean = (val) => typeof val === "boolean";
@@ -1615,6 +1631,13 @@ var isStringNumber = (val) => {
   }
   return !Number.isNaN(Number(val));
 };
+var isWindow = (val) => {
+  return val === window;
+};
+
+// node_modules/element-plus/es/utils/raf.mjs
+var rAF = (fn2) => isClient ? window.requestAnimationFrame(fn2) : setTimeout(fn2, 16);
+var cAF = (handle) => isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle);
 
 // node_modules/element-plus/es/utils/strings.mjs
 var escapeStringRegexp = (string3 = "") => string3.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&").replace(/-/g, "\\x2d");
@@ -1771,6 +1794,55 @@ function scrollIntoView(container, selected) {
     container.scrollTop = bottom - container.clientHeight;
   }
 }
+function animateScrollTo(container, from, to, duration, callback) {
+  const startTime = Date.now();
+  let handle;
+  const scroll = () => {
+    const timestamp2 = Date.now();
+    const time = timestamp2 - startTime;
+    const nextScrollTop = easeInOutCubic(time > duration ? duration : time, from, to, duration);
+    if (isWindow(container)) {
+      container.scrollTo(window.pageXOffset, nextScrollTop);
+    } else {
+      container.scrollTop = nextScrollTop;
+    }
+    if (time < duration) {
+      handle = rAF(scroll);
+    } else if (typeof callback === "function") {
+      callback();
+    }
+  };
+  scroll();
+  return () => {
+    handle && cAF(handle);
+  };
+}
+var getScrollElement = (target2, container) => {
+  if (isWindow(container)) {
+    return target2.ownerDocument.documentElement;
+  }
+  return container;
+};
+var getScrollTop = (container) => {
+  if (isWindow(container)) {
+    return window.scrollY;
+  }
+  return container.scrollTop;
+};
+
+// node_modules/element-plus/es/utils/dom/element.mjs
+var getElement = (target2) => {
+  if (!isClient || target2 === "")
+    return null;
+  if (isString(target2)) {
+    try {
+      return document.querySelector(target2);
+    } catch (e) {
+      return null;
+    }
+  }
+  return target2;
+};
 
 // node_modules/element-plus/es/utils/vue/global-node.mjs
 var globalNodes = [];
@@ -1788,6 +1860,4929 @@ function removeGlobalNode(el) {
   globalNodes.splice(globalNodes.indexOf(el), 1);
   el.remove();
 }
+
+// node_modules/@element-plus/icons-vue/dist/index.js
+var add_location_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "AddLocation",
+  __name: "add-location",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 896h448q32 0 32 32t-32 32H288q-32 0-32-32t32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M800 416a288 288 0 1 0-576 0c0 118.144 94.528 272.128 288 456.576C705.472 688.128 800 534.144 800 416M512 960C277.312 746.688 160 565.312 160 416a352 352 0 0 1 704 0c0 149.312-117.312 330.688-352 544"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 384h96a32 32 0 1 1 0 64h-96v96a32 32 0 0 1-64 0v-96h-96a32 32 0 0 1 0-64h96v-96a32 32 0 0 1 64 0z"
+      })
+    ]));
+  }
+});
+var aim_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Aim",
+  __name: "aim",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 96a32 32 0 0 1 32 32v192a32 32 0 0 1-64 0V128a32 32 0 0 1 32-32m0 576a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V704a32 32 0 0 1 32-32M96 512a32 32 0 0 1 32-32h192a32 32 0 0 1 0 64H128a32 32 0 0 1-32-32m576 0a32 32 0 0 1 32-32h192a32 32 0 1 1 0 64H704a32 32 0 0 1-32-32"
+      })
+    ]));
+  }
+});
+var alarm_clock_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "AlarmClock",
+  __name: "alarm-clock",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 832a320 320 0 1 0 0-640 320 320 0 0 0 0 640m0 64a384 384 0 1 1 0-768 384 384 0 0 1 0 768"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m292.288 824.576 55.424 32-48 83.136a32 32 0 1 1-55.424-32zm439.424 0-55.424 32 48 83.136a32 32 0 1 0 55.424-32zM512 512h160a32 32 0 1 1 0 64H480a32 32 0 0 1-32-32V320a32 32 0 0 1 64 0zM90.496 312.256A160 160 0 0 1 312.32 90.496l-46.848 46.848a96 96 0 0 0-128 128L90.56 312.256zm835.264 0A160 160 0 0 0 704 90.496l46.848 46.848a96 96 0 0 1 128 128z"
+      })
+    ]));
+  }
+});
+var apple_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Apple",
+  __name: "apple",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M599.872 203.776a189.44 189.44 0 0 1 64.384-4.672l2.624.128c31.168 1.024 51.2 4.096 79.488 16.32 37.632 16.128 74.496 45.056 111.488 89.344 96.384 115.264 82.752 372.8-34.752 521.728-7.68 9.728-32 41.6-30.72 39.936a426.624 426.624 0 0 1-30.08 35.776c-31.232 32.576-65.28 49.216-110.08 50.048-31.36.64-53.568-5.312-84.288-18.752l-6.528-2.88c-20.992-9.216-30.592-11.904-47.296-11.904-18.112 0-28.608 2.88-51.136 12.672l-6.464 2.816c-28.416 12.224-48.32 18.048-76.16 19.2-74.112 2.752-116.928-38.08-180.672-132.16-96.64-142.08-132.608-349.312-55.04-486.4 46.272-81.92 129.92-133.632 220.672-135.04 32.832-.576 60.288 6.848 99.648 22.72 27.136 10.88 34.752 13.76 37.376 14.272 16.256-20.16 27.776-36.992 34.56-50.24 13.568-26.304 27.2-59.968 40.704-100.8a32 32 0 1 1 60.8 20.224c-12.608 37.888-25.408 70.4-38.528 97.664zm-51.52 78.08c-14.528 17.792-31.808 37.376-51.904 58.816a32 32 0 1 1-46.72-43.776l12.288-13.248c-28.032-11.2-61.248-26.688-95.68-26.112-70.4 1.088-135.296 41.6-171.648 105.792C121.6 492.608 176 684.16 247.296 788.992c34.816 51.328 76.352 108.992 130.944 106.944 52.48-2.112 72.32-34.688 135.872-34.688 63.552 0 81.28 34.688 136.96 33.536 56.448-1.088 75.776-39.04 126.848-103.872 107.904-136.768 107.904-362.752 35.776-449.088-72.192-86.272-124.672-84.096-151.68-85.12-41.472-4.288-81.6 12.544-113.664 25.152z"
+      })
+    ]));
+  }
+});
+var arrow_down_bold_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ArrowDownBold",
+  __name: "arrow-down-bold",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M104.704 338.752a64 64 0 0 1 90.496 0l316.8 316.8 316.8-316.8a64 64 0 0 1 90.496 90.496L557.248 791.296a64 64 0 0 1-90.496 0L104.704 429.248a64 64 0 0 1 0-90.496z"
+      })
+    ]));
+  }
+});
+var arrow_down_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ArrowDown",
+  __name: "arrow-down",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M831.872 340.864 512 652.672 192.128 340.864a30.592 30.592 0 0 0-42.752 0 29.12 29.12 0 0 0 0 41.6L489.664 714.24a32 32 0 0 0 44.672 0l340.288-331.712a29.12 29.12 0 0 0 0-41.728 30.592 30.592 0 0 0-42.752 0z"
+      })
+    ]));
+  }
+});
+var arrow_down_default = arrow_down_vue_vue_type_script_setup_true_lang_default;
+var arrow_left_bold_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ArrowLeftBold",
+  __name: "arrow-left-bold",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M685.248 104.704a64 64 0 0 1 0 90.496L368.448 512l316.8 316.8a64 64 0 0 1-90.496 90.496L232.704 557.248a64 64 0 0 1 0-90.496l362.048-362.048a64 64 0 0 1 90.496 0z"
+      })
+    ]));
+  }
+});
+var arrow_left_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ArrowLeft",
+  __name: "arrow-left",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M609.408 149.376 277.76 489.6a32 32 0 0 0 0 44.672l331.648 340.352a29.12 29.12 0 0 0 41.728 0 30.592 30.592 0 0 0 0-42.752L339.264 511.936l311.872-319.872a30.592 30.592 0 0 0 0-42.688 29.12 29.12 0 0 0-41.728 0z"
+      })
+    ]));
+  }
+});
+var arrow_left_default = arrow_left_vue_vue_type_script_setup_true_lang_default;
+var arrow_right_bold_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ArrowRightBold",
+  __name: "arrow-right-bold",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M338.752 104.704a64 64 0 0 0 0 90.496l316.8 316.8-316.8 316.8a64 64 0 0 0 90.496 90.496l362.048-362.048a64 64 0 0 0 0-90.496L429.248 104.704a64 64 0 0 0-90.496 0z"
+      })
+    ]));
+  }
+});
+var arrow_right_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ArrowRight",
+  __name: "arrow-right",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"
+      })
+    ]));
+  }
+});
+var arrow_right_default = arrow_right_vue_vue_type_script_setup_true_lang_default;
+var arrow_up_bold_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ArrowUpBold",
+  __name: "arrow-up-bold",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M104.704 685.248a64 64 0 0 0 90.496 0l316.8-316.8 316.8 316.8a64 64 0 0 0 90.496-90.496L557.248 232.704a64 64 0 0 0-90.496 0L104.704 594.752a64 64 0 0 0 0 90.496z"
+      })
+    ]));
+  }
+});
+var arrow_up_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ArrowUp",
+  __name: "arrow-up",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m488.832 344.32-339.84 356.672a32 32 0 0 0 0 44.16l.384.384a29.44 29.44 0 0 0 42.688 0l320-335.872 319.872 335.872a29.44 29.44 0 0 0 42.688 0l.384-.384a32 32 0 0 0 0-44.16L535.168 344.32a32 32 0 0 0-46.336 0"
+      })
+    ]));
+  }
+});
+var arrow_up_default = arrow_up_vue_vue_type_script_setup_true_lang_default;
+var avatar_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Avatar",
+  __name: "avatar",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M628.736 528.896A416 416 0 0 1 928 928H96a415.872 415.872 0 0 1 299.264-399.104L512 704zM720 304a208 208 0 1 1-416 0 208 208 0 0 1 416 0"
+      })
+    ]));
+  }
+});
+var back_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Back",
+  __name: "back",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312z"
+      })
+    ]));
+  }
+});
+var back_default = back_vue_vue_type_script_setup_true_lang_default;
+var baseball_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Baseball",
+  __name: "baseball",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M195.2 828.8a448 448 0 1 1 633.6-633.6 448 448 0 0 1-633.6 633.6zm45.248-45.248a384 384 0 1 0 543.104-543.104 384 384 0 0 0-543.104 543.104"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M497.472 96.896c22.784 4.672 44.416 9.472 64.896 14.528a256.128 256.128 0 0 0 350.208 350.208c5.056 20.48 9.856 42.112 14.528 64.896A320.128 320.128 0 0 1 497.472 96.896zM108.48 491.904a320.128 320.128 0 0 1 423.616 423.68c-23.04-3.648-44.992-7.424-65.728-11.52a256.128 256.128 0 0 0-346.496-346.432 1736.64 1736.64 0 0 1-11.392-65.728z"
+      })
+    ]));
+  }
+});
+var basketball_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Basketball",
+  __name: "basketball",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M778.752 788.224a382.464 382.464 0 0 0 116.032-245.632 256.512 256.512 0 0 0-241.728-13.952 762.88 762.88 0 0 1 125.696 259.584zm-55.04 44.224a699.648 699.648 0 0 0-125.056-269.632 256.128 256.128 0 0 0-56.064 331.968 382.72 382.72 0 0 0 181.12-62.336m-254.08 61.248A320.128 320.128 0 0 1 557.76 513.6a715.84 715.84 0 0 0-48.192-48.128 320.128 320.128 0 0 1-379.264 88.384 382.4 382.4 0 0 0 110.144 229.696 382.4 382.4 0 0 0 229.184 110.08zM129.28 481.088a256.128 256.128 0 0 0 331.072-56.448 699.648 699.648 0 0 0-268.8-124.352 382.656 382.656 0 0 0-62.272 180.8m106.56-235.84a762.88 762.88 0 0 1 258.688 125.056 256.512 256.512 0 0 0-13.44-241.088A382.464 382.464 0 0 0 235.84 245.248zm318.08-114.944c40.576 89.536 37.76 193.92-8.448 281.344a779.84 779.84 0 0 1 66.176 66.112 320.832 320.832 0 0 1 282.112-8.128 382.4 382.4 0 0 0-110.144-229.12 382.4 382.4 0 0 0-229.632-110.208zM828.8 828.8a448 448 0 1 1-633.6-633.6 448 448 0 0 1 633.6 633.6"
+      })
+    ]));
+  }
+});
+var bell_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "BellFilled",
+  __name: "bell-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M640 832a128 128 0 0 1-256 0zm192-64H134.4a38.4 38.4 0 0 1 0-76.8H192V448c0-154.88 110.08-284.16 256.32-313.6a64 64 0 1 1 127.36 0A320.128 320.128 0 0 1 832 448v243.2h57.6a38.4 38.4 0 0 1 0 76.8z"
+      })
+    ]));
+  }
+});
+var bell_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Bell",
+  __name: "bell",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a64 64 0 0 1 64 64v64H448v-64a64 64 0 0 1 64-64"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 768h512V448a256 256 0 1 0-512 0zm256-640a320 320 0 0 1 320 320v384H192V448a320 320 0 0 1 320-320"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M96 768h832q32 0 32 32t-32 32H96q-32 0-32-32t32-32m352 128h128a64 64 0 0 1-128 0"
+      })
+    ]));
+  }
+});
+var bicycle_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Bicycle",
+  __name: "bicycle",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 832a128 128 0 1 0 0-256 128 128 0 0 0 0 256m0 64a192 192 0 1 1 0-384 192 192 0 0 1 0 384"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 672h320q32 0 32 32t-32 32H288q-32 0-32-32t32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M768 832a128 128 0 1 0 0-256 128 128 0 0 0 0 256m0 64a192 192 0 1 1 0-384 192 192 0 0 1 0 384"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 192a32 32 0 0 1 0-64h160a32 32 0 0 1 31.04 24.256l96 384a32 32 0 0 1-62.08 15.488L615.04 192zM96 384a32 32 0 0 1 0-64h128a32 32 0 0 1 30.336 21.888l64 192a32 32 0 1 1-60.672 20.224L200.96 384z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m373.376 599.808-42.752-47.616 320-288 42.752 47.616z"
+      })
+    ]));
+  }
+});
+var bottom_left_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "BottomLeft",
+  __name: "bottom-left",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 768h416a32 32 0 1 1 0 64H224a32 32 0 0 1-32-32V352a32 32 0 0 1 64 0z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M246.656 822.656a32 32 0 0 1-45.312-45.312l544-544a32 32 0 0 1 45.312 45.312l-544 544z"
+      })
+    ]));
+  }
+});
+var bottom_right_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "BottomRight",
+  __name: "bottom-right",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 768a32 32 0 1 0 0 64h448a32 32 0 0 0 32-32V352a32 32 0 0 0-64 0v416z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M777.344 822.656a32 32 0 0 0 45.312-45.312l-544-544a32 32 0 0 0-45.312 45.312z"
+      })
+    ]));
+  }
+});
+var bottom_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Bottom",
+  __name: "bottom",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 805.888V168a32 32 0 1 0-64 0v637.888L246.656 557.952a30.72 30.72 0 0 0-45.312 0 35.52 35.52 0 0 0 0 48.064l288 306.048a30.72 30.72 0 0 0 45.312 0l288-306.048a35.52 35.52 0 0 0 0-48 30.72 30.72 0 0 0-45.312 0L544 805.824z"
+      })
+    ]));
+  }
+});
+var bowl_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Bowl",
+  __name: "bowl",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M714.432 704a351.744 351.744 0 0 0 148.16-256H161.408a351.744 351.744 0 0 0 148.16 256zM288 766.592A415.68 415.68 0 0 1 96 416a32 32 0 0 1 32-32h768a32 32 0 0 1 32 32 415.68 415.68 0 0 1-192 350.592V832a64 64 0 0 1-64 64H352a64 64 0 0 1-64-64zM493.248 320h-90.496l254.4-254.4a32 32 0 1 1 45.248 45.248zm187.328 0h-128l269.696-155.712a32 32 0 0 1 32 55.424zM352 768v64h320v-64z"
+      })
+    ]));
+  }
+});
+var box_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Box",
+  __name: "box",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M317.056 128 128 344.064V896h768V344.064L706.944 128zm-14.528-64h418.944a32 32 0 0 1 24.064 10.88l206.528 236.096A32 32 0 0 1 960 332.032V928a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V332.032a32 32 0 0 1 7.936-21.12L278.4 75.008A32 32 0 0 1 302.528 64z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M64 320h896v64H64z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M448 327.872V640h128V327.872L526.08 128h-28.16zM448 64h128l64 256v352a32 32 0 0 1-32 32H416a32 32 0 0 1-32-32V320z"
+      })
+    ]));
+  }
+});
+var briefcase_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Briefcase",
+  __name: "briefcase",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M320 320V128h384v192h192v192H128V320zM128 576h768v320H128zm256-256h256.064V192H384z"
+      })
+    ]));
+  }
+});
+var brush_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "BrushFilled",
+  __name: "brush-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M608 704v160a96 96 0 0 1-192 0V704h-96a128 128 0 0 1-128-128h640a128 128 0 0 1-128 128zM192 512V128.064h640V512z"
+      })
+    ]));
+  }
+});
+var brush_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Brush",
+  __name: "brush",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M896 448H128v192a64 64 0 0 0 64 64h192v192h256V704h192a64 64 0 0 0 64-64zm-770.752-64c0-47.552 5.248-90.24 15.552-128 14.72-54.016 42.496-107.392 83.2-160h417.28l-15.36 70.336L736 96h211.2c-24.832 42.88-41.92 96.256-51.2 160a663.872 663.872 0 0 0-6.144 128H960v256a128 128 0 0 1-128 128H704v160a32 32 0 0 1-32 32H352a32 32 0 0 1-32-32V768H192A128 128 0 0 1 64 640V384h61.248zm64 0h636.544c-2.048-45.824.256-91.584 6.848-137.216 4.48-30.848 10.688-59.776 18.688-86.784h-96.64l-221.12 141.248L561.92 160H256.512c-25.856 37.888-43.776 75.456-53.952 112.832-8.768 32.064-13.248 69.12-13.312 111.168z"
+      })
+    ]));
+  }
+});
+var burger_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Burger",
+  __name: "burger",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 512a32 32 0 0 0-32 32v64a32 32 0 0 0 30.08 32H864a32 32 0 0 0 32-32v-64a32 32 0 0 0-32-32zm736-58.56A96 96 0 0 1 960 544v64a96 96 0 0 1-51.968 85.312L855.36 833.6a96 96 0 0 1-89.856 62.272H258.496A96 96 0 0 1 168.64 833.6l-52.608-140.224A96 96 0 0 1 64 608v-64a96 96 0 0 1 64-90.56V448a384 384 0 1 1 768 5.44M832 448a320 320 0 0 0-640 0zM512 704H188.352l40.192 107.136a32 32 0 0 0 29.952 20.736h507.008a32 32 0 0 0 29.952-20.736L835.648 704z"
+      })
+    ]));
+  }
+});
+var calendar_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Calendar",
+  __name: "calendar",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 384v512h768V192H768v32a32 32 0 1 1-64 0v-32H320v32a32 32 0 0 1-64 0v-32H128v128h768v64zm192-256h384V96a32 32 0 1 1 64 0v32h160a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h160V96a32 32 0 0 1 64 0zm-32 384h64a32 32 0 0 1 0 64h-64a32 32 0 0 1 0-64m0 192h64a32 32 0 1 1 0 64h-64a32 32 0 1 1 0-64m192-192h64a32 32 0 0 1 0 64h-64a32 32 0 0 1 0-64m0 192h64a32 32 0 1 1 0 64h-64a32 32 0 1 1 0-64m192-192h64a32 32 0 1 1 0 64h-64a32 32 0 1 1 0-64m0 192h64a32 32 0 1 1 0 64h-64a32 32 0 1 1 0-64"
+      })
+    ]));
+  }
+});
+var calendar_default = calendar_vue_vue_type_script_setup_true_lang_default;
+var camera_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CameraFilled",
+  __name: "camera-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 224a64 64 0 0 0-64 64v512a64 64 0 0 0 64 64h704a64 64 0 0 0 64-64V288a64 64 0 0 0-64-64H748.416l-46.464-92.672A64 64 0 0 0 644.736 96H379.328a64 64 0 0 0-57.216 35.392L275.776 224zm352 435.2a115.2 115.2 0 1 0 0-230.4 115.2 115.2 0 0 0 0 230.4m0 140.8a256 256 0 1 1 0-512 256 256 0 0 1 0 512"
+      })
+    ]));
+  }
+});
+var camera_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Camera",
+  __name: "camera",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M896 256H128v576h768zm-199.424-64-32.064-64h-304.96l-32 64zM96 192h160l46.336-92.608A64 64 0 0 1 359.552 64h304.96a64 64 0 0 1 57.216 35.328L768.192 192H928a32 32 0 0 1 32 32v640a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V224a32 32 0 0 1 32-32m416 512a160 160 0 1 0 0-320 160 160 0 0 0 0 320m0 64a224 224 0 1 1 0-448 224 224 0 0 1 0 448"
+      })
+    ]));
+  }
+});
+var caret_bottom_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CaretBottom",
+  __name: "caret-bottom",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m192 384 320 384 320-384z"
+      })
+    ]));
+  }
+});
+var caret_left_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CaretLeft",
+  __name: "caret-left",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M672 192 288 511.936 672 832z"
+      })
+    ]));
+  }
+});
+var caret_right_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CaretRight",
+  __name: "caret-right",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 192v640l384-320.064z"
+      })
+    ]));
+  }
+});
+var caret_right_default = caret_right_vue_vue_type_script_setup_true_lang_default;
+var caret_top_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CaretTop",
+  __name: "caret-top",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 320 192 704h639.936z"
+      })
+    ]));
+  }
+});
+var caret_top_default = caret_top_vue_vue_type_script_setup_true_lang_default;
+var cellphone_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Cellphone",
+  __name: "cellphone",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 128a64 64 0 0 0-64 64v640a64 64 0 0 0 64 64h512a64 64 0 0 0 64-64V192a64 64 0 0 0-64-64zm0-64h512a128 128 0 0 1 128 128v640a128 128 0 0 1-128 128H256a128 128 0 0 1-128-128V192A128 128 0 0 1 256 64m128 128h256a32 32 0 1 1 0 64H384a32 32 0 0 1 0-64m128 640a64 64 0 1 1 0-128 64 64 0 0 1 0 128"
+      })
+    ]));
+  }
+});
+var chat_dot_round_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ChatDotRound",
+  __name: "chat-dot-round",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m174.72 855.68 135.296-45.12 23.68 11.84C388.096 849.536 448.576 864 512 864c211.84 0 384-166.784 384-352S723.84 160 512 160 128 326.784 128 512c0 69.12 24.96 139.264 70.848 199.232l22.08 28.8-46.272 115.584zm-45.248 82.56A32 32 0 0 1 89.6 896l58.368-145.92C94.72 680.32 64 596.864 64 512 64 299.904 256 96 512 96s448 203.904 448 416-192 416-448 416a461.056 461.056 0 0 1-206.912-48.384l-175.616 58.56z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 563.2a51.2 51.2 0 1 1 0-102.4 51.2 51.2 0 0 1 0 102.4m192 0a51.2 51.2 0 1 1 0-102.4 51.2 51.2 0 0 1 0 102.4m-384 0a51.2 51.2 0 1 1 0-102.4 51.2 51.2 0 0 1 0 102.4"
+      })
+    ]));
+  }
+});
+var chat_dot_square_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ChatDotSquare",
+  __name: "chat-dot-square",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M273.536 736H800a64 64 0 0 0 64-64V256a64 64 0 0 0-64-64H224a64 64 0 0 0-64 64v570.88zM296 800 147.968 918.4A32 32 0 0 1 96 893.44V256a128 128 0 0 1 128-128h576a128 128 0 0 1 128 128v416a128 128 0 0 1-128 128z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 499.2a51.2 51.2 0 1 1 0-102.4 51.2 51.2 0 0 1 0 102.4zm192 0a51.2 51.2 0 1 1 0-102.4 51.2 51.2 0 0 1 0 102.4zm-384 0a51.2 51.2 0 1 1 0-102.4 51.2 51.2 0 0 1 0 102.4z"
+      })
+    ]));
+  }
+});
+var chat_line_round_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ChatLineRound",
+  __name: "chat-line-round",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m174.72 855.68 135.296-45.12 23.68 11.84C388.096 849.536 448.576 864 512 864c211.84 0 384-166.784 384-352S723.84 160 512 160 128 326.784 128 512c0 69.12 24.96 139.264 70.848 199.232l22.08 28.8-46.272 115.584zm-45.248 82.56A32 32 0 0 1 89.6 896l58.368-145.92C94.72 680.32 64 596.864 64 512 64 299.904 256 96 512 96s448 203.904 448 416-192 416-448 416a461.056 461.056 0 0 1-206.912-48.384l-175.616 58.56z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 576h320q32 0 32 32t-32 32H352q-32 0-32-32t32-32m32-192h256q32 0 32 32t-32 32H384q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var chat_line_square_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ChatLineSquare",
+  __name: "chat-line-square",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 826.88 273.536 736H800a64 64 0 0 0 64-64V256a64 64 0 0 0-64-64H224a64 64 0 0 0-64 64zM296 800 147.968 918.4A32 32 0 0 1 96 893.44V256a128 128 0 0 1 128-128h576a128 128 0 0 1 128 128v416a128 128 0 0 1-128 128z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 512h320q32 0 32 32t-32 32H352q-32 0-32-32t32-32m0-192h320q32 0 32 32t-32 32H352q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var chat_round_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ChatRound",
+  __name: "chat-round",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m174.72 855.68 130.048-43.392 23.424 11.392C382.4 849.984 444.352 864 512 864c223.744 0 384-159.872 384-352 0-192.832-159.104-352-384-352S128 319.168 128 512a341.12 341.12 0 0 0 69.248 204.288l21.632 28.8-44.16 110.528zm-45.248 82.56A32 32 0 0 1 89.6 896l56.512-141.248A405.12 405.12 0 0 1 64 512C64 299.904 235.648 96 512 96s448 203.904 448 416-173.44 416-448 416c-79.68 0-150.848-17.152-211.712-46.72l-170.88 56.96z"
+      })
+    ]));
+  }
+});
+var chat_square_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ChatSquare",
+  __name: "chat-square",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M273.536 736H800a64 64 0 0 0 64-64V256a64 64 0 0 0-64-64H224a64 64 0 0 0-64 64v570.88zM296 800 147.968 918.4A32 32 0 0 1 96 893.44V256a128 128 0 0 1 128-128h576a128 128 0 0 1 128 128v416a128 128 0 0 1-128 128z"
+      })
+    ]));
+  }
+});
+var check_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Check",
+  __name: "check",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"
+      })
+    ]));
+  }
+});
+var check_default = check_vue_vue_type_script_setup_true_lang_default;
+var checked_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Checked",
+  __name: "checked",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 192h160v736H160V192h160.064v64H704zM311.616 537.28l-45.312 45.248L447.36 763.52l316.8-316.8-45.312-45.184L447.36 673.024zM384 192V96h256v96z"
+      })
+    ]));
+  }
+});
+var cherry_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Cherry",
+  __name: "cherry",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M261.056 449.6c13.824-69.696 34.88-128.96 63.36-177.728 23.744-40.832 61.12-88.64 112.256-143.872H320a32 32 0 0 1 0-64h384a32 32 0 1 1 0 64H554.752c14.912 39.168 41.344 86.592 79.552 141.76 47.36 68.48 84.8 106.752 106.304 114.304a224 224 0 1 1-84.992 14.784c-22.656-22.912-47.04-53.76-73.92-92.608-38.848-56.128-67.008-105.792-84.352-149.312-55.296 58.24-94.528 107.52-117.76 147.2-23.168 39.744-41.088 88.768-53.568 147.072a224.064 224.064 0 1 1-64.96-1.6zM288 832a160 160 0 1 0 0-320 160 160 0 0 0 0 320m448-64a160 160 0 1 0 0-320 160 160 0 0 0 0 320"
+      })
+    ]));
+  }
+});
+var chicken_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Chicken",
+  __name: "chicken",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M349.952 716.992 478.72 588.16a106.688 106.688 0 0 1-26.176-19.072 106.688 106.688 0 0 1-19.072-26.176L304.704 671.744c.768 3.072 1.472 6.144 2.048 9.216l2.048 31.936 31.872 1.984c3.136.64 6.208 1.28 9.28 2.112zm57.344 33.152a128 128 0 1 1-216.32 114.432l-1.92-32-32-1.92a128 128 0 1 1 114.432-216.32L416.64 469.248c-2.432-101.44 58.112-239.104 149.056-330.048 107.328-107.328 231.296-85.504 316.8 0 85.44 85.44 107.328 209.408 0 316.8-91.008 90.88-228.672 151.424-330.112 149.056L407.296 750.08zm90.496-226.304c49.536 49.536 233.344-7.04 339.392-113.088 78.208-78.208 63.232-163.072 0-226.304-63.168-63.232-148.032-78.208-226.24 0C504.896 290.496 448.32 474.368 497.792 523.84M244.864 708.928a64 64 0 1 0-59.84 59.84l56.32-3.52zm8.064 127.68a64 64 0 1 0 59.84-59.84l-56.32 3.52-3.52 56.32z"
+      })
+    ]));
+  }
+});
+var chrome_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ChromeFilled",
+  __name: "chrome-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M938.67 512.01c0-44.59-6.82-87.6-19.54-128H682.67a212.372 212.372 0 0 1 42.67 128c.06 38.71-10.45 76.7-30.42 109.87l-182.91 316.8c235.65-.01 426.66-191.02 426.66-426.67z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M576.79 401.63a127.92 127.92 0 0 0-63.56-17.6c-22.36-.22-44.39 5.43-63.89 16.38s-35.79 26.82-47.25 46.02a128.005 128.005 0 0 0-2.16 127.44l1.24 2.13a127.906 127.906 0 0 0 46.36 46.61 127.907 127.907 0 0 0 63.38 17.44c22.29.2 44.24-5.43 63.68-16.33a127.94 127.94 0 0 0 47.16-45.79v-.01l1.11-1.92a127.984 127.984 0 0 0 .29-127.46 127.957 127.957 0 0 0-46.36-46.91"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M394.45 333.96A213.336 213.336 0 0 1 512 298.67h369.58A426.503 426.503 0 0 0 512 85.34a425.598 425.598 0 0 0-171.74 35.98 425.644 425.644 0 0 0-142.62 102.22l118.14 204.63a213.397 213.397 0 0 1 78.67-94.21m117.56 604.72H512zm-97.25-236.73a213.284 213.284 0 0 1-89.54-86.81L142.48 298.6c-36.35 62.81-57.13 135.68-57.13 213.42 0 203.81 142.93 374.22 333.95 416.55h.04l118.19-204.71a213.315 213.315 0 0 1-122.77-21.91z"
+      })
+    ]));
+  }
+});
+var circle_check_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CircleCheckFilled",
+  __name: "circle-check-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m-55.808 536.384-99.52-99.584a38.4 38.4 0 1 0-54.336 54.336l126.72 126.72a38.272 38.272 0 0 0 54.336 0l262.4-262.464a38.4 38.4 0 1 0-54.272-54.336z"
+      })
+    ]));
+  }
+});
+var circle_check_filled_default = circle_check_filled_vue_vue_type_script_setup_true_lang_default;
+var circle_check_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CircleCheck",
+  __name: "circle-check",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M745.344 361.344a32 32 0 0 1 45.312 45.312l-288 288a32 32 0 0 1-45.312 0l-160-160a32 32 0 1 1 45.312-45.312L480 626.752l265.344-265.408z"
+      })
+    ]));
+  }
+});
+var circle_check_default = circle_check_vue_vue_type_script_setup_true_lang_default;
+var circle_close_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CircleCloseFilled",
+  __name: "circle-close-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m0 393.664L407.936 353.6a38.4 38.4 0 1 0-54.336 54.336L457.664 512 353.6 616.064a38.4 38.4 0 1 0 54.336 54.336L512 566.336 616.064 670.4a38.4 38.4 0 1 0 54.336-54.336L566.336 512 670.4 407.936a38.4 38.4 0 1 0-54.336-54.336z"
+      })
+    ]));
+  }
+});
+var circle_close_filled_default = circle_close_filled_vue_vue_type_script_setup_true_lang_default;
+var circle_close_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CircleClose",
+  __name: "circle-close",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m466.752 512-90.496-90.496a32 32 0 0 1 45.248-45.248L512 466.752l90.496-90.496a32 32 0 1 1 45.248 45.248L557.248 512l90.496 90.496a32 32 0 1 1-45.248 45.248L512 557.248l-90.496 90.496a32 32 0 0 1-45.248-45.248z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      })
+    ]));
+  }
+});
+var circle_close_default = circle_close_vue_vue_type_script_setup_true_lang_default;
+var circle_plus_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CirclePlusFilled",
+  __name: "circle-plus-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m-38.4 409.6H326.4a38.4 38.4 0 1 0 0 76.8h147.2v147.2a38.4 38.4 0 0 0 76.8 0V550.4h147.2a38.4 38.4 0 0 0 0-76.8H550.4V326.4a38.4 38.4 0 1 0-76.8 0v147.2z"
+      })
+    ]));
+  }
+});
+var circle_plus_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CirclePlus",
+  __name: "circle-plus",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 480h320a32 32 0 1 1 0 64H352a32 32 0 0 1 0-64"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 672V352a32 32 0 1 1 64 0v320a32 32 0 0 1-64 0"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      })
+    ]));
+  }
+});
+var clock_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Clock",
+  __name: "clock",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 256a32 32 0 0 1 32 32v256a32 32 0 0 1-64 0V288a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 512h256q32 0 32 32t-32 32H480q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var clock_default = clock_vue_vue_type_script_setup_true_lang_default;
+var close_bold_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CloseBold",
+  __name: "close-bold",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M195.2 195.2a64 64 0 0 1 90.496 0L512 421.504 738.304 195.2a64 64 0 0 1 90.496 90.496L602.496 512 828.8 738.304a64 64 0 0 1-90.496 90.496L512 602.496 285.696 828.8a64 64 0 0 1-90.496-90.496L421.504 512 195.2 285.696a64 64 0 0 1 0-90.496z"
+      })
+    ]));
+  }
+});
+var close_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Close",
+  __name: "close",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"
+      })
+    ]));
+  }
+});
+var close_default = close_vue_vue_type_script_setup_true_lang_default;
+var cloudy_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Cloudy",
+  __name: "cloudy",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M598.4 831.872H328.192a256 256 0 0 1-34.496-510.528A352 352 0 1 1 598.4 831.872m-271.36-64h272.256a288 288 0 1 0-248.512-417.664L335.04 381.44l-34.816 3.584a192 192 0 0 0 26.88 382.848z"
+      })
+    ]));
+  }
+});
+var coffee_cup_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CoffeeCup",
+  __name: "coffee-cup",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M768 192a192 192 0 1 1-8 383.808A256.128 256.128 0 0 1 512 768H320A256 256 0 0 1 64 512V160a32 32 0 0 1 32-32h640a32 32 0 0 1 32 32zm0 64v256a128 128 0 1 0 0-256M96 832h640a32 32 0 1 1 0 64H96a32 32 0 1 1 0-64m32-640v320a192 192 0 0 0 192 192h192a192 192 0 0 0 192-192V192z"
+      })
+    ]));
+  }
+});
+var coffee_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Coffee",
+  __name: "coffee",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M822.592 192h14.272a32 32 0 0 1 31.616 26.752l21.312 128A32 32 0 0 1 858.24 384h-49.344l-39.04 546.304A32 32 0 0 1 737.92 960H285.824a32 32 0 0 1-32-29.696L214.912 384H165.76a32 32 0 0 1-31.552-37.248l21.312-128A32 32 0 0 1 187.136 192h14.016l-6.72-93.696A32 32 0 0 1 226.368 64h571.008a32 32 0 0 1 31.936 34.304zm-64.128 0 4.544-64H260.736l4.544 64h493.184m-548.16 128H820.48l-10.688-64H214.208l-10.688 64h6.784m68.736 64 36.544 512H708.16l36.544-512z"
+      })
+    ]));
+  }
+});
+var coin_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Coin",
+  __name: "coin",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m161.92 580.736 29.888 58.88C171.328 659.776 160 681.728 160 704c0 82.304 155.328 160 352 160s352-77.696 352-160c0-22.272-11.392-44.16-31.808-64.32l30.464-58.432C903.936 615.808 928 657.664 928 704c0 129.728-188.544 224-416 224S96 833.728 96 704c0-46.592 24.32-88.576 65.92-123.264z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m161.92 388.736 29.888 58.88C171.328 467.84 160 489.792 160 512c0 82.304 155.328 160 352 160s352-77.696 352-160c0-22.272-11.392-44.16-31.808-64.32l30.464-58.432C903.936 423.808 928 465.664 928 512c0 129.728-188.544 224-416 224S96 641.728 96 512c0-46.592 24.32-88.576 65.92-123.264z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 544c-227.456 0-416-94.272-416-224S284.544 96 512 96s416 94.272 416 224-188.544 224-416 224m0-64c196.672 0 352-77.696 352-160S708.672 160 512 160s-352 77.696-352 160 155.328 160 352 160"
+      })
+    ]));
+  }
+});
+var cold_drink_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ColdDrink",
+  __name: "cold-drink",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M768 64a192 192 0 1 1-69.952 370.88L480 725.376V896h96a32 32 0 1 1 0 64H320a32 32 0 1 1 0-64h96V725.376L76.8 273.536a64 64 0 0 1-12.8-38.4v-10.688a32 32 0 0 1 32-32h71.808l-65.536-83.84a32 32 0 0 1 50.432-39.424l96.256 123.264h337.728A192.064 192.064 0 0 1 768 64M656.896 192.448H800a32 32 0 0 1 32 32v10.624a64 64 0 0 1-12.8 38.4l-80.448 107.2a128 128 0 1 0-81.92-188.16v-.064zm-357.888 64 129.472 165.76a32 32 0 0 1-50.432 39.36l-160.256-205.12H144l304 404.928 304-404.928z"
+      })
+    ]));
+  }
+});
+var collection_tag_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CollectionTag",
+  __name: "collection-tag",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 128v698.88l196.032-156.864a96 96 0 0 1 119.936 0L768 826.816V128zm-32-64h576a32 32 0 0 1 32 32v797.44a32 32 0 0 1-51.968 24.96L531.968 720a32 32 0 0 0-39.936 0L243.968 918.4A32 32 0 0 1 192 893.44V96a32 32 0 0 1 32-32"
+      })
+    ]));
+  }
+});
+var collection_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Collection",
+  __name: "collection",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 736h640V128H256a64 64 0 0 0-64 64zm64-672h608a32 32 0 0 1 32 32v672a32 32 0 0 1-32 32H160l-32 57.536V192A128 128 0 0 1 256 64"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M240 800a48 48 0 1 0 0 96h592v-96zm0-64h656v160a64 64 0 0 1-64 64H240a112 112 0 0 1 0-224m144-608v250.88l96-76.8 96 76.8V128zm-64-64h320v381.44a32 32 0 0 1-51.968 24.96L480 384l-108.032 86.4A32 32 0 0 1 320 445.44z"
+      })
+    ]));
+  }
+});
+var comment_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Comment",
+  __name: "comment",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M736 504a56 56 0 1 1 0-112 56 56 0 0 1 0 112m-224 0a56 56 0 1 1 0-112 56 56 0 0 1 0 112m-224 0a56 56 0 1 1 0-112 56 56 0 0 1 0 112M128 128v640h192v160l224-160h352V128z"
+      })
+    ]));
+  }
+});
+var compass_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Compass",
+  __name: "compass",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M725.888 315.008C676.48 428.672 624 513.28 568.576 568.64c-55.424 55.424-139.968 107.904-253.568 157.312a12.8 12.8 0 0 1-16.896-16.832c49.536-113.728 102.016-198.272 157.312-253.632 55.36-55.296 139.904-107.776 253.632-157.312a12.8 12.8 0 0 1 16.832 16.832"
+      })
+    ]));
+  }
+});
+var connection_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Connection",
+  __name: "connection",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M640 384v64H448a128 128 0 0 0-128 128v128a128 128 0 0 0 128 128h320a128 128 0 0 0 128-128V576a128 128 0 0 0-64-110.848V394.88c74.56 26.368 128 97.472 128 181.056v128a192 192 0 0 1-192 192H448a192 192 0 0 1-192-192V576a192 192 0 0 1 192-192z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 640v-64h192a128 128 0 0 0 128-128V320a128 128 0 0 0-128-128H256a128 128 0 0 0-128 128v128a128 128 0 0 0 64 110.848v70.272A192.064 192.064 0 0 1 64 448V320a192 192 0 0 1 192-192h320a192 192 0 0 1 192 192v128a192 192 0 0 1-192 192z"
+      })
+    ]));
+  }
+});
+var coordinate_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Coordinate",
+  __name: "coordinate",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 512h64v320h-64z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 896h640a64 64 0 0 0-64-64H256a64 64 0 0 0-64 64m64-128h512a128 128 0 0 1 128 128v64H128v-64a128 128 0 0 1 128-128m256-256a192 192 0 1 0 0-384 192 192 0 0 0 0 384m0 64a256 256 0 1 1 0-512 256 256 0 0 1 0 512"
+      })
+    ]));
+  }
+});
+var copy_document_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CopyDocument",
+  __name: "copy-document",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M768 832a128 128 0 0 1-128 128H192A128 128 0 0 1 64 832V384a128 128 0 0 1 128-128v64a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 128a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64V192a64 64 0 0 0-64-64zm0-64h448a128 128 0 0 1 128 128v448a128 128 0 0 1-128 128H384a128 128 0 0 1-128-128V192A128 128 0 0 1 384 64"
+      })
+    ]));
+  }
+});
+var cpu_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Cpu",
+  __name: "cpu",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M320 256a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h384a64 64 0 0 0 64-64V320a64 64 0 0 0-64-64zm0-64h384a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128H320a128 128 0 0 1-128-128V320a128 128 0 0 1 128-128"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32m160 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32m-320 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32m160 896a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32m160 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32m-320 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32M64 512a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32m0-160a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32m0 320a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32m896-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32m0-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32m0 320a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32"
+      })
+    ]));
+  }
+});
+var credit_card_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "CreditCard",
+  __name: "credit-card",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M896 324.096c0-42.368-2.496-55.296-9.536-68.48a52.352 52.352 0 0 0-22.144-22.08c-13.12-7.04-26.048-9.536-68.416-9.536H228.096c-42.368 0-55.296 2.496-68.48 9.536a52.352 52.352 0 0 0-22.08 22.144c-7.04 13.12-9.536 26.048-9.536 68.416v375.808c0 42.368 2.496 55.296 9.536 68.48a52.352 52.352 0 0 0 22.144 22.08c13.12 7.04 26.048 9.536 68.416 9.536h567.808c42.368 0 55.296-2.496 68.48-9.536a52.352 52.352 0 0 0 22.08-22.144c7.04-13.12 9.536-26.048 9.536-68.416zm64 0v375.808c0 57.088-5.952 77.76-17.088 98.56-11.136 20.928-27.52 37.312-48.384 48.448-20.864 11.136-41.6 17.088-98.56 17.088H228.032c-57.088 0-77.76-5.952-98.56-17.088a116.288 116.288 0 0 1-48.448-48.384c-11.136-20.864-17.088-41.6-17.088-98.56V324.032c0-57.088 5.952-77.76 17.088-98.56 11.136-20.928 27.52-37.312 48.384-48.448 20.864-11.136 41.6-17.088 98.56-17.088H795.84c57.088 0 77.76 5.952 98.56 17.088 20.928 11.136 37.312 27.52 48.448 48.384 11.136 20.864 17.088 41.6 17.088 98.56z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M64 320h896v64H64zm0 128h896v64H64zm128 192h256v64H192z"
+      })
+    ]));
+  }
+});
+var crop_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Crop",
+  __name: "crop",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 768h672a32 32 0 1 1 0 64H224a32 32 0 0 1-32-32V96a32 32 0 0 1 64 0z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M832 224v704a32 32 0 1 1-64 0V256H96a32 32 0 0 1 0-64h704a32 32 0 0 1 32 32"
+      })
+    ]));
+  }
+});
+var d_arrow_left_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DArrowLeft",
+  __name: "d-arrow-left",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M529.408 149.376a29.12 29.12 0 0 1 41.728 0 30.592 30.592 0 0 1 0 42.688L259.264 511.936l311.872 319.936a30.592 30.592 0 0 1-.512 43.264 29.12 29.12 0 0 1-41.216-.512L197.76 534.272a32 32 0 0 1 0-44.672l331.648-340.224zm256 0a29.12 29.12 0 0 1 41.728 0 30.592 30.592 0 0 1 0 42.688L515.264 511.936l311.872 319.936a30.592 30.592 0 0 1-.512 43.264 29.12 29.12 0 0 1-41.216-.512L453.76 534.272a32 32 0 0 1 0-44.672l331.648-340.224z"
+      })
+    ]));
+  }
+});
+var d_arrow_left_default = d_arrow_left_vue_vue_type_script_setup_true_lang_default;
+var d_arrow_right_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DArrowRight",
+  __name: "d-arrow-right",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M452.864 149.312a29.12 29.12 0 0 1 41.728.064L826.24 489.664a32 32 0 0 1 0 44.672L494.592 874.624a29.12 29.12 0 0 1-41.728 0 30.592 30.592 0 0 1 0-42.752L764.736 512 452.864 192a30.592 30.592 0 0 1 0-42.688m-256 0a29.12 29.12 0 0 1 41.728.064L570.24 489.664a32 32 0 0 1 0 44.672L238.592 874.624a29.12 29.12 0 0 1-41.728 0 30.592 30.592 0 0 1 0-42.752L508.736 512 196.864 192a30.592 30.592 0 0 1 0-42.688z"
+      })
+    ]));
+  }
+});
+var d_arrow_right_default = d_arrow_right_vue_vue_type_script_setup_true_lang_default;
+var d_caret_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DCaret",
+  __name: "d-caret",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m512 128 288 320H224zM224 576h576L512 896z"
+      })
+    ]));
+  }
+});
+var data_analysis_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DataAnalysis",
+  __name: "data-analysis",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m665.216 768 110.848 192h-73.856L591.36 768H433.024L322.176 960H248.32l110.848-192H160a32 32 0 0 1-32-32V192H64a32 32 0 0 1 0-64h896a32 32 0 1 1 0 64h-64v544a32 32 0 0 1-32 32zM832 192H192v512h640zM352 448a32 32 0 0 1 32 32v64a32 32 0 0 1-64 0v-64a32 32 0 0 1 32-32m160-64a32 32 0 0 1 32 32v128a32 32 0 0 1-64 0V416a32 32 0 0 1 32-32m160-64a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V352a32 32 0 0 1 32-32"
+      })
+    ]));
+  }
+});
+var data_board_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DataBoard",
+  __name: "data-board",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M32 128h960v64H32z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 192v512h640V192zm-64-64h768v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M322.176 960H248.32l144.64-250.56 55.424 32zm453.888 0h-73.856L576 741.44l55.424-32z"
+      })
+    ]));
+  }
+});
+var data_line_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DataLine",
+  __name: "data-line",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M359.168 768H160a32 32 0 0 1-32-32V192H64a32 32 0 0 1 0-64h896a32 32 0 1 1 0 64h-64v544a32 32 0 0 1-32 32H665.216l110.848 192h-73.856L591.36 768H433.024L322.176 960H248.32zM832 192H192v512h640zM342.656 534.656a32 32 0 1 1-45.312-45.312L444.992 341.76l125.44 94.08L679.04 300.032a32 32 0 1 1 49.92 39.936L581.632 524.224 451.008 426.24 342.656 534.592z"
+      })
+    ]));
+  }
+});
+var delete_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DeleteFilled",
+  __name: "delete-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 192V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64H96a32 32 0 0 1 0-64zm64 0h192v-64H416zM192 960a32 32 0 0 1-32-32V256h704v672a32 32 0 0 1-32 32zm224-192a32 32 0 0 0 32-32V416a32 32 0 0 0-64 0v320a32 32 0 0 0 32 32m192 0a32 32 0 0 0 32-32V416a32 32 0 0 0-64 0v320a32 32 0 0 0 32 32"
+      })
+    ]));
+  }
+});
+var delete_location_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DeleteLocation",
+  __name: "delete-location",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 896h448q32 0 32 32t-32 32H288q-32 0-32-32t32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M800 416a288 288 0 1 0-576 0c0 118.144 94.528 272.128 288 456.576C705.472 688.128 800 534.144 800 416M512 960C277.312 746.688 160 565.312 160 416a352 352 0 0 1 704 0c0 149.312-117.312 330.688-352 544"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 384h256q32 0 32 32t-32 32H384q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var delete_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Delete",
+  __name: "delete",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"
+      })
+    ]));
+  }
+});
+var delete_default = delete_vue_vue_type_script_setup_true_lang_default;
+var dessert_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Dessert",
+  __name: "dessert",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 416v-48a144 144 0 0 1 168.64-141.888 224.128 224.128 0 0 1 430.72 0A144 144 0 0 1 896 368v48a384 384 0 0 1-352 382.72V896h-64v-97.28A384 384 0 0 1 128 416m287.104-32.064h193.792a143.808 143.808 0 0 1 58.88-132.736 160.064 160.064 0 0 0-311.552 0 143.808 143.808 0 0 1 58.88 132.8zm-72.896 0a72 72 0 1 0-140.48 0h140.48m339.584 0h140.416a72 72 0 1 0-140.48 0zM512 736a320 320 0 0 0 318.4-288.064H193.6A320 320 0 0 0 512 736M384 896.064h256a32 32 0 1 1 0 64H384a32 32 0 1 1 0-64"
+      })
+    ]));
+  }
+});
+var discount_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Discount",
+  __name: "discount",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M224 704h576V318.336L552.512 115.84a64 64 0 0 0-81.024 0L224 318.336zm0 64v128h576V768zM593.024 66.304l259.2 212.096A32 32 0 0 1 864 303.168V928a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V303.168a32 32 0 0 1 11.712-24.768l259.2-212.096a128 128 0 0 1 162.112 0"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 448a64 64 0 1 0 0-128 64 64 0 0 0 0 128m0 64a128 128 0 1 1 0-256 128 128 0 0 1 0 256"
+      })
+    ]));
+  }
+});
+var dish_dot_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DishDot",
+  __name: "dish-dot",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m384.064 274.56.064-50.688A128 128 0 0 1 512.128 96c70.528 0 127.68 57.152 127.68 127.68v50.752A448.192 448.192 0 0 1 955.392 768H68.544A448.192 448.192 0 0 1 384 274.56zM96 832h832a32 32 0 1 1 0 64H96a32 32 0 1 1 0-64m32-128h768a384 384 0 1 0-768 0m447.808-448v-32.32a63.68 63.68 0 0 0-63.68-63.68 64 64 0 0 0-64 63.936V256z"
+      })
+    ]));
+  }
+});
+var dish_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Dish",
+  __name: "dish",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 257.152V192h-96a32 32 0 0 1 0-64h256a32 32 0 1 1 0 64h-96v65.152A448 448 0 0 1 955.52 768H68.48A448 448 0 0 1 480 257.152M128 704h768a384 384 0 1 0-768 0M96 832h832a32 32 0 1 1 0 64H96a32 32 0 1 1 0-64"
+      })
+    ]));
+  }
+});
+var document_add_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DocumentAdd",
+  __name: "document-add",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M832 384H576V128H192v768h640zm-26.496-64L640 154.496V320zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m320 512V448h64v128h128v64H544v128h-64V640H352v-64z"
+      })
+    ]));
+  }
+});
+var document_checked_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DocumentChecked",
+  __name: "document-checked",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M805.504 320 640 154.496V320zM832 384H576V128H192v768h640zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m318.4 582.144 180.992-180.992L704.64 510.4 478.4 736.64 320 578.304l45.248-45.312z"
+      })
+    ]));
+  }
+});
+var document_copy_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DocumentCopy",
+  __name: "document-copy",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 320v576h576V320zm-32-64h640a32 32 0 0 1 32 32v640a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V288a32 32 0 0 1 32-32M960 96v704a32 32 0 0 1-32 32h-96v-64h64V128H384v64h-64V96a32 32 0 0 1 32-32h576a32 32 0 0 1 32 32M256 672h320v64H256zm0-192h320v64H256z"
+      })
+    ]));
+  }
+});
+var document_delete_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DocumentDelete",
+  __name: "document-delete",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M805.504 320 640 154.496V320zM832 384H576V128H192v768h640zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m308.992 546.304-90.496-90.624 45.248-45.248 90.56 90.496 90.496-90.432 45.248 45.248-90.496 90.56 90.496 90.496-45.248 45.248-90.496-90.496-90.56 90.496-45.248-45.248 90.496-90.496z"
+      })
+    ]));
+  }
+});
+var document_remove_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "DocumentRemove",
+  __name: "document-remove",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M805.504 320 640 154.496V320zM832 384H576V128H192v768h640zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m192 512h320v64H352z"
+      })
+    ]));
+  }
+});
+var document_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Document",
+  __name: "document",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M832 384H576V128H192v768h640zm-26.496-64L640 154.496V320zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m160 448h384v64H320zm0-192h160v64H320zm0 384h384v64H320z"
+      })
+    ]));
+  }
+});
+var document_default = document_vue_vue_type_script_setup_true_lang_default;
+var download_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Download",
+  __name: "download",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 832h704a32 32 0 1 1 0 64H160a32 32 0 1 1 0-64m384-253.696 236.288-236.352 45.248 45.248L508.8 704 192 387.2l45.248-45.248L480 584.704V128h64z"
+      })
+    ]));
+  }
+});
+var drizzling_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Drizzling",
+  __name: "drizzling",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m739.328 291.328-35.2-6.592-12.8-33.408a192.064 192.064 0 0 0-365.952 23.232l-9.92 40.896-41.472 7.04a176.32 176.32 0 0 0-146.24 173.568c0 97.28 78.72 175.936 175.808 175.936h400a192 192 0 0 0 35.776-380.672zM959.552 480a256 256 0 0 1-256 256h-400A239.808 239.808 0 0 1 63.744 496.192a240.32 240.32 0 0 1 199.488-236.8 256.128 256.128 0 0 1 487.872-30.976A256.064 256.064 0 0 1 959.552 480M288 800h64v64h-64zm192 0h64v64h-64zm-96 96h64v64h-64zm192 0h64v64h-64zm96-96h64v64h-64z"
+      })
+    ]));
+  }
+});
+var edit_pen_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "EditPen",
+  __name: "edit-pen",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m199.04 672.64 193.984 112 224-387.968-193.92-112-224 388.032zm-23.872 60.16 32.896 148.288 144.896-45.696zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936L409.152 884.8h.064l-248.448 78.336zm384 254.272v-64h448v64h-448z"
+      })
+    ]));
+  }
+});
+var edit_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Edit",
+  __name: "edit",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"
+      })
+    ]));
+  }
+});
+var eleme_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ElemeFilled",
+  __name: "eleme-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M176 64h672c61.824 0 112 50.176 112 112v672a112 112 0 0 1-112 112H176A112 112 0 0 1 64 848V176c0-61.824 50.176-112 112-112m150.528 173.568c-152.896 99.968-196.544 304.064-97.408 456.96a330.688 330.688 0 0 0 456.96 96.64c9.216-5.888 17.6-11.776 25.152-18.56a18.24 18.24 0 0 0 4.224-24.32L700.352 724.8a47.552 47.552 0 0 0-65.536-14.272A234.56 234.56 0 0 1 310.592 641.6C240 533.248 271.104 387.968 379.456 316.48a234.304 234.304 0 0 1 276.352 15.168c1.664.832 2.56 2.56 3.392 4.224 5.888 8.384 3.328 19.328-5.12 25.216L456.832 489.6a47.552 47.552 0 0 0-14.336 65.472l16 24.384c5.888 8.384 16.768 10.88 25.216 5.056l308.224-199.936a19.584 19.584 0 0 0 6.72-23.488v-.896c-4.992-9.216-10.048-17.6-15.104-26.88-99.968-151.168-304.064-194.88-456.96-95.744zM786.88 504.704l-62.208 40.32c-8.32 5.888-10.88 16.768-4.992 25.216L760 632.32c5.888 8.448 16.768 11.008 25.152 5.12l31.104-20.16a55.36 55.36 0 0 0 16-76.48l-20.224-31.04a19.52 19.52 0 0 0-25.152-5.12z"
+      })
+    ]));
+  }
+});
+var eleme_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Eleme",
+  __name: "eleme",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M300.032 188.8c174.72-113.28 408-63.36 522.24 109.44 5.76 10.56 11.52 20.16 17.28 30.72v.96a22.4 22.4 0 0 1-7.68 26.88l-352.32 228.48c-9.6 6.72-22.08 3.84-28.8-5.76l-18.24-27.84a54.336 54.336 0 0 1 16.32-74.88l225.6-146.88c9.6-6.72 12.48-19.2 5.76-28.8-.96-1.92-1.92-3.84-3.84-4.8a267.84 267.84 0 0 0-315.84-17.28c-123.84 81.6-159.36 247.68-78.72 371.52a268.096 268.096 0 0 0 370.56 78.72 54.336 54.336 0 0 1 74.88 16.32l17.28 26.88c5.76 9.6 3.84 21.12-4.8 27.84-8.64 7.68-18.24 14.4-28.8 21.12a377.92 377.92 0 0 1-522.24-110.4c-113.28-174.72-63.36-408 111.36-522.24zm526.08 305.28a22.336 22.336 0 0 1 28.8 5.76l23.04 35.52a63.232 63.232 0 0 1-18.24 87.36l-35.52 23.04c-9.6 6.72-22.08 3.84-28.8-5.76l-46.08-71.04c-6.72-9.6-3.84-22.08 5.76-28.8l71.04-46.08z"
+      })
+    ]));
+  }
+});
+var element_plus_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ElementPlus",
+  __name: "element-plus",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M839.7 734.7c0 33.3-17.9 41-17.9 41S519.7 949.8 499.2 960c-10.2 5.1-20.5 5.1-30.7 0 0 0-314.9-184.3-325.1-192-5.1-5.1-10.2-12.8-12.8-20.5V368.6c0-17.9 20.5-28.2 20.5-28.2L466 158.6c12.8-5.1 25.6-5.1 38.4 0 0 0 279 161.3 309.8 179.2 17.9 7.7 28.2 25.6 25.6 46.1-.1-5-.1 317.5-.1 350.8M714.2 371.2c-64-35.8-217.6-125.4-217.6-125.4-7.7-5.1-20.5-5.1-30.7 0L217.6 389.1s-17.9 10.2-17.9 23v297c0 5.1 5.1 12.8 7.7 17.9 7.7 5.1 256 148.5 256 148.5 7.7 5.1 17.9 5.1 25.6 0 15.4-7.7 250.9-145.9 250.9-145.9s12.8-5.1 12.8-30.7v-74.2l-276.5 169v-64c0-17.9 7.7-30.7 20.5-46.1L745 535c5.1-7.7 10.2-20.5 10.2-30.7v-66.6l-279 169v-69.1c0-15.4 5.1-30.7 17.9-38.4l220.1-128zM919 135.7c0-5.1-5.1-7.7-7.7-7.7h-58.9V66.6c0-5.1-5.1-5.1-10.2-5.1l-30.7 5.1c-5.1 0-5.1 2.6-5.1 5.1V128h-56.3c-5.1 0-5.1 5.1-7.7 5.1v38.4h69.1v64c0 5.1 5.1 5.1 10.2 5.1l30.7-5.1c5.1 0 5.1-2.6 5.1-5.1v-56.3h64l-2.5-38.4z"
+      })
+    ]));
+  }
+});
+var expand_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Expand",
+  __name: "expand",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 192h768v128H128zm0 256h512v128H128zm0 256h768v128H128zm576-352 192 160-192 128z"
+      })
+    ]));
+  }
+});
+var failed_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Failed",
+  __name: "failed",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m557.248 608 135.744-135.744-45.248-45.248-135.68 135.744-135.808-135.68-45.248 45.184L466.752 608l-135.68 135.68 45.184 45.312L512 653.248l135.744 135.744 45.248-45.248L557.312 608zM704 192h160v736H160V192h160v64h384zm-320 0V96h256v96z"
+      })
+    ]));
+  }
+});
+var female_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Female",
+  __name: "female",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 640a256 256 0 1 0 0-512 256 256 0 0 0 0 512m0 64a320 320 0 1 1 0-640 320 320 0 0 1 0 640"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 640q32 0 32 32v256q0 32-32 32t-32-32V672q0-32 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 800h320q32 0 32 32t-32 32H352q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var files_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Files",
+  __name: "files",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 384v448h768V384zm-32-64h832a32 32 0 0 1 32 32v512a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V352a32 32 0 0 1 32-32m64-128h704v64H160zm96-128h512v64H256z"
+      })
+    ]));
+  }
+});
+var film_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Film",
+  __name: "film",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 160v704h704V160zm-32-64h768a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H128a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M320 288V128h64v352h256V128h64v160h160v64H704v128h160v64H704v128h160v64H704v160h-64V544H384v352h-64V736H128v-64h192V544H128v-64h192V352H128v-64z"
+      })
+    ]));
+  }
+});
+var filter_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Filter",
+  __name: "filter",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 523.392V928a32 32 0 0 0 46.336 28.608l192-96A32 32 0 0 0 640 832V523.392l280.768-343.104a32 32 0 1 0-49.536-40.576l-288 352A32 32 0 0 0 576 512v300.224l-128 64V512a32 32 0 0 0-7.232-20.288L195.52 192H704a32 32 0 1 0 0-64H128a32 32 0 0 0-24.768 52.288z"
+      })
+    ]));
+  }
+});
+var finished_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Finished",
+  __name: "finished",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M280.768 753.728 691.456 167.04a32 32 0 1 1 52.416 36.672L314.24 817.472a32 32 0 0 1-45.44 7.296l-230.4-172.8a32 32 0 0 1 38.4-51.2l203.968 152.96zM736 448a32 32 0 1 1 0-64h192a32 32 0 1 1 0 64zM608 640a32 32 0 0 1 0-64h319.936a32 32 0 1 1 0 64zM480 832a32 32 0 1 1 0-64h447.936a32 32 0 1 1 0 64z"
+      })
+    ]));
+  }
+});
+var first_aid_kit_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "FirstAidKit",
+  __name: "first-aid-kit",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 256a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h640a64 64 0 0 0 64-64V320a64 64 0 0 0-64-64zm0-64h640a128 128 0 0 1 128 128v448a128 128 0 0 1-128 128H192A128 128 0 0 1 64 768V320a128 128 0 0 1 128-128"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 512h96a32 32 0 0 1 0 64h-96v96a32 32 0 0 1-64 0v-96h-96a32 32 0 0 1 0-64h96v-96a32 32 0 0 1 64 0zM352 128v64h320v-64zm-32-64h384a32 32 0 0 1 32 32v128a32 32 0 0 1-32 32H320a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32"
+      })
+    ]));
+  }
+});
+var flag_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Flag",
+  __name: "flag",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 128h608L736 384l160 256H288v320h-96V64h96z"
+      })
+    ]));
+  }
+});
+var fold_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Fold",
+  __name: "fold",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M896 192H128v128h768zm0 256H384v128h512zm0 256H128v128h768zM320 384 128 512l192 128z"
+      })
+    ]));
+  }
+});
+var folder_add_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "FolderAdd",
+  __name: "folder-add",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 192v640h768V320H485.76L357.504 192zm-32-64h287.872l128.384 128H928a32 32 0 0 1 32 32v576a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32m384 416V416h64v128h128v64H544v128h-64V608H352v-64z"
+      })
+    ]));
+  }
+});
+var folder_checked_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "FolderChecked",
+  __name: "folder-checked",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 192v640h768V320H485.76L357.504 192zm-32-64h287.872l128.384 128H928a32 32 0 0 1 32 32v576a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32m414.08 502.144 180.992-180.992L736.32 494.4 510.08 720.64l-158.4-158.336 45.248-45.312z"
+      })
+    ]));
+  }
+});
+var folder_delete_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "FolderDelete",
+  __name: "folder-delete",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 192v640h768V320H485.76L357.504 192zm-32-64h287.872l128.384 128H928a32 32 0 0 1 32 32v576a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32m370.752 448-90.496-90.496 45.248-45.248L512 530.752l90.496-90.496 45.248 45.248L557.248 576l90.496 90.496-45.248 45.248L512 621.248l-90.496 90.496-45.248-45.248z"
+      })
+    ]));
+  }
+});
+var folder_opened_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "FolderOpened",
+  __name: "folder-opened",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M878.08 448H241.92l-96 384h636.16l96-384zM832 384v-64H485.76L357.504 192H128v448l57.92-231.744A32 32 0 0 1 216.96 384zm-24.96 512H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h287.872l128.384 128H864a32 32 0 0 1 32 32v96h23.04a32 32 0 0 1 31.04 39.744l-112 448A32 32 0 0 1 807.04 896"
+      })
+    ]));
+  }
+});
+var folder_remove_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "FolderRemove",
+  __name: "folder-remove",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 192v640h768V320H485.76L357.504 192zm-32-64h287.872l128.384 128H928a32 32 0 0 1 32 32v576a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32m256 416h320v64H352z"
+      })
+    ]));
+  }
+});
+var folder_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Folder",
+  __name: "folder",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 192v640h768V320H485.76L357.504 192zm-32-64h287.872l128.384 128H928a32 32 0 0 1 32 32v576a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32"
+      })
+    ]));
+  }
+});
+var food_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Food",
+  __name: "food",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 352.576V352a288 288 0 0 1 491.072-204.224 192 192 0 0 1 274.24 204.48 64 64 0 0 1 57.216 74.24C921.6 600.512 850.048 710.656 736 756.992V800a96 96 0 0 1-96 96H384a96 96 0 0 1-96-96v-43.008c-114.048-46.336-185.6-156.48-214.528-330.496A64 64 0 0 1 128 352.64zm64-.576h64a160 160 0 0 1 320 0h64a224 224 0 0 0-448 0m128 0h192a96 96 0 0 0-192 0m439.424 0h68.544A128.256 128.256 0 0 0 704 192c-15.36 0-29.952 2.688-43.52 7.616 11.328 18.176 20.672 37.76 27.84 58.304A64.128 64.128 0 0 1 759.424 352M672 768H352v32a32 32 0 0 0 32 32h256a32 32 0 0 0 32-32zm-342.528-64h365.056c101.504-32.64 165.76-124.928 192.896-288H136.576c27.136 163.072 91.392 255.36 192.896 288"
+      })
+    ]));
+  }
+});
+var football_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Football",
+  __name: "football",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 960a448 448 0 1 1 0-896 448 448 0 0 1 0 896m0-64a384 384 0 1 0 0-768 384 384 0 0 0 0 768"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M186.816 268.288c16-16.384 31.616-31.744 46.976-46.08 17.472 30.656 39.808 58.112 65.984 81.28l-32.512 56.448a385.984 385.984 0 0 1-80.448-91.648zm653.696-5.312a385.92 385.92 0 0 1-83.776 96.96l-32.512-56.384a322.923 322.923 0 0 0 68.48-85.76c15.552 14.08 31.488 29.12 47.808 45.184zM465.984 445.248l11.136-63.104a323.584 323.584 0 0 0 69.76 0l11.136 63.104a387.968 387.968 0 0 1-92.032 0m-62.72-12.8A381.824 381.824 0 0 1 320 396.544l32-55.424a319.885 319.885 0 0 0 62.464 27.712l-11.2 63.488zm300.8-35.84a381.824 381.824 0 0 1-83.328 35.84l-11.2-63.552A319.885 319.885 0 0 0 672 341.184l32 55.424zm-520.768 364.8a385.92 385.92 0 0 1 83.968-97.28l32.512 56.32c-26.88 23.936-49.856 52.352-67.52 84.032-16-13.44-32.32-27.712-48.96-43.072zm657.536.128a1442.759 1442.759 0 0 1-49.024 43.072 321.408 321.408 0 0 0-67.584-84.16l32.512-56.32c33.216 27.456 61.696 60.352 84.096 97.408zM465.92 578.752a387.968 387.968 0 0 1 92.032 0l-11.136 63.104a323.584 323.584 0 0 0-69.76 0zm-62.72 12.8 11.2 63.552a319.885 319.885 0 0 0-62.464 27.712L320 627.392a381.824 381.824 0 0 1 83.264-35.84zm300.8 35.84-32 55.424a318.272 318.272 0 0 0-62.528-27.712l11.2-63.488c29.44 8.64 57.28 20.736 83.264 35.776z"
+      })
+    ]));
+  }
+});
+var fork_spoon_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ForkSpoon",
+  __name: "fork-spoon",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 410.304V96a32 32 0 0 1 64 0v314.304a96 96 0 0 0 64-90.56V96a32 32 0 0 1 64 0v223.744a160 160 0 0 1-128 156.8V928a32 32 0 1 1-64 0V476.544a160 160 0 0 1-128-156.8V96a32 32 0 0 1 64 0v223.744a96 96 0 0 0 64 90.56zM672 572.48C581.184 552.128 512 446.848 512 320c0-141.44 85.952-256 192-256s192 114.56 192 256c0 126.848-69.184 232.128-160 252.48V928a32 32 0 1 1-64 0zM704 512c66.048 0 128-82.56 128-192s-61.952-192-128-192-128 82.56-128 192 61.952 192 128 192"
+      })
+    ]));
+  }
+});
+var fries_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Fries",
+  __name: "fries",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M608 224v-64a32 32 0 0 0-64 0v336h26.88A64 64 0 0 0 608 484.096zm101.12 160A64 64 0 0 0 672 395.904V384h64V224a32 32 0 1 0-64 0v160zm74.88 0a92.928 92.928 0 0 1 91.328 110.08l-60.672 323.584A96 96 0 0 1 720.32 896H303.68a96 96 0 0 1-94.336-78.336L148.672 494.08A92.928 92.928 0 0 1 240 384h-16V224a96 96 0 0 1 188.608-25.28A95.744 95.744 0 0 1 480 197.44V160a96 96 0 0 1 188.608-25.28A96 96 0 0 1 800 224v160zM670.784 512a128 128 0 0 1-99.904 48H453.12a128 128 0 0 1-99.84-48H352v-1.536a128.128 128.128 0 0 1-9.984-14.976L314.88 448H240a28.928 28.928 0 0 0-28.48 34.304L241.088 640h541.824l29.568-157.696A28.928 28.928 0 0 0 784 448h-74.88l-27.136 47.488A132.405 132.405 0 0 1 672 510.464V512zM480 288a32 32 0 0 0-64 0v196.096A64 64 0 0 0 453.12 496H480zm-128 96V224a32 32 0 0 0-64 0v160zh-37.12A64 64 0 0 1 352 395.904zm-98.88 320 19.072 101.888A32 32 0 0 0 303.68 832h416.64a32 32 0 0 0 31.488-26.112L770.88 704z"
+      })
+    ]));
+  }
+});
+var full_screen_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "FullScreen",
+  __name: "full-screen",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m160 96.064 192 .192a32 32 0 0 1 0 64l-192-.192V352a32 32 0 0 1-64 0V96h64zm0 831.872V928H96V672a32 32 0 1 1 64 0v191.936l192-.192a32 32 0 1 1 0 64zM864 96.064V96h64v256a32 32 0 1 1-64 0V160.064l-192 .192a32 32 0 1 1 0-64l192-.192zm0 831.872-192-.192a32 32 0 0 1 0-64l192 .192V672a32 32 0 1 1 64 0v256h-64z"
+      })
+    ]));
+  }
+});
+var full_screen_default = full_screen_vue_vue_type_script_setup_true_lang_default;
+var goblet_full_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "GobletFull",
+  __name: "goblet-full",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 320h512c0-78.592-12.608-142.4-36.928-192h-434.24C269.504 192.384 256 256.256 256 320m503.936 64H264.064a256.128 256.128 0 0 0 495.872 0zM544 638.4V896h96a32 32 0 1 1 0 64H384a32 32 0 1 1 0-64h96V638.4A320 320 0 0 1 192 320c0-85.632 21.312-170.944 64-256h512c42.688 64.32 64 149.632 64 256a320 320 0 0 1-288 318.4"
+      })
+    ]));
+  }
+});
+var goblet_square_full_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "GobletSquareFull",
+  __name: "goblet-square-full",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 270.912c10.048 6.72 22.464 14.912 28.992 18.624a220.16 220.16 0 0 0 114.752 30.72c30.592 0 49.408-9.472 91.072-41.152l.64-.448c52.928-40.32 82.368-55.04 132.288-54.656 55.552.448 99.584 20.8 142.72 57.408l1.536 1.28V128H256v142.912zm.96 76.288C266.368 482.176 346.88 575.872 512 576c157.44.064 237.952-85.056 253.248-209.984a952.32 952.32 0 0 1-40.192-35.712c-32.704-27.776-63.36-41.92-101.888-42.24-31.552-.256-50.624 9.28-93.12 41.6l-.576.448c-52.096 39.616-81.024 54.208-129.792 54.208-54.784 0-100.48-13.376-142.784-37.056zM480 638.848C250.624 623.424 192 442.496 192 319.68V96a32 32 0 0 1 32-32h576a32 32 0 0 1 32 32v224c0 122.816-58.624 303.68-288 318.912V896h96a32 32 0 1 1 0 64H384a32 32 0 1 1 0-64h96z"
+      })
+    ]));
+  }
+});
+var goblet_square_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "GobletSquare",
+  __name: "goblet-square",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 638.912V896h96a32 32 0 1 1 0 64H384a32 32 0 1 1 0-64h96V638.848C250.624 623.424 192 442.496 192 319.68V96a32 32 0 0 1 32-32h576a32 32 0 0 1 32 32v224c0 122.816-58.624 303.68-288 318.912M256 319.68c0 149.568 80 256.192 256 256.256C688.128 576 768 469.568 768 320V128H256z"
+      })
+    ]));
+  }
+});
+var goblet_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Goblet",
+  __name: "goblet",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 638.4V896h96a32 32 0 1 1 0 64H384a32 32 0 1 1 0-64h96V638.4A320 320 0 0 1 192 320c0-85.632 21.312-170.944 64-256h512c42.688 64.32 64 149.632 64 256a320 320 0 0 1-288 318.4M256 320a256 256 0 1 0 512 0c0-78.592-12.608-142.4-36.928-192h-434.24C269.504 192.384 256 256.256 256 320"
+      })
+    ]));
+  }
+});
+var gold_medal_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "GoldMedal",
+  __name: "gold-medal",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m772.13 452.84 53.86-351.81c1.32-10.01-1.17-18.68-7.49-26.02S804.35 64 795.01 64H228.99v-.01h-.06c-9.33 0-17.15 3.67-23.49 11.01s-8.83 16.01-7.49 26.02l53.87 351.89C213.54 505.73 193.59 568.09 192 640c2 90.67 33.17 166.17 93.5 226.5S421.33 957.99 512 960c90.67-2 166.17-33.17 226.5-93.5 60.33-60.34 91.49-135.83 93.5-226.5-1.59-71.94-21.56-134.32-59.87-187.16zM640.01 128h117.02l-39.01 254.02c-20.75-10.64-40.74-19.73-59.94-27.28-5.92-3-11.95-5.8-18.08-8.41V128h.01zM576 128v198.76c-13.18-2.58-26.74-4.43-40.67-5.55-8.07-.8-15.85-1.2-23.33-1.2-10.54 0-21.09.66-31.64 1.96a359.844 359.844 0 0 0-32.36 4.79V128zm-192 0h.04v218.3c-6.22 2.66-12.34 5.5-18.36 8.56-19.13 7.54-39.02 16.6-59.66 27.16L267.01 128zm308.99 692.99c-48 48-108.33 73-180.99 75.01-72.66-2.01-132.99-27.01-180.99-75.01S258.01 712.66 256 640c2.01-72.66 27.01-132.99 75.01-180.99 19.67-19.67 41.41-35.47 65.22-47.41 38.33-15.04 71.15-23.92 98.44-26.65 5.07-.41 10.2-.7 15.39-.88.63-.01 1.28-.03 1.91-.03.66 0 1.35.03 2.02.04 5.11.17 10.15.46 15.13.86 27.4 2.71 60.37 11.65 98.91 26.79 23.71 11.93 45.36 27.69 64.96 47.29 48 48 73 108.33 75.01 180.99-2.01 72.65-27.01 132.98-75.01 180.98z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 480H416v64h64v192h-64v64h192v-64h-64z"
+      })
+    ]));
+  }
+});
+var goods_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "GoodsFilled",
+  __name: "goods-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 352h640l64 544H128zm128 224h64V448h-64zm320 0h64V448h-64zM384 288h-64a192 192 0 1 1 384 0h-64a128 128 0 1 0-256 0"
+      })
+    ]));
+  }
+});
+var goods_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Goods",
+  __name: "goods",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M320 288v-22.336C320 154.688 405.504 64 512 64s192 90.688 192 201.664v22.4h131.072a32 32 0 0 1 31.808 28.8l57.6 576a32 32 0 0 1-31.808 35.2H131.328a32 32 0 0 1-31.808-35.2l57.6-576a32 32 0 0 1 31.808-28.8H320zm64 0h256v-22.336C640 189.248 582.272 128 512 128c-70.272 0-128 61.248-128 137.664v22.4zm-64 64H217.92l-51.2 512h690.56l-51.264-512H704v96a32 32 0 1 1-64 0v-96H384v96a32 32 0 0 1-64 0z"
+      })
+    ]));
+  }
+});
+var grape_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Grape",
+  __name: "grape",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 195.2a160 160 0 0 1 96 60.8 160 160 0 1 1 146.24 254.976 160 160 0 0 1-128 224 160 160 0 1 1-292.48 0 160 160 0 0 1-128-224A160 160 0 1 1 384 256a160 160 0 0 1 96-60.8V128h-64a32 32 0 0 1 0-64h192a32 32 0 0 1 0 64h-64zM512 448a96 96 0 1 0 0-192 96 96 0 0 0 0 192m-256 0a96 96 0 1 0 0-192 96 96 0 0 0 0 192m128 224a96 96 0 1 0 0-192 96 96 0 0 0 0 192m128 224a96 96 0 1 0 0-192 96 96 0 0 0 0 192m128-224a96 96 0 1 0 0-192 96 96 0 0 0 0 192m128-224a96 96 0 1 0 0-192 96 96 0 0 0 0 192"
+      })
+    ]));
+  }
+});
+var grid_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Grid",
+  __name: "grid",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M640 384v256H384V384zm64 0h192v256H704zm-64 512H384V704h256zm64 0V704h192v192zm-64-768v192H384V128zm64 0h192v192H704zM320 384v256H128V384zm0 512H128V704h192zm0-768v192H128V128z"
+      })
+    ]));
+  }
+});
+var guide_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Guide",
+  __name: "guide",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M640 608h-64V416h64zm0 160v160a32 32 0 0 1-32 32H416a32 32 0 0 1-32-32V768h64v128h128V768zM384 608V416h64v192zm256-352h-64V128H448v128h-64V96a32 32 0 0 1 32-32h192a32 32 0 0 1 32 32z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m220.8 256-71.232 80 71.168 80H768V256H220.8zm-14.4-64H800a32 32 0 0 1 32 32v224a32 32 0 0 1-32 32H206.4a32 32 0 0 1-23.936-10.752l-99.584-112a32 32 0 0 1 0-42.496l99.584-112A32 32 0 0 1 206.4 192m678.784 496-71.104 80H266.816V608h547.2l71.168 80zm-56.768-144H234.88a32 32 0 0 0-32 32v224a32 32 0 0 0 32 32h593.6a32 32 0 0 0 23.936-10.752l99.584-112a32 32 0 0 0 0-42.496l-99.584-112A32 32 0 0 0 828.48 544z"
+      })
+    ]));
+  }
+});
+var handbag_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Handbag",
+  __name: "handbag",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M887.01 264.99c-6-5.99-13.67-8.99-23.01-8.99H704c-1.34-54.68-20.01-100.01-56-136s-81.32-54.66-136-56c-54.68 1.34-100.01 20.01-136 56s-54.66 81.32-56 136H160c-9.35 0-17.02 3-23.01 8.99-5.99 6-8.99 13.67-8.99 23.01v640c0 9.35 2.99 17.02 8.99 23.01S150.66 960 160 960h704c9.35 0 17.02-2.99 23.01-8.99S896 937.34 896 928V288c0-9.35-2.99-17.02-8.99-23.01M421.5 165.5c24.32-24.34 54.49-36.84 90.5-37.5 35.99.68 66.16 13.18 90.5 37.5s36.84 54.49 37.5 90.5H384c.68-35.99 13.18-66.16 37.5-90.5M832 896H192V320h128v128h64V320h256v128h64V320h128z"
+      })
+    ]));
+  }
+});
+var headset_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Headset",
+  __name: "headset",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M896 529.152V512a384 384 0 1 0-768 0v17.152A128 128 0 0 1 320 640v128a128 128 0 1 1-256 0V512a448 448 0 1 1 896 0v256a128 128 0 1 1-256 0V640a128 128 0 0 1 192-110.848M896 640a64 64 0 0 0-128 0v128a64 64 0 0 0 128 0zm-768 0v128a64 64 0 0 0 128 0V640a64 64 0 1 0-128 0"
+      })
+    ]));
+  }
+});
+var help_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "HelpFilled",
+  __name: "help-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M926.784 480H701.312A192.512 192.512 0 0 0 544 322.688V97.216A416.064 416.064 0 0 1 926.784 480m0 64A416.064 416.064 0 0 1 544 926.784V701.312A192.512 192.512 0 0 0 701.312 544zM97.28 544h225.472A192.512 192.512 0 0 0 480 701.312v225.472A416.064 416.064 0 0 1 97.216 544zm0-64A416.064 416.064 0 0 1 480 97.216v225.472A192.512 192.512 0 0 0 322.688 480H97.216z"
+      })
+    ]));
+  }
+});
+var help_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Help",
+  __name: "help",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m759.936 805.248-90.944-91.008A254.912 254.912 0 0 1 512 768a254.912 254.912 0 0 1-156.992-53.76l-90.944 91.008A382.464 382.464 0 0 0 512 896c94.528 0 181.12-34.176 247.936-90.752m45.312-45.312A382.464 382.464 0 0 0 896 512c0-94.528-34.176-181.12-90.752-247.936l-91.008 90.944C747.904 398.4 768 452.864 768 512c0 59.136-20.096 113.6-53.76 156.992l91.008 90.944zm-45.312-541.184A382.464 382.464 0 0 0 512 128c-94.528 0-181.12 34.176-247.936 90.752l90.944 91.008A254.912 254.912 0 0 1 512 256c59.136 0 113.6 20.096 156.992 53.76l90.944-91.008zm-541.184 45.312A382.464 382.464 0 0 0 128 512c0 94.528 34.176 181.12 90.752 247.936l91.008-90.944A254.912 254.912 0 0 1 256 512c0-59.136 20.096-113.6 53.76-156.992zm417.28 394.496a194.56 194.56 0 0 0 22.528-22.528C686.912 602.56 704 559.232 704 512a191.232 191.232 0 0 0-67.968-146.56A191.296 191.296 0 0 0 512 320a191.232 191.232 0 0 0-146.56 67.968C337.088 421.44 320 464.768 320 512a191.232 191.232 0 0 0 67.968 146.56C421.44 686.912 464.768 704 512 704c47.296 0 90.56-17.088 124.032-45.44zM512 960a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      })
+    ]));
+  }
+});
+var hide_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Hide",
+  __name: "hide",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M876.8 156.8c0-9.6-3.2-16-9.6-22.4-6.4-6.4-12.8-9.6-22.4-9.6-9.6 0-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176C44.8 438.4 0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4 0 9.6 3.2 16 9.6 22.4 6.4 6.4 12.8 9.6 22.4 9.6 9.6 0 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4Zm-646.4 528c-76.8-70.4-128-128-153.6-172.8 28.8-48 80-105.6 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4Zm140.8-96c-12.8-22.4-19.2-48-19.2-76.8 0-44.8 16-83.2 48-112 32-28.8 67.2-48 112-48 28.8 0 54.4 6.4 73.6 19.2zM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6-28.8 48-80 105.6-153.6 172.8-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176C979.199 585.6 1024 528 1024 512s-48.001-73.6-134.401-176Z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112-32 28.8-67.2 48-112 48Z"
+      })
+    ]));
+  }
+});
+var hide_default = hide_vue_vue_type_script_setup_true_lang_default;
+var histogram_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Histogram",
+  __name: "histogram",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M416 896V128h192v768zm-288 0V448h192v448zm576 0V320h192v576z"
+      })
+    ]));
+  }
+});
+var home_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "HomeFilled",
+  __name: "home-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 128 128 447.936V896h255.936V640H640v256h255.936V447.936z"
+      })
+    ]));
+  }
+});
+var hot_water_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "HotWater",
+  __name: "hot-water",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M273.067 477.867h477.866V409.6H273.067zm0 68.266v51.2A187.733 187.733 0 0 0 460.8 785.067h102.4a187.733 187.733 0 0 0 187.733-187.734v-51.2H273.067zm-34.134-204.8h546.134a34.133 34.133 0 0 1 34.133 34.134v221.866a256 256 0 0 1-256 256H460.8a256 256 0 0 1-256-256V375.467a34.133 34.133 0 0 1 34.133-34.134zM512 34.133a34.133 34.133 0 0 1 34.133 34.134v170.666a34.133 34.133 0 0 1-68.266 0V68.267A34.133 34.133 0 0 1 512 34.133zM375.467 102.4a34.133 34.133 0 0 1 34.133 34.133v102.4a34.133 34.133 0 0 1-68.267 0v-102.4a34.133 34.133 0 0 1 34.134-34.133m273.066 0a34.133 34.133 0 0 1 34.134 34.133v102.4a34.133 34.133 0 1 1-68.267 0v-102.4a34.133 34.133 0 0 1 34.133-34.133M170.667 921.668h682.666a34.133 34.133 0 1 1 0 68.267H170.667a34.133 34.133 0 1 1 0-68.267z"
+      })
+    ]));
+  }
+});
+var house_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "House",
+  __name: "house",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 413.952V896h640V413.952L512 147.328zM139.52 374.4l352-293.312a32 32 0 0 1 40.96 0l352 293.312A32 32 0 0 1 896 398.976V928a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V398.976a32 32 0 0 1 11.52-24.576"
+      })
+    ]));
+  }
+});
+var ice_cream_round_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "IceCreamRound",
+  __name: "ice-cream-round",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m308.352 489.344 226.304 226.304a32 32 0 0 0 45.248 0L783.552 512A192 192 0 1 0 512 240.448L308.352 444.16a32 32 0 0 0 0 45.248zm135.744 226.304L308.352 851.392a96 96 0 0 1-135.744-135.744l135.744-135.744-45.248-45.248a96 96 0 0 1 0-135.808L466.752 195.2A256 256 0 0 1 828.8 557.248L625.152 760.96a96 96 0 0 1-135.808 0l-45.248-45.248zM398.848 670.4 353.6 625.152 217.856 760.896a32 32 0 0 0 45.248 45.248zm248.96-384.64a32 32 0 0 1 0 45.248L466.624 512a32 32 0 1 1-45.184-45.248l180.992-181.056a32 32 0 0 1 45.248 0zm90.496 90.496a32 32 0 0 1 0 45.248L557.248 602.496A32 32 0 1 1 512 557.248l180.992-180.992a32 32 0 0 1 45.312 0z"
+      })
+    ]));
+  }
+});
+var ice_cream_square_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "IceCreamSquare",
+  __name: "ice-cream-square",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M416 640h256a32 32 0 0 0 32-32V160a32 32 0 0 0-32-32H352a32 32 0 0 0-32 32v448a32 32 0 0 0 32 32zm192 64v160a96 96 0 0 1-192 0V704h-64a96 96 0 0 1-96-96V160a96 96 0 0 1 96-96h320a96 96 0 0 1 96 96v448a96 96 0 0 1-96 96zm-64 0h-64v160a32 32 0 1 0 64 0z"
+      })
+    ]));
+  }
+});
+var ice_cream_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "IceCream",
+  __name: "ice-cream",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128.64 448a208 208 0 0 1 193.536-191.552 224 224 0 0 1 445.248 15.488A208.128 208.128 0 0 1 894.784 448H896L548.8 983.68a32 32 0 0 1-53.248.704L128 448zm64.256 0h286.208a144 144 0 0 0-286.208 0zm351.36 0h286.272a144 144 0 0 0-286.272 0zm-294.848 64 271.808 396.608L778.24 512H249.408zM511.68 352.64a207.872 207.872 0 0 1 189.184-96.192 160 160 0 0 0-314.752 5.632c52.608 12.992 97.28 46.08 125.568 90.56"
+      })
+    ]));
+  }
+});
+var ice_drink_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "IceDrink",
+  __name: "ice-drink",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 448v128h239.68l16.064-128zm-64 0H256.256l16.064 128H448zm64-255.36V384h247.744A256.128 256.128 0 0 0 512 192.64m-64 8.064A256.448 256.448 0 0 0 264.256 384H448zm64-72.064A320.128 320.128 0 0 1 825.472 384H896a32 32 0 1 1 0 64h-64v1.92l-56.96 454.016A64 64 0 0 1 711.552 960H312.448a64 64 0 0 1-63.488-56.064L192 449.92V448h-64a32 32 0 0 1 0-64h70.528A320.384 320.384 0 0 1 448 135.04V96a96 96 0 0 1 96-96h128a32 32 0 1 1 0 64H544a32 32 0 0 0-32 32zM743.68 640H280.32l32.128 256h399.104z"
+      })
+    ]));
+  }
+});
+var ice_tea_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "IceTea",
+  __name: "ice-tea",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M197.696 259.648a320.128 320.128 0 0 1 628.608 0A96 96 0 0 1 896 352v64a96 96 0 0 1-71.616 92.864l-49.408 395.072A64 64 0 0 1 711.488 960H312.512a64 64 0 0 1-63.488-56.064l-49.408-395.072A96 96 0 0 1 128 416v-64a96 96 0 0 1 69.696-92.352M264.064 256h495.872a256.128 256.128 0 0 0-495.872 0m495.424 256H264.512l48 384h398.976zM224 448h576a32 32 0 0 0 32-32v-64a32 32 0 0 0-32-32H224a32 32 0 0 0-32 32v64a32 32 0 0 0 32 32m160 192h64v64h-64zm192 64h64v64h-64zm-128 64h64v64h-64zm64-192h64v64h-64z"
+      })
+    ]));
+  }
+});
+var info_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "InfoFilled",
+  __name: "info-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z"
+      })
+    ]));
+  }
+});
+var info_filled_default = info_filled_vue_vue_type_script_setup_true_lang_default;
+var iphone_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Iphone",
+  __name: "iphone",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M224 768v96.064a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64V768zm0-64h576V160a64 64 0 0 0-64-64H288a64 64 0 0 0-64 64zm32 288a96 96 0 0 1-96-96V128a96 96 0 0 1 96-96h512a96 96 0 0 1 96 96v768a96 96 0 0 1-96 96zm304-144a48 48 0 1 1-96 0 48 48 0 0 1 96 0"
+      })
+    ]));
+  }
+});
+var key_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Key",
+  __name: "key",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M448 456.064V96a32 32 0 0 1 32-32.064L672 64a32 32 0 0 1 0 64H512v128h160a32 32 0 0 1 0 64H512v128a256 256 0 1 1-64 8.064M512 896a192 192 0 1 0 0-384 192 192 0 0 0 0 384"
+      })
+    ]));
+  }
+});
+var knife_fork_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "KnifeFork",
+  __name: "knife-fork",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 410.56V96a32 32 0 0 1 64 0v314.56A96 96 0 0 0 384 320V96a32 32 0 0 1 64 0v224a160 160 0 0 1-128 156.8V928a32 32 0 1 1-64 0V476.8A160 160 0 0 1 128 320V96a32 32 0 0 1 64 0v224a96 96 0 0 0 64 90.56m384-250.24V544h126.72c-3.328-78.72-12.928-147.968-28.608-207.744-14.336-54.528-46.848-113.344-98.112-175.872zM640 608v320a32 32 0 1 1-64 0V64h64c85.312 89.472 138.688 174.848 160 256 21.312 81.152 32 177.152 32 288z"
+      })
+    ]));
+  }
+});
+var lightning_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Lightning",
+  __name: "lightning",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 671.36v64.128A239.808 239.808 0 0 1 63.744 496.192a240.32 240.32 0 0 1 199.488-236.8 256.128 256.128 0 0 1 487.872-30.976A256.064 256.064 0 0 1 736 734.016v-64.768a192 192 0 0 0 3.328-377.92l-35.2-6.592-12.8-33.408a192.064 192.064 0 0 0-365.952 23.232l-9.92 40.896-41.472 7.04a176.32 176.32 0 0 0-146.24 173.568c0 91.968 70.464 167.36 160.256 175.232z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M416 736a32 32 0 0 1-27.776-47.872l128-224a32 32 0 1 1 55.552 31.744L471.168 672H608a32 32 0 0 1 27.776 47.872l-128 224a32 32 0 1 1-55.68-31.744L552.96 736z"
+      })
+    ]));
+  }
+});
+var link_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Link",
+  __name: "link",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M715.648 625.152 670.4 579.904l90.496-90.56c75.008-74.944 85.12-186.368 22.656-248.896-62.528-62.464-173.952-52.352-248.96 22.656L444.16 353.6l-45.248-45.248 90.496-90.496c100.032-99.968 251.968-110.08 339.456-22.656 87.488 87.488 77.312 239.424-22.656 339.456l-90.496 90.496zm-90.496 90.496-90.496 90.496C434.624 906.112 282.688 916.224 195.2 828.8c-87.488-87.488-77.312-239.424 22.656-339.456l90.496-90.496 45.248 45.248-90.496 90.56c-75.008 74.944-85.12 186.368-22.656 248.896 62.528 62.464 173.952 52.352 248.96-22.656l90.496-90.496zm0-362.048 45.248 45.248L398.848 670.4 353.6 625.152z"
+      })
+    ]));
+  }
+});
+var list_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "List",
+  __name: "list",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 192h160v736H160V192h160v64h384zM288 512h448v-64H288zm0 256h448v-64H288zm96-576V96h256v96z"
+      })
+    ]));
+  }
+});
+var loading_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Loading",
+  __name: "loading",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a32 32 0 0 1 32 32v192a32 32 0 0 1-64 0V96a32 32 0 0 1 32-32m0 640a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V736a32 32 0 0 1 32-32m448-192a32 32 0 0 1-32 32H736a32 32 0 1 1 0-64h192a32 32 0 0 1 32 32m-640 0a32 32 0 0 1-32 32H96a32 32 0 0 1 0-64h192a32 32 0 0 1 32 32M195.2 195.2a32 32 0 0 1 45.248 0L376.32 331.008a32 32 0 0 1-45.248 45.248L195.2 240.448a32 32 0 0 1 0-45.248zm452.544 452.544a32 32 0 0 1 45.248 0L828.8 783.552a32 32 0 0 1-45.248 45.248L647.744 692.992a32 32 0 0 1 0-45.248zM828.8 195.264a32 32 0 0 1 0 45.184L692.992 376.32a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0m-452.544 452.48a32 32 0 0 1 0 45.248L240.448 828.8a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0z"
+      })
+    ]));
+  }
+});
+var loading_default = loading_vue_vue_type_script_setup_true_lang_default;
+var location_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "LocationFilled",
+  __name: "location-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 928c23.936 0 117.504-68.352 192.064-153.152C803.456 661.888 864 535.808 864 416c0-189.632-155.84-320-352-320S160 226.368 160 416c0 120.32 60.544 246.4 159.936 359.232C394.432 859.84 488 928 512 928m0-435.2a64 64 0 1 0 0-128 64 64 0 0 0 0 128m0 140.8a204.8 204.8 0 1 1 0-409.6 204.8 204.8 0 0 1 0 409.6"
+      })
+    ]));
+  }
+});
+var location_information_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "LocationInformation",
+  __name: "location-information",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 896h448q32 0 32 32t-32 32H288q-32 0-32-32t32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M800 416a288 288 0 1 0-576 0c0 118.144 94.528 272.128 288 456.576C705.472 688.128 800 534.144 800 416M512 960C277.312 746.688 160 565.312 160 416a352 352 0 0 1 704 0c0 149.312-117.312 330.688-352 544"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 512a96 96 0 1 0 0-192 96 96 0 0 0 0 192m0 64a160 160 0 1 1 0-320 160 160 0 0 1 0 320"
+      })
+    ]));
+  }
+});
+var location_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Location",
+  __name: "location",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M800 416a288 288 0 1 0-576 0c0 118.144 94.528 272.128 288 456.576C705.472 688.128 800 534.144 800 416M512 960C277.312 746.688 160 565.312 160 416a352 352 0 0 1 704 0c0 149.312-117.312 330.688-352 544"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 512a96 96 0 1 0 0-192 96 96 0 0 0 0 192m0 64a160 160 0 1 1 0-320 160 160 0 0 1 0 320"
+      })
+    ]));
+  }
+});
+var lock_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Lock",
+  __name: "lock",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M224 448a32 32 0 0 0-32 32v384a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32V480a32 32 0 0 0-32-32zm0-64h576a96 96 0 0 1 96 96v384a96 96 0 0 1-96 96H224a96 96 0 0 1-96-96V480a96 96 0 0 1 96-96"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 544a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V576a32 32 0 0 1 32-32m192-160v-64a192 192 0 1 0-384 0v64zM512 64a256 256 0 0 1 256 256v128H256V320A256 256 0 0 1 512 64"
+      })
+    ]));
+  }
+});
+var lollipop_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Lollipop",
+  __name: "lollipop",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M513.28 448a64 64 0 1 1 76.544 49.728A96 96 0 0 0 768 448h64a160 160 0 0 1-320 0zm-126.976-29.696a256 256 0 1 0 43.52-180.48A256 256 0 0 1 832 448h-64a192 192 0 0 0-381.696-29.696m105.664 249.472L285.696 874.048a96 96 0 0 1-135.68-135.744l206.208-206.272a320 320 0 1 1 135.744 135.744zm-54.464-36.032a321.92 321.92 0 0 1-45.248-45.248L195.2 783.552a32 32 0 1 0 45.248 45.248l197.056-197.12z"
+      })
+    ]));
+  }
+});
+var magic_stick_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "MagicStick",
+  __name: "magic-stick",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64h64v192h-64zm0 576h64v192h-64zM160 480v-64h192v64zm576 0v-64h192v64zM249.856 199.04l45.248-45.184L430.848 289.6 385.6 334.848 249.856 199.104zM657.152 606.4l45.248-45.248 135.744 135.744-45.248 45.248zM114.048 923.2 68.8 877.952l316.8-316.8 45.248 45.248zM702.4 334.848 657.152 289.6l135.744-135.744 45.248 45.248z"
+      })
+    ]));
+  }
+});
+var magnet_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Magnet",
+  __name: "magnet",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M832 320V192H704v320a192 192 0 1 1-384 0V192H192v128h128v64H192v128a320 320 0 0 0 640 0V384H704v-64zM640 512V128h256v384a384 384 0 1 1-768 0V128h256v384a128 128 0 1 0 256 0"
+      })
+    ]));
+  }
+});
+var male_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Male",
+  __name: "male",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M399.5 849.5a225 225 0 1 0 0-450 225 225 0 0 0 0 450m0 56.25a281.25 281.25 0 1 1 0-562.5 281.25 281.25 0 0 1 0 562.5m253.125-787.5h225q28.125 0 28.125 28.125T877.625 174.5h-225q-28.125 0-28.125-28.125t28.125-28.125"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M877.625 118.25q28.125 0 28.125 28.125v225q0 28.125-28.125 28.125T849.5 371.375v-225q0-28.125 28.125-28.125"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M604.813 458.9 565.1 419.131l292.613-292.668 39.825 39.824z"
+      })
+    ]));
+  }
+});
+var management_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Management",
+  __name: "management",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M576 128v288l96-96 96 96V128h128v768H320V128zm-448 0h128v768H128z"
+      })
+    ]));
+  }
+});
+var map_location_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "MapLocation",
+  __name: "map-location",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M800 416a288 288 0 1 0-576 0c0 118.144 94.528 272.128 288 456.576C705.472 688.128 800 534.144 800 416M512 960C277.312 746.688 160 565.312 160 416a352 352 0 0 1 704 0c0 149.312-117.312 330.688-352 544"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 448a64 64 0 1 0 0-128 64 64 0 0 0 0 128m0 64a128 128 0 1 1 0-256 128 128 0 0 1 0 256m345.6 192L960 960H672v-64H352v64H64l102.4-256zm-68.928 0H235.328l-76.8 192h706.944z"
+      })
+    ]));
+  }
+});
+var medal_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Medal",
+  __name: "medal",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a256 256 0 1 0 0-512 256 256 0 0 0 0 512m0 64a320 320 0 1 1 0-640 320 320 0 0 1 0 640"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M576 128H448v200a286.72 286.72 0 0 1 64-8c19.52 0 40.832 2.688 64 8zm64 0v219.648c24.448 9.088 50.56 20.416 78.4 33.92L757.44 128zm-256 0H266.624l39.04 253.568c27.84-13.504 53.888-24.832 78.336-33.92V128zM229.312 64h565.376a32 32 0 0 1 31.616 36.864L768 480c-113.792-64-199.104-96-256-96-56.896 0-142.208 32-256 96l-58.304-379.136A32 32 0 0 1 229.312 64"
+      })
+    ]));
+  }
+});
+var memo_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Memo",
+  __name: "memo",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 320h192c21.33 0 32-10.67 32-32s-10.67-32-32-32H480c-21.33 0-32 10.67-32 32s10.67 32 32 32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M887.01 72.99C881.01 67 873.34 64 864 64H160c-9.35 0-17.02 3-23.01 8.99C131 78.99 128 86.66 128 96v832c0 9.35 2.99 17.02 8.99 23.01S150.66 960 160 960h704c9.35 0 17.02-2.99 23.01-8.99S896 937.34 896 928V96c0-9.35-3-17.02-8.99-23.01M192 896V128h96v768zm640 0H352V128h480z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 512h192c21.33 0 32-10.67 32-32s-10.67-32-32-32H480c-21.33 0-32 10.67-32 32s10.67 32 32 32m0 192h192c21.33 0 32-10.67 32-32s-10.67-32-32-32H480c-21.33 0-32 10.67-32 32s10.67 32 32 32"
+      })
+    ]));
+  }
+});
+var menu_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Menu",
+  __name: "menu",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 448a32 32 0 0 1-32-32V160.064a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V416a32 32 0 0 1-32 32zm448 0a32 32 0 0 1-32-32V160.064a32 32 0 0 1 32-32h255.936a32 32 0 0 1 32 32V416a32 32 0 0 1-32 32zM160 896a32 32 0 0 1-32-32V608a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32v256a32 32 0 0 1-32 32zm448 0a32 32 0 0 1-32-32V608a32 32 0 0 1 32-32h255.936a32 32 0 0 1 32 32v256a32 32 0 0 1-32 32z"
+      })
+    ]));
+  }
+});
+var message_box_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "MessageBox",
+  __name: "message-box",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 384h448v64H288zm96-128h256v64H384zM131.456 512H384v128h256V512h252.544L721.856 192H302.144zM896 576H704v128H320V576H128v256h768zM275.776 128h472.448a32 32 0 0 1 28.608 17.664l179.84 359.552A32 32 0 0 1 960 519.552V864a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V519.552a32 32 0 0 1 3.392-14.336l179.776-359.552A32 32 0 0 1 275.776 128z"
+      })
+    ]));
+  }
+});
+var message_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Message",
+  __name: "message",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 224v512a64 64 0 0 0 64 64h640a64 64 0 0 0 64-64V224zm0-64h768a64 64 0 0 1 64 64v512a128 128 0 0 1-128 128H192A128 128 0 0 1 64 736V224a64 64 0 0 1 64-64"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M904 224 656.512 506.88a192 192 0 0 1-289.024 0L120 224zm-698.944 0 210.56 240.704a128 128 0 0 0 192.704 0L818.944 224H205.056"
+      })
+    ]));
+  }
+});
+var mic_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Mic",
+  __name: "mic",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 704h160a64 64 0 0 0 64-64v-32h-96a32 32 0 0 1 0-64h96v-96h-96a32 32 0 0 1 0-64h96v-96h-96a32 32 0 0 1 0-64h96v-32a64 64 0 0 0-64-64H384a64 64 0 0 0-64 64v32h96a32 32 0 0 1 0 64h-96v96h96a32 32 0 0 1 0 64h-96v96h96a32 32 0 0 1 0 64h-96v32a64 64 0 0 0 64 64zm64 64v128h192a32 32 0 1 1 0 64H288a32 32 0 1 1 0-64h192V768h-96a128 128 0 0 1-128-128V192A128 128 0 0 1 384 64h256a128 128 0 0 1 128 128v448a128 128 0 0 1-128 128z"
+      })
+    ]));
+  }
+});
+var microphone_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Microphone",
+  __name: "microphone",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 128a128 128 0 0 0-128 128v256a128 128 0 1 0 256 0V256a128 128 0 0 0-128-128m0-64a192 192 0 0 1 192 192v256a192 192 0 1 1-384 0V256A192 192 0 0 1 512 64m-32 832v-64a288 288 0 0 1-288-288v-32a32 32 0 0 1 64 0v32a224 224 0 0 0 224 224h64a224 224 0 0 0 224-224v-32a32 32 0 1 1 64 0v32a288 288 0 0 1-288 288v64h64a32 32 0 1 1 0 64H416a32 32 0 1 1 0-64z"
+      })
+    ]));
+  }
+});
+var milk_tea_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "MilkTea",
+  __name: "milk-tea",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M416 128V96a96 96 0 0 1 96-96h128a32 32 0 1 1 0 64H512a32 32 0 0 0-32 32v32h320a96 96 0 0 1 11.712 191.296l-39.68 581.056A64 64 0 0 1 708.224 960H315.776a64 64 0 0 1-63.872-59.648l-39.616-581.056A96 96 0 0 1 224 128zM276.48 320l39.296 576h392.448l4.8-70.784a224.064 224.064 0 0 1 30.016-439.808L747.52 320zM224 256h576a32 32 0 1 0 0-64H224a32 32 0 0 0 0 64m493.44 503.872 21.12-309.12a160 160 0 0 0-21.12 309.12"
+      })
+    ]));
+  }
+});
+var minus_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Minus",
+  __name: "minus",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 544h768a32 32 0 1 0 0-64H128a32 32 0 0 0 0 64"
+      })
+    ]));
+  }
+});
+var minus_default = minus_vue_vue_type_script_setup_true_lang_default;
+var money_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Money",
+  __name: "money",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 640v192h640V384H768v-64h150.976c14.272 0 19.456 1.472 24.64 4.288a29.056 29.056 0 0 1 12.16 12.096c2.752 5.184 4.224 10.368 4.224 24.64v493.952c0 14.272-1.472 19.456-4.288 24.64a29.056 29.056 0 0 1-12.096 12.16c-5.184 2.752-10.368 4.224-24.64 4.224H233.024c-14.272 0-19.456-1.472-24.64-4.288a29.056 29.056 0 0 1-12.16-12.096c-2.688-5.184-4.224-10.368-4.224-24.576V640z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M768 192H128v448h640zm64-22.976v493.952c0 14.272-1.472 19.456-4.288 24.64a29.056 29.056 0 0 1-12.096 12.16c-5.184 2.752-10.368 4.224-24.64 4.224H105.024c-14.272 0-19.456-1.472-24.64-4.288a29.056 29.056 0 0 1-12.16-12.096C65.536 682.432 64 677.248 64 663.04V169.024c0-14.272 1.472-19.456 4.288-24.64a29.056 29.056 0 0 1 12.096-12.16C85.568 129.536 90.752 128 104.96 128h685.952c14.272 0 19.456 1.472 24.64 4.288a29.056 29.056 0 0 1 12.16 12.096c2.752 5.184 4.224 10.368 4.224 24.64z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M448 576a160 160 0 1 1 0-320 160 160 0 0 1 0 320m0-64a96 96 0 1 0 0-192 96 96 0 0 0 0 192"
+      })
+    ]));
+  }
+});
+var monitor_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Monitor",
+  __name: "monitor",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 768v128h192a32 32 0 1 1 0 64H288a32 32 0 1 1 0-64h192V768H192A128 128 0 0 1 64 640V256a128 128 0 0 1 128-128h640a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128zM192 192a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h640a64 64 0 0 0 64-64V256a64 64 0 0 0-64-64z"
+      })
+    ]));
+  }
+});
+var moon_night_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "MoonNight",
+  __name: "moon-night",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 512a448 448 0 0 1 215.872-383.296A384 384 0 0 0 213.76 640h188.8A448.256 448.256 0 0 1 384 512M171.136 704a448 448 0 0 1 636.992-575.296A384 384 0 0 0 499.328 704h-328.32z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M32 640h960q32 0 32 32t-32 32H32q-32 0-32-32t32-32m128 128h384a32 32 0 1 1 0 64H160a32 32 0 1 1 0-64m160 127.68 224 .256a32 32 0 0 1 32 32V928a32 32 0 0 1-32 32l-224-.384a32 32 0 0 1-32-32v-.064a32 32 0 0 1 32-32z"
+      })
+    ]));
+  }
+});
+var moon_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Moon",
+  __name: "moon",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M240.448 240.448a384 384 0 1 0 559.424 525.696 448 448 0 0 1-542.016-542.08 390.592 390.592 0 0 0-17.408 16.384zm181.056 362.048a384 384 0 0 0 525.632 16.384A448 448 0 1 1 405.056 76.8a384 384 0 0 0 16.448 525.696"
+      })
+    ]));
+  }
+});
+var more_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "MoreFilled",
+  __name: "more-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M176 416a112 112 0 1 1 0 224 112 112 0 0 1 0-224m336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224m336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224"
+      })
+    ]));
+  }
+});
+var more_filled_default = more_filled_vue_vue_type_script_setup_true_lang_default;
+var more_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "More",
+  __name: "more",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M176 416a112 112 0 1 0 0 224 112 112 0 0 0 0-224m0 64a48 48 0 1 1 0 96 48 48 0 0 1 0-96m336-64a112 112 0 1 1 0 224 112 112 0 0 1 0-224m0 64a48 48 0 1 0 0 96 48 48 0 0 0 0-96m336-64a112 112 0 1 1 0 224 112 112 0 0 1 0-224m0 64a48 48 0 1 0 0 96 48 48 0 0 0 0-96"
+      })
+    ]));
+  }
+});
+var more_default = more_vue_vue_type_script_setup_true_lang_default;
+var mostly_cloudy_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "MostlyCloudy",
+  __name: "mostly-cloudy",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M737.216 357.952 704 349.824l-11.776-32a192.064 192.064 0 0 0-367.424 23.04l-8.96 39.04-39.04 8.96A192.064 192.064 0 0 0 320 768h368a207.808 207.808 0 0 0 207.808-208 208.32 208.32 0 0 0-158.592-202.048m15.168-62.208A272.32 272.32 0 0 1 959.744 560a271.808 271.808 0 0 1-271.552 272H320a256 256 0 0 1-57.536-505.536 256.128 256.128 0 0 1 489.92-30.72"
+      })
+    ]));
+  }
+});
+var mouse_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Mouse",
+  __name: "mouse",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M438.144 256c-68.352 0-92.736 4.672-117.76 18.112-20.096 10.752-35.52 26.176-46.272 46.272C260.672 345.408 256 369.792 256 438.144v275.712c0 68.352 4.672 92.736 18.112 117.76 10.752 20.096 26.176 35.52 46.272 46.272C345.408 891.328 369.792 896 438.144 896h147.712c68.352 0 92.736-4.672 117.76-18.112 20.096-10.752 35.52-26.176 46.272-46.272C763.328 806.592 768 782.208 768 713.856V438.144c0-68.352-4.672-92.736-18.112-117.76a110.464 110.464 0 0 0-46.272-46.272C678.592 260.672 654.208 256 585.856 256zm0-64h147.712c85.568 0 116.608 8.96 147.904 25.6 31.36 16.768 55.872 41.344 72.576 72.64C823.104 321.536 832 352.576 832 438.08v275.84c0 85.504-8.96 116.544-25.6 147.84a174.464 174.464 0 0 1-72.64 72.576C702.464 951.104 671.424 960 585.92 960H438.08c-85.504 0-116.544-8.96-147.84-25.6a174.464 174.464 0 0 1-72.64-72.704c-16.768-31.296-25.664-62.336-25.664-147.84v-275.84c0-85.504 8.96-116.544 25.6-147.84a174.464 174.464 0 0 1 72.768-72.576c31.232-16.704 62.272-25.6 147.776-25.6z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 320q32 0 32 32v128q0 32-32 32t-32-32V352q0-32 32-32m32-96a32 32 0 0 1-64 0v-64a32 32 0 0 0-32-32h-96a32 32 0 0 1 0-64h96a96 96 0 0 1 96 96z"
+      })
+    ]));
+  }
+});
+var mug_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Mug",
+  __name: "mug",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M736 800V160H160v640a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64m64-544h63.552a96 96 0 0 1 96 96v224a96 96 0 0 1-96 96H800v128a128 128 0 0 1-128 128H224A128 128 0 0 1 96 800V128a32 32 0 0 1 32-32h640a32 32 0 0 1 32 32zm0 64v288h63.552a32 32 0 0 0 32-32V352a32 32 0 0 0-32-32z"
+      })
+    ]));
+  }
+});
+var mute_notification_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "MuteNotification",
+  __name: "mute-notification",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m241.216 832 63.616-64H768V448c0-42.368-10.24-82.304-28.48-117.504l46.912-47.232C815.36 331.392 832 387.84 832 448v320h96a32 32 0 1 1 0 64zm-90.24 0H96a32 32 0 1 1 0-64h96V448a320.128 320.128 0 0 1 256-313.6V128a64 64 0 1 1 128 0v6.4a319.552 319.552 0 0 1 171.648 97.088l-45.184 45.44A256 256 0 0 0 256 448v278.336L151.04 832zM448 896h128a64 64 0 0 1-128 0"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M150.72 859.072a32 32 0 0 1-45.44-45.056l704-708.544a32 32 0 0 1 45.44 45.056l-704 708.544z"
+      })
+    ]));
+  }
+});
+var mute_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Mute",
+  __name: "mute",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m412.16 592.128-45.44 45.44A191.232 191.232 0 0 1 320 512V256a192 192 0 1 1 384 0v44.352l-64 64V256a128 128 0 1 0-256 0v256c0 30.336 10.56 58.24 28.16 80.128m51.968 38.592A128 128 0 0 0 640 512v-57.152l64-64V512a192 192 0 0 1-287.68 166.528zM314.88 779.968l46.144-46.08A222.976 222.976 0 0 0 480 768h64a224 224 0 0 0 224-224v-32a32 32 0 1 1 64 0v32a288 288 0 0 1-288 288v64h64a32 32 0 1 1 0 64H416a32 32 0 1 1 0-64h64v-64c-61.44 0-118.4-19.2-165.12-52.032M266.752 737.6A286.976 286.976 0 0 1 192 544v-32a32 32 0 0 1 64 0v32c0 56.832 21.184 108.8 56.064 148.288z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M150.72 859.072a32 32 0 0 1-45.44-45.056l704-708.544a32 32 0 0 1 45.44 45.056l-704 708.544z"
+      })
+    ]));
+  }
+});
+var no_smoking_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "NoSmoking",
+  __name: "no-smoking",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M440.256 576H256v128h56.256l-64 64H224a32 32 0 0 1-32-32V544a32 32 0 0 1 32-32h280.256zm143.488 128H704V583.744L775.744 512H928a32 32 0 0 1 32 32v192a32 32 0 0 1-32 32H519.744zM768 576v128h128V576zm-29.696-207.552 45.248 45.248-497.856 497.856-45.248-45.248zM256 64h64v320h-64zM128 192h64v192h-64zM64 512h64v256H64z"
+      })
+    ]));
+  }
+});
+var notebook_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Notebook",
+  __name: "notebook",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 128v768h640V128zm-32-64h704a32 32 0 0 1 32 32v832a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M672 128h64v768h-64zM96 192h128q32 0 32 32t-32 32H96q-32 0-32-32t32-32m0 192h128q32 0 32 32t-32 32H96q-32 0-32-32t32-32m0 192h128q32 0 32 32t-32 32H96q-32 0-32-32t32-32m0 192h128q32 0 32 32t-32 32H96q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var notification_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Notification",
+  __name: "notification",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 128v64H256a64 64 0 0 0-64 64v512a64 64 0 0 0 64 64h512a64 64 0 0 0 64-64V512h64v256a128 128 0 0 1-128 128H256a128 128 0 0 1-128-128V256a128 128 0 0 1 128-128z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M768 384a128 128 0 1 0 0-256 128 128 0 0 0 0 256m0 64a192 192 0 1 1 0-384 192 192 0 0 1 0 384"
+      })
+    ]));
+  }
+});
+var odometer_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Odometer",
+  __name: "odometer",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 512a320 320 0 1 1 640 0 32 32 0 1 1-64 0 256 256 0 1 0-512 0 32 32 0 0 1-64 0"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M570.432 627.84A96 96 0 1 1 509.568 608l60.992-187.776A32 32 0 1 1 631.424 440l-60.992 187.776zM502.08 734.464a32 32 0 1 0 19.84-60.928 32 32 0 0 0-19.84 60.928"
+      })
+    ]));
+  }
+});
+var office_building_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "OfficeBuilding",
+  __name: "office-building",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 128v704h384V128zm-32-64h448a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 256h256v64H256zm0 192h256v64H256zm0 192h256v64H256zm384-128h128v64H640zm0 128h128v64H640zM64 832h896v64H64z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M640 384v448h192V384zm-32-64h256a32 32 0 0 1 32 32v512a32 32 0 0 1-32 32H608a32 32 0 0 1-32-32V352a32 32 0 0 1 32-32"
+      })
+    ]));
+  }
+});
+var open_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Open",
+  __name: "open",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M694.044 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454m0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088"
+      })
+    ]));
+  }
+});
+var operation_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Operation",
+  __name: "operation",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M389.44 768a96.064 96.064 0 0 1 181.12 0H896v64H570.56a96.064 96.064 0 0 1-181.12 0H128v-64zm192-288a96.064 96.064 0 0 1 181.12 0H896v64H762.56a96.064 96.064 0 0 1-181.12 0H128v-64zm-320-288a96.064 96.064 0 0 1 181.12 0H896v64H442.56a96.064 96.064 0 0 1-181.12 0H128v-64z"
+      })
+    ]));
+  }
+});
+var opportunity_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Opportunity",
+  __name: "opportunity",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 960v-64h192.064v64zm448-544a350.656 350.656 0 0 1-128.32 271.424C665.344 719.04 640 763.776 640 813.504V832H320v-14.336c0-48-19.392-95.36-57.216-124.992a351.552 351.552 0 0 1-128.448-344.256c25.344-136.448 133.888-248.128 269.76-276.48A352.384 352.384 0 0 1 832 416m-544 32c0-132.288 75.904-224 192-224v-64c-154.432 0-256 122.752-256 288z"
+      })
+    ]));
+  }
+});
+var orange_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Orange",
+  __name: "orange",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 894.72a382.336 382.336 0 0 0 215.936-89.472L577.024 622.272c-10.24 6.016-21.248 10.688-33.024 13.696v258.688zm261.248-134.784A382.336 382.336 0 0 0 894.656 544H635.968c-3.008 11.776-7.68 22.848-13.696 33.024l182.976 182.912zM894.656 480a382.336 382.336 0 0 0-89.408-215.936L622.272 446.976c6.016 10.24 10.688 21.248 13.696 33.024h258.688zm-134.72-261.248A382.336 382.336 0 0 0 544 129.344v258.688c11.776 3.008 22.848 7.68 33.024 13.696zM480 129.344a382.336 382.336 0 0 0-215.936 89.408l182.912 182.976c10.24-6.016 21.248-10.688 33.024-13.696zm-261.248 134.72A382.336 382.336 0 0 0 129.344 480h258.688c3.008-11.776 7.68-22.848 13.696-33.024zM129.344 544a382.336 382.336 0 0 0 89.408 215.936l182.976-182.912A127.232 127.232 0 0 1 388.032 544zm134.72 261.248A382.336 382.336 0 0 0 480 894.656V635.968a127.232 127.232 0 0 1-33.024-13.696zM512 960a448 448 0 1 1 0-896 448 448 0 0 1 0 896m0-384a64 64 0 1 0 0-128 64 64 0 0 0 0 128"
+      })
+    ]));
+  }
+});
+var paperclip_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Paperclip",
+  __name: "paperclip",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M602.496 240.448A192 192 0 1 1 874.048 512l-316.8 316.8A256 256 0 0 1 195.2 466.752L602.496 59.456l45.248 45.248L240.448 512A192 192 0 0 0 512 783.552l316.8-316.8a128 128 0 1 0-181.056-181.056L353.6 579.904a32 32 0 1 0 45.248 45.248l294.144-294.144 45.312 45.248L444.096 670.4a96 96 0 1 1-135.744-135.744l294.144-294.208z"
+      })
+    ]));
+  }
+});
+var partly_cloudy_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "PartlyCloudy",
+  __name: "partly-cloudy",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M598.4 895.872H328.192a256 256 0 0 1-34.496-510.528A352 352 0 1 1 598.4 895.872m-271.36-64h272.256a288 288 0 1 0-248.512-417.664L335.04 445.44l-34.816 3.584a192 192 0 0 0 26.88 382.848z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M139.84 501.888a256 256 0 1 1 417.856-277.12c-17.728 2.176-38.208 8.448-61.504 18.816A192 192 0 1 0 189.12 460.48a6003.84 6003.84 0 0 0-49.28 41.408z"
+      })
+    ]));
+  }
+});
+var pear_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Pear",
+  __name: "pear",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M542.336 258.816a443.255 443.255 0 0 0-9.024 25.088 32 32 0 1 1-60.8-20.032l1.088-3.328a162.688 162.688 0 0 0-122.048 131.392l-17.088 102.72-20.736 15.36C256.192 552.704 224 610.88 224 672c0 120.576 126.4 224 288 224s288-103.424 288-224c0-61.12-32.192-119.296-89.728-161.92l-20.736-15.424-17.088-102.72a162.688 162.688 0 0 0-130.112-133.12zm-40.128-66.56c7.936-15.552 16.576-30.08 25.92-43.776 23.296-33.92 49.408-59.776 78.528-77.12a32 32 0 1 1 32.704 55.04c-20.544 12.224-40.064 31.552-58.432 58.304a316.608 316.608 0 0 0-9.792 15.104 226.688 226.688 0 0 1 164.48 181.568l12.8 77.248C819.456 511.36 864 587.392 864 672c0 159.04-157.568 288-352 288S160 831.04 160 672c0-84.608 44.608-160.64 115.584-213.376l12.8-77.248a226.624 226.624 0 0 1 213.76-189.184z"
+      })
+    ]));
+  }
+});
+var phone_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "PhoneFilled",
+  __name: "phone-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M199.232 125.568 90.624 379.008a32 32 0 0 0 6.784 35.2l512.384 512.384a32 32 0 0 0 35.2 6.784l253.44-108.608a32 32 0 0 0 10.048-52.032L769.6 633.92a32 32 0 0 0-36.928-5.952l-130.176 65.088-271.488-271.552 65.024-130.176a32 32 0 0 0-5.952-36.928L251.2 115.52a32 32 0 0 0-51.968 10.048z"
+      })
+    ]));
+  }
+});
+var phone_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Phone",
+  __name: "phone",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M79.36 432.256 591.744 944.64a32 32 0 0 0 35.2 6.784l253.44-108.544a32 32 0 0 0 9.984-52.032l-153.856-153.92a32 32 0 0 0-36.928-6.016l-69.888 34.944L358.08 394.24l35.008-69.888a32 32 0 0 0-5.952-36.928L233.152 133.568a32 32 0 0 0-52.032 10.048L72.512 397.056a32 32 0 0 0 6.784 35.2zm60.48-29.952 81.536-190.08L325.568 316.48l-24.64 49.216-20.608 41.216 32.576 32.64 271.552 271.552 32.64 32.64 41.216-20.672 49.28-24.576 104.192 104.128-190.08 81.472L139.84 402.304zM512 320v-64a256 256 0 0 1 256 256h-64a192 192 0 0 0-192-192m0-192V64a448 448 0 0 1 448 448h-64a384 384 0 0 0-384-384"
+      })
+    ]));
+  }
+});
+var picture_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "PictureFilled",
+  __name: "picture-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M96 896a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h832a32 32 0 0 1 32 32v704a32 32 0 0 1-32 32zm315.52-228.48-68.928-68.928a32 32 0 0 0-45.248 0L128 768.064h778.688l-242.112-290.56a32 32 0 0 0-49.216 0L458.752 665.408a32 32 0 0 1-47.232 2.112M256 384a96 96 0 1 0 192.064-.064A96 96 0 0 0 256 384"
+      })
+    ]));
+  }
+});
+var picture_filled_default = picture_filled_vue_vue_type_script_setup_true_lang_default;
+var picture_rounded_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "PictureRounded",
+  __name: "picture-rounded",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 128a384 384 0 1 0 0 768 384 384 0 0 0 0-768m0-64a448 448 0 1 1 0 896 448 448 0 0 1 0-896"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M640 288q64 0 64 64t-64 64q-64 0-64-64t64-64M214.656 790.656l-45.312-45.312 185.664-185.6a96 96 0 0 1 123.712-10.24l138.24 98.688a32 32 0 0 0 39.872-2.176L906.688 422.4l42.624 47.744L699.52 693.696a96 96 0 0 1-119.808 6.592l-138.24-98.752a32 32 0 0 0-41.152 3.456l-185.664 185.6z"
+      })
+    ]));
+  }
+});
+var picture_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Picture",
+  __name: "picture",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 160v704h704V160zm-32-64h768a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H128a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 288q64 0 64 64t-64 64q-64 0-64-64t64-64M185.408 876.992l-50.816-38.912L350.72 556.032a96 96 0 0 1 134.592-17.856l1.856 1.472 122.88 99.136a32 32 0 0 0 44.992-4.864l216-269.888 49.92 39.936-215.808 269.824-.256.32a96 96 0 0 1-135.04 14.464l-122.88-99.072-.64-.512a32 32 0 0 0-44.8 5.952z"
+      })
+    ]));
+  }
+});
+var pie_chart_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "PieChart",
+  __name: "pie-chart",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M448 68.48v64.832A384.128 384.128 0 0 0 512 896a384.128 384.128 0 0 0 378.688-320h64.768A448.128 448.128 0 0 1 64 512 448.128 448.128 0 0 1 448 68.48z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M576 97.28V448h350.72A384.064 384.064 0 0 0 576 97.28zM512 64V33.152A448 448 0 0 1 990.848 512H512z"
+      })
+    ]));
+  }
+});
+var place_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Place",
+  __name: "place",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 512a192 192 0 1 0 0-384 192 192 0 0 0 0 384m0 64a256 256 0 1 1 0-512 256 256 0 0 1 0 512"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 512a32 32 0 0 1 32 32v256a32 32 0 1 1-64 0V544a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 649.088v64.96C269.76 732.352 192 771.904 192 800c0 37.696 139.904 96 320 96s320-58.304 320-96c0-28.16-77.76-67.648-192-85.952v-64.96C789.12 671.04 896 730.368 896 800c0 88.32-171.904 160-384 160s-384-71.68-384-160c0-69.696 106.88-128.96 256-150.912"
+      })
+    ]));
+  }
+});
+var platform_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Platform",
+  __name: "platform",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M448 832v-64h128v64h192v64H256v-64zM128 704V128h768v576z"
+      })
+    ]));
+  }
+});
+var plus_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Plus",
+  __name: "plus",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 480V128a32 32 0 0 1 64 0v352h352a32 32 0 1 1 0 64H544v352a32 32 0 1 1-64 0V544H128a32 32 0 0 1 0-64z"
+      })
+    ]));
+  }
+});
+var plus_default = plus_vue_vue_type_script_setup_true_lang_default;
+var pointer_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Pointer",
+  __name: "pointer",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M511.552 128c-35.584 0-64.384 28.8-64.384 64.448v516.48L274.048 570.88a94.272 94.272 0 0 0-112.896-3.456 44.416 44.416 0 0 0-8.96 62.208L332.8 870.4A64 64 0 0 0 384 896h512V575.232a64 64 0 0 0-45.632-61.312l-205.952-61.76A96 96 0 0 1 576 360.192V192.448C576 156.8 547.2 128 511.552 128M359.04 556.8l24.128 19.2V192.448a128.448 128.448 0 1 1 256.832 0v167.744a32 32 0 0 0 22.784 30.656l206.016 61.76A128 128 0 0 1 960 575.232V896a64 64 0 0 1-64 64H384a128 128 0 0 1-102.4-51.2L101.056 668.032A108.416 108.416 0 0 1 128 512.512a158.272 158.272 0 0 1 185.984 8.32z"
+      })
+    ]));
+  }
+});
+var position_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Position",
+  __name: "position",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m249.6 417.088 319.744 43.072 39.168 310.272L845.12 178.88 249.6 417.088zm-129.024 47.168a32 32 0 0 1-7.68-61.44l777.792-311.04a32 32 0 0 1 41.6 41.6l-310.336 775.68a32 32 0 0 1-61.44-7.808L512 516.992l-391.424-52.736z"
+      })
+    ]));
+  }
+});
+var postcard_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Postcard",
+  __name: "postcard",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 224a32 32 0 0 0-32 32v512a32 32 0 0 0 32 32h704a32 32 0 0 0 32-32V256a32 32 0 0 0-32-32zm0-64h704a96 96 0 0 1 96 96v512a96 96 0 0 1-96 96H160a96 96 0 0 1-96-96V256a96 96 0 0 1 96-96"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 320a64 64 0 1 1 0 128 64 64 0 0 1 0-128M288 448h256q32 0 32 32t-32 32H288q-32 0-32-32t32-32m0 128h256q32 0 32 32t-32 32H288q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var pouring_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Pouring",
+  __name: "pouring",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m739.328 291.328-35.2-6.592-12.8-33.408a192.064 192.064 0 0 0-365.952 23.232l-9.92 40.896-41.472 7.04a176.32 176.32 0 0 0-146.24 173.568c0 97.28 78.72 175.936 175.808 175.936h400a192 192 0 0 0 35.776-380.672zM959.552 480a256 256 0 0 1-256 256h-400A239.808 239.808 0 0 1 63.744 496.192a240.32 240.32 0 0 1 199.488-236.8 256.128 256.128 0 0 1 487.872-30.976A256.064 256.064 0 0 1 959.552 480M224 800a32 32 0 0 1 32 32v96a32 32 0 1 1-64 0v-96a32 32 0 0 1 32-32m192 0a32 32 0 0 1 32 32v96a32 32 0 1 1-64 0v-96a32 32 0 0 1 32-32m192 0a32 32 0 0 1 32 32v96a32 32 0 1 1-64 0v-96a32 32 0 0 1 32-32m192 0a32 32 0 0 1 32 32v96a32 32 0 1 1-64 0v-96a32 32 0 0 1 32-32"
+      })
+    ]));
+  }
+});
+var present_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Present",
+  __name: "present",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 896V640H192v-64h288V320H192v576zm64 0h288V320H544v256h288v64H544zM128 256h768v672a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M96 256h832q32 0 32 32t-32 32H96q-32 0-32-32t32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M416 256a64 64 0 1 0 0-128 64 64 0 0 0 0 128m0 64a128 128 0 1 1 0-256 128 128 0 0 1 0 256"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M608 256a64 64 0 1 0 0-128 64 64 0 0 0 0 128m0 64a128 128 0 1 1 0-256 128 128 0 0 1 0 256"
+      })
+    ]));
+  }
+});
+var price_tag_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "PriceTag",
+  __name: "price-tag",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M224 318.336V896h576V318.336L552.512 115.84a64 64 0 0 0-81.024 0zM593.024 66.304l259.2 212.096A32 32 0 0 1 864 303.168V928a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V303.168a32 32 0 0 1 11.712-24.768l259.2-212.096a128 128 0 0 1 162.112 0z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 448a64 64 0 1 0 0-128 64 64 0 0 0 0 128m0 64a128 128 0 1 1 0-256 128 128 0 0 1 0 256"
+      })
+    ]));
+  }
+});
+var printer_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Printer",
+  __name: "printer",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 768H105.024c-14.272 0-19.456-1.472-24.64-4.288a29.056 29.056 0 0 1-12.16-12.096C65.536 746.432 64 741.248 64 727.04V379.072c0-42.816 4.48-58.304 12.8-73.984 8.384-15.616 20.672-27.904 36.288-36.288 15.68-8.32 31.168-12.8 73.984-12.8H256V64h512v192h68.928c42.816 0 58.304 4.48 73.984 12.8 15.616 8.384 27.904 20.672 36.288 36.288 8.32 15.68 12.8 31.168 12.8 73.984v347.904c0 14.272-1.472 19.456-4.288 24.64a29.056 29.056 0 0 1-12.096 12.16c-5.184 2.752-10.368 4.224-24.64 4.224H768v192H256zm64-192v320h384V576zm-64 128V512h512v192h128V379.072c0-29.376-1.408-36.48-5.248-43.776a23.296 23.296 0 0 0-10.048-10.048c-7.232-3.84-14.4-5.248-43.776-5.248H187.072c-29.376 0-36.48 1.408-43.776 5.248a23.296 23.296 0 0 0-10.048 10.048c-3.84 7.232-5.248 14.4-5.248 43.776V704zm64-448h384V128H320zm-64 128h64v64h-64zm128 0h64v64h-64z"
+      })
+    ]));
+  }
+});
+var promotion_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Promotion",
+  __name: "promotion",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m64 448 832-320-128 704-446.08-243.328L832 192 242.816 545.472zm256 512V657.024L512 768z"
+      })
+    ]));
+  }
+});
+var quartz_watch_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "QuartzWatch",
+  __name: "quartz-watch",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M422.02 602.01v-.03c-6.68-5.99-14.35-8.83-23.01-8.51-8.67.32-16.17 3.66-22.5 10.02-6.33 6.36-9.5 13.7-9.5 22.02s3 15.82 8.99 22.5c8.68 8.68 19.02 11.35 31.01 8s19.49-10.85 22.5-22.5c3.01-11.65.51-22.15-7.49-31.49zM384 512c0-9.35-3-17.02-8.99-23.01-6-5.99-13.66-8.99-23.01-8.99-9.35 0-17.02 3-23.01 8.99-5.99 6-8.99 13.66-8.99 23.01s3 17.02 8.99 23.01c6 5.99 13.66 8.99 23.01 8.99 9.35 0 17.02-3 23.01-8.99 5.99-6 8.99-13.67 8.99-23.01m6.53-82.49c11.65 3.01 22.15.51 31.49-7.49h.04c5.99-6.68 8.83-14.34 8.51-23.01-.32-8.67-3.66-16.16-10.02-22.5-6.36-6.33-13.7-9.5-22.02-9.5s-15.82 3-22.5 8.99c-8.68 8.69-11.35 19.02-8 31.01 3.35 11.99 10.85 19.49 22.5 22.5zm242.94 0c11.67-3.03 19.01-10.37 22.02-22.02 3.01-11.65.51-22.15-7.49-31.49h.01c-6.68-5.99-14.18-8.99-22.5-8.99s-15.66 3.16-22.02 9.5c-6.36 6.34-9.7 13.84-10.02 22.5-.32 8.66 2.52 16.33 8.51 23.01 9.32 8.02 19.82 10.52 31.49 7.49M512 640c-9.35 0-17.02 3-23.01 8.99-5.99 6-8.99 13.66-8.99 23.01s3 17.02 8.99 23.01c6 5.99 13.67 8.99 23.01 8.99 9.35 0 17.02-3 23.01-8.99 5.99-6 8.99-13.66 8.99-23.01s-3-17.02-8.99-23.01c-6-5.99-13.66-8.99-23.01-8.99m183.01-151.01c-6-5.99-13.66-8.99-23.01-8.99s-17.02 3-23.01 8.99c-5.99 6-8.99 13.66-8.99 23.01s3 17.02 8.99 23.01c6 5.99 13.66 8.99 23.01 8.99s17.02-3 23.01-8.99c5.99-6 8.99-13.67 8.99-23.01 0-9.35-3-17.02-8.99-23.01"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M832 512c-2-90.67-33.17-166.17-93.5-226.5-20.43-20.42-42.6-37.49-66.5-51.23V64H352v170.26c-23.9 13.74-46.07 30.81-66.5 51.24-60.33 60.33-91.49 135.83-93.5 226.5 2 90.67 33.17 166.17 93.5 226.5 20.43 20.43 42.6 37.5 66.5 51.24V960h320V789.74c23.9-13.74 46.07-30.81 66.5-51.24 60.33-60.34 91.49-135.83 93.5-226.5M416 128h192v78.69c-29.85-9.03-61.85-13.93-96-14.69-34.15.75-66.15 5.65-96 14.68zm192 768H416v-78.68c29.85 9.03 61.85 13.93 96 14.68 34.15-.75 66.15-5.65 96-14.68zm-96-128c-72.66-2.01-132.99-27.01-180.99-75.01S258.01 584.66 256 512c2.01-72.66 27.01-132.99 75.01-180.99S439.34 258.01 512 256c72.66 2.01 132.99 27.01 180.99 75.01S765.99 439.34 768 512c-2.01 72.66-27.01 132.99-75.01 180.99S584.66 765.99 512 768"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 320c-9.35 0-17.02 3-23.01 8.99-5.99 6-8.99 13.66-8.99 23.01 0 9.35 3 17.02 8.99 23.01 6 5.99 13.67 8.99 23.01 8.99 9.35 0 17.02-3 23.01-8.99 5.99-6 8.99-13.66 8.99-23.01 0-9.35-3-17.02-8.99-23.01-6-5.99-13.66-8.99-23.01-8.99m112.99 273.5c-8.66-.32-16.33 2.52-23.01 8.51-7.98 9.32-10.48 19.82-7.49 31.49s10.49 19.17 22.5 22.5 22.35.66 31.01-8v.04c5.99-6.68 8.99-14.18 8.99-22.5s-3.16-15.66-9.5-22.02-13.84-9.7-22.5-10.02"
+      })
+    ]));
+  }
+});
+var question_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "QuestionFilled",
+  __name: "question-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m23.744 191.488c-52.096 0-92.928 14.784-123.2 44.352-30.976 29.568-45.76 70.4-45.76 122.496h80.256c0-29.568 5.632-52.8 17.6-68.992 13.376-19.712 35.2-28.864 66.176-28.864 23.936 0 42.944 6.336 56.32 19.712 12.672 13.376 19.712 31.68 19.712 54.912 0 17.6-6.336 34.496-19.008 49.984l-8.448 9.856c-45.76 40.832-73.216 70.4-82.368 89.408-9.856 19.008-14.08 42.24-14.08 68.992v9.856h80.96v-9.856c0-16.896 3.52-31.68 10.56-45.76 6.336-12.672 15.488-24.64 28.16-35.2 33.792-29.568 54.208-48.576 60.544-55.616 16.896-22.528 26.048-51.392 26.048-86.592 0-42.944-14.08-76.736-42.24-101.376-28.16-25.344-65.472-37.312-111.232-37.312zm-12.672 406.208a54.272 54.272 0 0 0-38.72 14.784 49.408 49.408 0 0 0-15.488 38.016c0 15.488 4.928 28.16 15.488 38.016A54.848 54.848 0 0 0 523.072 768c15.488 0 28.16-4.928 38.72-14.784a51.52 51.52 0 0 0 16.192-38.72 51.968 51.968 0 0 0-15.488-38.016 55.936 55.936 0 0 0-39.424-14.784z"
+      })
+    ]));
+  }
+});
+var question_filled_default = question_filled_vue_vue_type_script_setup_true_lang_default;
+var rank_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Rank",
+  __name: "rank",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m186.496 544 41.408 41.344a32 32 0 1 1-45.248 45.312l-96-96a32 32 0 0 1 0-45.312l96-96a32 32 0 1 1 45.248 45.312L186.496 480h290.816V186.432l-41.472 41.472a32 32 0 1 1-45.248-45.184l96-96.128a32 32 0 0 1 45.312 0l96 96.064a32 32 0 0 1-45.248 45.184l-41.344-41.28V480H832l-41.344-41.344a32 32 0 0 1 45.248-45.312l96 96a32 32 0 0 1 0 45.312l-96 96a32 32 0 0 1-45.248-45.312L832 544H541.312v293.44l41.344-41.28a32 32 0 1 1 45.248 45.248l-96 96a32 32 0 0 1-45.312 0l-96-96a32 32 0 1 1 45.312-45.248l41.408 41.408V544H186.496z"
+      })
+    ]));
+  }
+});
+var reading_lamp_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ReadingLamp",
+  __name: "reading-lamp",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 896h320q32 0 32 32t-32 32H352q-32 0-32-32t32-32m-44.672-768-99.52 448h608.384l-99.52-448zm-25.6-64h460.608a32 32 0 0 1 31.232 25.088l113.792 512A32 32 0 0 1 856.128 640H167.872a32 32 0 0 1-31.232-38.912l113.792-512A32 32 0 0 1 281.664 64z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M672 576q32 0 32 32v128q0 32-32 32t-32-32V608q0-32 32-32m-192-.064h64V960h-64z"
+      })
+    ]));
+  }
+});
+var reading_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Reading",
+  __name: "reading",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m512 863.36 384-54.848v-638.72L525.568 222.72a96 96 0 0 1-27.136 0L128 169.792v638.72zM137.024 106.432l370.432 52.928a32 32 0 0 0 9.088 0l370.432-52.928A64 64 0 0 1 960 169.792v638.72a64 64 0 0 1-54.976 63.36l-388.48 55.488a32 32 0 0 1-9.088 0l-388.48-55.488A64 64 0 0 1 64 808.512v-638.72a64 64 0 0 1 73.024-63.36z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 192h64v704h-64z"
+      })
+    ]));
+  }
+});
+var refresh_left_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "RefreshLeft",
+  __name: "refresh-left",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M289.088 296.704h92.992a32 32 0 0 1 0 64H232.96a32 32 0 0 1-32-32V179.712a32 32 0 0 1 64 0v50.56a384 384 0 0 1 643.84 282.88 384 384 0 0 1-383.936 384 384 384 0 0 1-384-384h64a320 320 0 1 0 640 0 320 320 0 0 0-555.712-216.448z"
+      })
+    ]));
+  }
+});
+var refresh_left_default = refresh_left_vue_vue_type_script_setup_true_lang_default;
+var refresh_right_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "RefreshRight",
+  __name: "refresh-right",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M784.512 230.272v-50.56a32 32 0 1 1 64 0v149.056a32 32 0 0 1-32 32H667.52a32 32 0 1 1 0-64h92.992A320 320 0 1 0 524.8 833.152a320 320 0 0 0 320-320h64a384 384 0 0 1-384 384 384 384 0 0 1-384-384 384 384 0 0 1 643.712-282.88z"
+      })
+    ]));
+  }
+});
+var refresh_right_default = refresh_right_vue_vue_type_script_setup_true_lang_default;
+var refresh_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Refresh",
+  __name: "refresh",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M771.776 794.88A384 384 0 0 1 128 512h64a320 320 0 0 0 555.712 216.448H654.72a32 32 0 1 1 0-64h149.056a32 32 0 0 1 32 32v148.928a32 32 0 1 1-64 0v-50.56zM276.288 295.616h92.992a32 32 0 0 1 0 64H220.16a32 32 0 0 1-32-32V178.56a32 32 0 0 1 64 0v50.56A384 384 0 0 1 896.128 512h-64a320 320 0 0 0-555.776-216.384z"
+      })
+    ]));
+  }
+});
+var refrigerator_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Refrigerator",
+  __name: "refrigerator",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 448h512V160a32 32 0 0 0-32-32H288a32 32 0 0 0-32 32zm0 64v352a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32V512zm32-448h448a96 96 0 0 1 96 96v704a96 96 0 0 1-96 96H288a96 96 0 0 1-96-96V160a96 96 0 0 1 96-96m32 224h64v96h-64zm0 288h64v96h-64z"
+      })
+    ]));
+  }
+});
+var remove_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "RemoveFilled",
+  __name: "remove-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512"
+      })
+    ]));
+  }
+});
+var remove_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Remove",
+  __name: "remove",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 480h320a32 32 0 1 1 0 64H352a32 32 0 0 1 0-64"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      })
+    ]));
+  }
+});
+var right_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Right",
+  __name: "right",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M754.752 480H160a32 32 0 1 0 0 64h594.752L521.344 777.344a32 32 0 0 0 45.312 45.312l288-288a32 32 0 0 0 0-45.312l-288-288a32 32 0 1 0-45.312 45.312z"
+      })
+    ]));
+  }
+});
+var scale_to_original_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ScaleToOriginal",
+  __name: "scale-to-original",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M813.176 180.706a60.235 60.235 0 0 1 60.236 60.235v481.883a60.235 60.235 0 0 1-60.236 60.235H210.824a60.235 60.235 0 0 1-60.236-60.235V240.94a60.235 60.235 0 0 1 60.236-60.235h602.352zm0-60.235H210.824A120.47 120.47 0 0 0 90.353 240.94v481.883a120.47 120.47 0 0 0 120.47 120.47h602.353a120.47 120.47 0 0 0 120.471-120.47V240.94a120.47 120.47 0 0 0-120.47-120.47zm-120.47 180.705a30.118 30.118 0 0 0-30.118 30.118v301.177a30.118 30.118 0 0 0 60.236 0V331.294a30.118 30.118 0 0 0-30.118-30.118zm-361.412 0a30.118 30.118 0 0 0-30.118 30.118v301.177a30.118 30.118 0 1 0 60.236 0V331.294a30.118 30.118 0 0 0-30.118-30.118M512 361.412a30.118 30.118 0 0 0-30.118 30.117v30.118a30.118 30.118 0 0 0 60.236 0V391.53A30.118 30.118 0 0 0 512 361.412M512 512a30.118 30.118 0 0 0-30.118 30.118v30.117a30.118 30.118 0 0 0 60.236 0v-30.117A30.118 30.118 0 0 0 512 512"
+      })
+    ]));
+  }
+});
+var scale_to_original_default = scale_to_original_vue_vue_type_script_setup_true_lang_default;
+var school_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "School",
+  __name: "school",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M224 128v704h576V128zm-32-64h640a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M64 832h896v64H64zm256-640h128v96H320z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 832h256v-64a128 128 0 1 0-256 0zm128-256a192 192 0 0 1 192 192v128H320V768a192 192 0 0 1 192-192M320 384h128v96H320zm256-192h128v96H576zm0 192h128v96H576z"
+      })
+    ]));
+  }
+});
+var scissor_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Scissor",
+  __name: "scissor",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m512.064 578.368-106.88 152.768a160 160 0 1 1-23.36-78.208L472.96 522.56 196.864 128.256a32 32 0 1 1 52.48-36.736l393.024 561.344a160 160 0 1 1-23.36 78.208l-106.88-152.704zm54.4-189.248 208.384-297.6a32 32 0 0 1 52.48 36.736l-221.76 316.672-39.04-55.808zm-376.32 425.856a96 96 0 1 0 110.144-157.248 96 96 0 0 0-110.08 157.248zm643.84 0a96 96 0 1 0-110.08-157.248 96 96 0 0 0 110.08 157.248"
+      })
+    ]));
+  }
+});
+var search_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Search",
+  __name: "search",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m795.904 750.72 124.992 124.928a32 32 0 0 1-45.248 45.248L750.656 795.904a416 416 0 1 1 45.248-45.248zM480 832a352 352 0 1 0 0-704 352 352 0 0 0 0 704"
+      })
+    ]));
+  }
+});
+var search_default = search_vue_vue_type_script_setup_true_lang_default;
+var select_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Select",
+  __name: "select",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M77.248 415.04a64 64 0 0 1 90.496 0l226.304 226.304L846.528 188.8a64 64 0 1 1 90.56 90.496l-543.04 543.04-316.8-316.8a64 64 0 0 1 0-90.496z"
+      })
+    ]));
+  }
+});
+var sell_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Sell",
+  __name: "sell",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 288h131.072a32 32 0 0 1 31.808 28.8L886.4 512h-64.384l-16-160H704v96a32 32 0 1 1-64 0v-96H384v96a32 32 0 0 1-64 0v-96H217.92l-51.2 512H512v64H131.328a32 32 0 0 1-31.808-35.2l57.6-576a32 32 0 0 1 31.808-28.8H320v-22.336C320 154.688 405.504 64 512 64s192 90.688 192 201.664v22.4zm-64 0v-22.336C640 189.248 582.272 128 512 128c-70.272 0-128 61.248-128 137.664v22.4h256zm201.408 483.84L768 698.496V928a32 32 0 1 1-64 0V698.496l-73.344 73.344a32 32 0 1 1-45.248-45.248l128-128a32 32 0 0 1 45.248 0l128 128a32 32 0 1 1-45.248 45.248z"
+      })
+    ]));
+  }
+});
+var semi_select_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SemiSelect",
+  __name: "semi-select",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 448h768q64 0 64 64t-64 64H128q-64 0-64-64t64-64"
+      })
+    ]));
+  }
+});
+var service_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Service",
+  __name: "service",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M864 409.6a192 192 0 0 1-37.888 349.44A256.064 256.064 0 0 1 576 960h-96a32 32 0 1 1 0-64h96a192.064 192.064 0 0 0 181.12-128H736a32 32 0 0 1-32-32V416a32 32 0 0 1 32-32h32c10.368 0 20.544.832 30.528 2.432a288 288 0 0 0-573.056 0A193.235 193.235 0 0 1 256 384h32a32 32 0 0 1 32 32v320a32 32 0 0 1-32 32h-32a192 192 0 0 1-96-358.4 352 352 0 0 1 704 0M256 448a128 128 0 1 0 0 256zm640 128a128 128 0 0 0-128-128v256a128 128 0 0 0 128-128"
+      })
+    ]));
+  }
+});
+var set_up_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SetUp",
+  __name: "set-up",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M224 160a64 64 0 0 0-64 64v576a64 64 0 0 0 64 64h576a64 64 0 0 0 64-64V224a64 64 0 0 0-64-64zm0-64h576a128 128 0 0 1 128 128v576a128 128 0 0 1-128 128H224A128 128 0 0 1 96 800V224A128 128 0 0 1 224 96"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 416a64 64 0 1 0 0-128 64 64 0 0 0 0 128m0 64a128 128 0 1 1 0-256 128 128 0 0 1 0 256"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 320h256q32 0 32 32t-32 32H480q-32 0-32-32t32-32m160 416a64 64 0 1 0 0-128 64 64 0 0 0 0 128m0 64a128 128 0 1 1 0-256 128 128 0 0 1 0 256"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 640h256q32 0 32 32t-32 32H288q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var setting_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Setting",
+  __name: "setting",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"
+      })
+    ]));
+  }
+});
+var share_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Share",
+  __name: "share",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m679.872 348.8-301.76 188.608a127.808 127.808 0 0 1 5.12 52.16l279.936 104.96a128 128 0 1 1-22.464 59.904l-279.872-104.96a128 128 0 1 1-16.64-166.272l301.696-188.608a128 128 0 1 1 33.92 54.272z"
+      })
+    ]));
+  }
+});
+var ship_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Ship",
+  __name: "ship",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 386.88V448h405.568a32 32 0 0 1 30.72 40.768l-76.48 267.968A192 192 0 0 1 687.168 896H336.832a192 192 0 0 1-184.64-139.264L75.648 488.768A32 32 0 0 1 106.368 448H448V117.888a32 32 0 0 1 47.36-28.096l13.888 7.616L512 96v2.88l231.68 126.4a32 32 0 0 1-2.048 57.216zm0-70.272 144.768-65.792L512 171.84zM512 512H148.864l18.24 64H856.96l18.24-64zM185.408 640l28.352 99.2A128 128 0 0 0 336.832 832h350.336a128 128 0 0 0 123.072-92.8l28.352-99.2H185.408"
+      })
+    ]));
+  }
+});
+var shop_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Shop",
+  __name: "shop",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 704h64v192H256V704h64v64h384zm188.544-152.192C894.528 559.616 896 567.616 896 576a96 96 0 1 1-192 0 96 96 0 1 1-192 0 96 96 0 1 1-192 0 96 96 0 1 1-192 0c0-8.384 1.408-16.384 3.392-24.192L192 128h640z"
+      })
+    ]));
+  }
+});
+var shopping_bag_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ShoppingBag",
+  __name: "shopping-bag",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 320v96a32 32 0 0 1-32 32h-32V320H384v128h-32a32 32 0 0 1-32-32v-96H192v576h640V320zm-384-64a192 192 0 1 1 384 0h160a32 32 0 0 1 32 32v640a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V288a32 32 0 0 1 32-32zm64 0h256a128 128 0 1 0-256 0"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 704h640v64H192z"
+      })
+    ]));
+  }
+});
+var shopping_cart_full_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ShoppingCartFull",
+  __name: "shopping-cart-full",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M432 928a48 48 0 1 1 0-96 48 48 0 0 1 0 96m320 0a48 48 0 1 1 0-96 48 48 0 0 1 0 96M96 128a32 32 0 0 1 0-64h160a32 32 0 0 1 31.36 25.728L320.64 256H928a32 32 0 0 1 31.296 38.72l-96 448A32 32 0 0 1 832 768H384a32 32 0 0 1-31.36-25.728L229.76 128zm314.24 576h395.904l82.304-384H333.44l76.8 384z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M699.648 256 608 145.984 516.352 256h183.296zm-140.8-151.04a64 64 0 0 1 98.304 0L836.352 320H379.648l179.2-215.04"
+      })
+    ]));
+  }
+});
+var shopping_cart_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ShoppingCart",
+  __name: "shopping-cart",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M432 928a48 48 0 1 1 0-96 48 48 0 0 1 0 96m320 0a48 48 0 1 1 0-96 48 48 0 0 1 0 96M96 128a32 32 0 0 1 0-64h160a32 32 0 0 1 31.36 25.728L320.64 256H928a32 32 0 0 1 31.296 38.72l-96 448A32 32 0 0 1 832 768H384a32 32 0 0 1-31.36-25.728L229.76 128zm314.24 576h395.904l82.304-384H333.44l76.8 384z"
+      })
+    ]));
+  }
+});
+var shopping_trolley_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ShoppingTrolley",
+  __name: "shopping-trolley",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M368 833c-13.3 0-24.5 4.5-33.5 13.5S321 866.7 321 880s4.5 24.5 13.5 33.5 20.2 13.8 33.5 14.5c13.3-.7 24.5-5.5 33.5-14.5S415 893.3 415 880s-4.5-24.5-13.5-33.5S381.3 833 368 833m439-193c7.4 0 13.8-2.2 19.5-6.5S836 623.3 838 616l112-448c2-10-.2-19.2-6.5-27.5S929 128 919 128H96c-9.3 0-17 3-23 9s-9 13.7-9 23 3 17 9 23 13.7 9 23 9h96v576h672c9.3 0 17-3 23-9s9-13.7 9-23-3-17-9-23-13.7-9-23-9H256v-64zM256 192h622l-96 384H256zm432 641c-13.3 0-24.5 4.5-33.5 13.5S641 866.7 641 880s4.5 24.5 13.5 33.5 20.2 13.8 33.5 14.5c13.3-.7 24.5-5.5 33.5-14.5S735 893.3 735 880s-4.5-24.5-13.5-33.5S701.3 833 688 833"
+      })
+    ]));
+  }
+});
+var smoking_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Smoking",
+  __name: "smoking",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 576v128h640V576zm-32-64h704a32 32 0 0 1 32 32v192a32 32 0 0 1-32 32H224a32 32 0 0 1-32-32V544a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 576h64v128h-64zM256 64h64v320h-64zM128 192h64v192h-64zM64 512h64v256H64z"
+      })
+    ]));
+  }
+});
+var soccer_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Soccer",
+  __name: "soccer",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M418.496 871.04 152.256 604.8c-16.512 94.016-2.368 178.624 42.944 224 44.928 44.928 129.344 58.752 223.296 42.24m72.32-18.176a573.056 573.056 0 0 0 224.832-137.216 573.12 573.12 0 0 0 137.216-224.832L533.888 171.84a578.56 578.56 0 0 0-227.52 138.496A567.68 567.68 0 0 0 170.432 532.48l320.384 320.384zM871.04 418.496c16.512-93.952 2.688-178.368-42.24-223.296-44.544-44.544-128.704-58.048-222.592-41.536zM149.952 874.048c-112.96-112.96-88.832-408.96 111.168-608.96C461.056 65.152 760.96 36.928 874.048 149.952c113.024 113.024 86.784 411.008-113.152 610.944-199.936 199.936-497.92 226.112-610.944 113.152m452.544-497.792 22.656-22.656a32 32 0 0 1 45.248 45.248l-22.656 22.656 45.248 45.248A32 32 0 1 1 647.744 512l-45.248-45.248L557.248 512l45.248 45.248a32 32 0 1 1-45.248 45.248L512 557.248l-45.248 45.248L512 647.744a32 32 0 1 1-45.248 45.248l-45.248-45.248-22.656 22.656a32 32 0 1 1-45.248-45.248l22.656-22.656-45.248-45.248A32 32 0 1 1 376.256 512l45.248 45.248L466.752 512l-45.248-45.248a32 32 0 1 1 45.248-45.248L512 466.752l45.248-45.248L512 376.256a32 32 0 0 1 45.248-45.248l45.248 45.248z"
+      })
+    ]));
+  }
+});
+var sold_out_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SoldOut",
+  __name: "sold-out",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 288h131.072a32 32 0 0 1 31.808 28.8L886.4 512h-64.384l-16-160H704v96a32 32 0 1 1-64 0v-96H384v96a32 32 0 0 1-64 0v-96H217.92l-51.2 512H512v64H131.328a32 32 0 0 1-31.808-35.2l57.6-576a32 32 0 0 1 31.808-28.8H320v-22.336C320 154.688 405.504 64 512 64s192 90.688 192 201.664v22.4zm-64 0v-22.336C640 189.248 582.272 128 512 128c-70.272 0-128 61.248-128 137.664v22.4h256zm201.408 476.16a32 32 0 1 1 45.248 45.184l-128 128a32 32 0 0 1-45.248 0l-128-128a32 32 0 1 1 45.248-45.248L704 837.504V608a32 32 0 1 1 64 0v229.504l73.408-73.408z"
+      })
+    ]));
+  }
+});
+var sort_down_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SortDown",
+  __name: "sort-down",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M576 96v709.568L333.312 562.816A32 32 0 1 0 288 608l297.408 297.344A32 32 0 0 0 640 882.688V96a32 32 0 0 0-64 0"
+      })
+    ]));
+  }
+});
+var sort_down_default = sort_down_vue_vue_type_script_setup_true_lang_default;
+var sort_up_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SortUp",
+  __name: "sort-up",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 141.248V928a32 32 0 1 0 64 0V218.56l242.688 242.688A32 32 0 1 0 736 416L438.592 118.656A32 32 0 0 0 384 141.248"
+      })
+    ]));
+  }
+});
+var sort_up_default = sort_up_vue_vue_type_script_setup_true_lang_default;
+var sort_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Sort",
+  __name: "sort",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 96a32 32 0 0 1 64 0v786.752a32 32 0 0 1-54.592 22.656L95.936 608a32 32 0 0 1 0-45.312h.128a32 32 0 0 1 45.184 0L384 805.632zm192 45.248a32 32 0 0 1 54.592-22.592L928.064 416a32 32 0 0 1 0 45.312h-.128a32 32 0 0 1-45.184 0L640 218.496V928a32 32 0 1 1-64 0V141.248z"
+      })
+    ]));
+  }
+});
+var stamp_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Stamp",
+  __name: "stamp",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M624 475.968V640h144a128 128 0 0 1 128 128H128a128 128 0 0 1 128-128h144V475.968a192 192 0 1 1 224 0M128 896v-64h768v64z"
+      })
+    ]));
+  }
+});
+var star_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "StarFilled",
+  __name: "star-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M283.84 867.84 512 747.776l228.16 119.936a6.4 6.4 0 0 0 9.28-6.72l-43.52-254.08 184.512-179.904a6.4 6.4 0 0 0-3.52-10.88l-255.104-37.12L517.76 147.904a6.4 6.4 0 0 0-11.52 0L392.192 379.072l-255.104 37.12a6.4 6.4 0 0 0-3.52 10.88L318.08 606.976l-43.584 254.08a6.4 6.4 0 0 0 9.28 6.72z"
+      })
+    ]));
+  }
+});
+var star_filled_default = star_filled_vue_vue_type_script_setup_true_lang_default;
+var star_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Star",
+  __name: "star",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m512 747.84 228.16 119.936a6.4 6.4 0 0 0 9.28-6.72l-43.52-254.08 184.512-179.904a6.4 6.4 0 0 0-3.52-10.88l-255.104-37.12L517.76 147.904a6.4 6.4 0 0 0-11.52 0L392.192 379.072l-255.104 37.12a6.4 6.4 0 0 0-3.52 10.88L318.08 606.976l-43.584 254.08a6.4 6.4 0 0 0 9.28 6.72zM313.6 924.48a70.4 70.4 0 0 1-102.144-74.24l37.888-220.928L88.96 472.96A70.4 70.4 0 0 1 128 352.896l221.76-32.256 99.2-200.96a70.4 70.4 0 0 1 126.208 0l99.2 200.96 221.824 32.256a70.4 70.4 0 0 1 39.04 120.064L774.72 629.376l37.888 220.928a70.4 70.4 0 0 1-102.144 74.24L512 820.096l-198.4 104.32z"
+      })
+    ]));
+  }
+});
+var star_default = star_vue_vue_type_script_setup_true_lang_default;
+var stopwatch_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Stopwatch",
+  __name: "stopwatch",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M672 234.88c-39.168 174.464-80 298.624-122.688 372.48-64 110.848-202.624 30.848-138.624-80C453.376 453.44 540.48 355.968 672 234.816z"
+      })
+    ]));
+  }
+});
+var success_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SuccessFilled",
+  __name: "success-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m-55.808 536.384-99.52-99.584a38.4 38.4 0 1 0-54.336 54.336l126.72 126.72a38.272 38.272 0 0 0 54.336 0l262.4-262.464a38.4 38.4 0 1 0-54.272-54.336z"
+      })
+    ]));
+  }
+});
+var success_filled_default = success_filled_vue_vue_type_script_setup_true_lang_default;
+var sugar_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Sugar",
+  __name: "sugar",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m801.728 349.184 4.48 4.48a128 128 0 0 1 0 180.992L534.656 806.144a128 128 0 0 1-181.056 0l-4.48-4.48-19.392 109.696a64 64 0 0 1-108.288 34.176L78.464 802.56a64 64 0 0 1 34.176-108.288l109.76-19.328-4.544-4.544a128 128 0 0 1 0-181.056l271.488-271.488a128 128 0 0 1 181.056 0l4.48 4.48 19.392-109.504a64 64 0 0 1 108.352-34.048l142.592 143.04a64 64 0 0 1-34.24 108.16l-109.248 19.2zm-548.8 198.72h447.168v2.24l60.8-60.8a63.808 63.808 0 0 0 18.752-44.416h-426.88l-89.664 89.728a64.064 64.064 0 0 0-10.24 13.248zm0 64c2.752 4.736 6.144 9.152 10.176 13.248l135.744 135.744a64 64 0 0 0 90.496 0L638.4 611.904zm490.048-230.976L625.152 263.104a64 64 0 0 0-90.496 0L416.768 380.928zM123.712 757.312l142.976 142.976 24.32-137.6a25.6 25.6 0 0 0-29.696-29.632l-137.6 24.256zm633.6-633.344-24.32 137.472a25.6 25.6 0 0 0 29.632 29.632l137.28-24.064-142.656-143.04z"
+      })
+    ]));
+  }
+});
+var suitcase_line_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SuitcaseLine",
+  __name: "suitcase-line",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M922.5 229.5c-24.32-24.34-54.49-36.84-90.5-37.5H704v-64c-.68-17.98-7.02-32.98-19.01-44.99S658.01 64.66 640 64H384c-17.98.68-32.98 7.02-44.99 19.01S320.66 110 320 128v64H192c-35.99.68-66.16 13.18-90.5 37.5C77.16 253.82 64.66 283.99 64 320v448c.68 35.99 13.18 66.16 37.5 90.5s54.49 36.84 90.5 37.5h640c35.99-.68 66.16-13.18 90.5-37.5s36.84-54.49 37.5-90.5V320c-.68-35.99-13.18-66.16-37.5-90.5M384 128h256v64H384zM256 832h-64c-17.98-.68-32.98-7.02-44.99-19.01S128.66 786.01 128 768V448h128zm448 0H320V448h384zm192-64c-.68 17.98-7.02 32.98-19.01 44.99S850.01 831.34 832 832h-64V448h128zm0-384H128v-64c.69-17.98 7.02-32.98 19.01-44.99S173.99 256.66 192 256h640c17.98.69 32.98 7.02 44.99 19.01S895.34 301.99 896 320z"
+      })
+    ]));
+  }
+});
+var suitcase_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Suitcase",
+  __name: "suitcase",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 384h768v-64a64 64 0 0 0-64-64H192a64 64 0 0 0-64 64zm0 64v320a64 64 0 0 0 64 64h640a64 64 0 0 0 64-64V448zm64-256h640a128 128 0 0 1 128 128v448a128 128 0 0 1-128 128H192A128 128 0 0 1 64 768V320a128 128 0 0 1 128-128"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M384 128v64h256v-64zm0-64h256a64 64 0 0 1 64 64v64a64 64 0 0 1-64 64H384a64 64 0 0 1-64-64v-64a64 64 0 0 1 64-64"
+      })
+    ]));
+  }
+});
+var sunny_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Sunny",
+  __name: "sunny",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 704a192 192 0 1 0 0-384 192 192 0 0 0 0 384m0 64a256 256 0 1 1 0-512 256 256 0 0 1 0 512m0-704a32 32 0 0 1 32 32v64a32 32 0 0 1-64 0V96a32 32 0 0 1 32-32m0 768a32 32 0 0 1 32 32v64a32 32 0 1 1-64 0v-64a32 32 0 0 1 32-32M195.2 195.2a32 32 0 0 1 45.248 0l45.248 45.248a32 32 0 1 1-45.248 45.248L195.2 240.448a32 32 0 0 1 0-45.248zm543.104 543.104a32 32 0 0 1 45.248 0l45.248 45.248a32 32 0 0 1-45.248 45.248l-45.248-45.248a32 32 0 0 1 0-45.248M64 512a32 32 0 0 1 32-32h64a32 32 0 0 1 0 64H96a32 32 0 0 1-32-32m768 0a32 32 0 0 1 32-32h64a32 32 0 1 1 0 64h-64a32 32 0 0 1-32-32M195.2 828.8a32 32 0 0 1 0-45.248l45.248-45.248a32 32 0 0 1 45.248 45.248L240.448 828.8a32 32 0 0 1-45.248 0zm543.104-543.104a32 32 0 0 1 0-45.248l45.248-45.248a32 32 0 0 1 45.248 45.248l-45.248 45.248a32 32 0 0 1-45.248 0"
+      })
+    ]));
+  }
+});
+var sunrise_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Sunrise",
+  __name: "sunrise",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M32 768h960a32 32 0 1 1 0 64H32a32 32 0 1 1 0-64m129.408-96a352 352 0 0 1 701.184 0h-64.32a288 288 0 0 0-572.544 0h-64.32zM512 128a32 32 0 0 1 32 32v96a32 32 0 0 1-64 0v-96a32 32 0 0 1 32-32m407.296 168.704a32 32 0 0 1 0 45.248l-67.84 67.84a32 32 0 1 1-45.248-45.248l67.84-67.84a32 32 0 0 1 45.248 0zm-814.592 0a32 32 0 0 1 45.248 0l67.84 67.84a32 32 0 1 1-45.248 45.248l-67.84-67.84a32 32 0 0 1 0-45.248"
+      })
+    ]));
+  }
+});
+var sunset_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Sunset",
+  __name: "sunset",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M82.56 640a448 448 0 1 1 858.88 0h-67.2a384 384 0 1 0-724.288 0zM32 704h960q32 0 32 32t-32 32H32q-32 0-32-32t32-32m256 128h448q32 0 32 32t-32 32H288q-32 0-32-32t32-32"
+      })
+    ]));
+  }
+});
+var switch_button_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SwitchButton",
+  __name: "switch-button",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M352 159.872V230.4a352 352 0 1 0 320 0v-70.528A416.128 416.128 0 0 1 512 960a416 416 0 0 1-160-800.128z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64q32 0 32 32v320q0 32-32 32t-32-32V96q0-32 32-32"
+      })
+    ]));
+  }
+});
+var switch_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "SwitchFilled",
+  __name: "switch-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M247.47 358.4v.04c.07 19.17 7.72 37.53 21.27 51.09s31.92 21.2 51.09 21.27c39.86 0 72.41-32.6 72.41-72.4s-32.6-72.36-72.41-72.36-72.36 32.55-72.36 72.36z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M492.38 128H324.7c-52.16 0-102.19 20.73-139.08 57.61a196.655 196.655 0 0 0-57.61 139.08V698.7c-.01 25.84 5.08 51.42 14.96 75.29s24.36 45.56 42.63 63.83 39.95 32.76 63.82 42.65a196.67 196.67 0 0 0 75.28 14.98h167.68c3.03 0 5.46-2.43 5.46-5.42V133.42c.6-2.99-1.83-5.42-5.46-5.42zm-56.11 705.88H324.7c-17.76.13-35.36-3.33-51.75-10.18s-31.22-16.94-43.61-29.67c-25.3-25.35-39.81-59.1-39.81-95.32V324.69c-.13-17.75 3.33-35.35 10.17-51.74a131.695 131.695 0 0 1 29.64-43.62c25.39-25.3 59.14-39.81 95.36-39.81h111.57zm402.12-647.67a196.655 196.655 0 0 0-139.08-57.61H580.48c-3.03 0-4.82 2.43-4.82 4.82v757.16c-.6 2.99 1.79 5.42 5.42 5.42h118.23a196.69 196.69 0 0 0 139.08-57.61A196.655 196.655 0 0 0 896 699.31V325.29a196.69 196.69 0 0 0-57.61-139.08zm-111.3 441.92c-42.83 0-77.82-34.99-77.82-77.82s34.98-77.82 77.82-77.82c42.83 0 77.82 34.99 77.82 77.82s-34.99 77.82-77.82 77.82z"
+      })
+    ]));
+  }
+});
+var switch_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Switch",
+  __name: "switch",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M118.656 438.656a32 32 0 0 1 0-45.248L416 96l4.48-3.776A32 32 0 0 1 461.248 96l3.712 4.48a32.064 32.064 0 0 1-3.712 40.832L218.56 384H928a32 32 0 1 1 0 64H141.248a32 32 0 0 1-22.592-9.344zM64 608a32 32 0 0 1 32-32h786.752a32 32 0 0 1 22.656 54.592L608 928l-4.48 3.776a32.064 32.064 0 0 1-40.832-49.024L805.632 640H96a32 32 0 0 1-32-32"
+      })
+    ]));
+  }
+});
+var takeaway_box_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "TakeawayBox",
+  __name: "takeaway-box",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M832 384H192v448h640zM96 320h832V128H96zm800 64v480a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V384H64a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32h896a32 32 0 0 1 32 32v256a32 32 0 0 1-32 32zM416 512h192a32 32 0 0 1 0 64H416a32 32 0 0 1 0-64"
+      })
+    ]));
+  }
+});
+var ticket_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Ticket",
+  __name: "ticket",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M640 832H64V640a128 128 0 1 0 0-256V192h576v160h64V192h256v192a128 128 0 1 0 0 256v192H704V672h-64zm0-416v192h64V416z"
+      })
+    ]));
+  }
+});
+var tickets_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Tickets",
+  __name: "tickets",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M192 128v768h640V128zm-32-64h704a32 32 0 0 1 32 32v832a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m160 448h384v64H320zm0-192h192v64H320zm0 384h384v64H320z"
+      })
+    ]));
+  }
+});
+var timer_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Timer",
+  __name: "timer",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 896a320 320 0 1 0 0-640 320 320 0 0 0 0 640m0 64a384 384 0 1 1 0-768 384 384 0 0 1 0 768"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 320a32 32 0 0 1 32 32l-.512 224a32 32 0 1 1-64 0L480 352a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M448 576a64 64 0 1 0 128 0 64 64 0 1 0-128 0m96-448v128h-64V128h-96a32 32 0 0 1 0-64h256a32 32 0 1 1 0 64z"
+      })
+    ]));
+  }
+});
+var toilet_paper_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ToiletPaper",
+  __name: "toilet-paper",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M595.2 128H320a192 192 0 0 0-192 192v576h384V352c0-90.496 32.448-171.2 83.2-224M736 64c123.712 0 224 128.96 224 288S859.712 640 736 640H576v320H64V320A256 256 0 0 1 320 64zM576 352v224h160c84.352 0 160-97.28 160-224s-75.648-224-160-224-160 97.28-160 224"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M736 448c-35.328 0-64-43.008-64-96s28.672-96 64-96 64 43.008 64 96-28.672 96-64 96"
+      })
+    ]));
+  }
+});
+var tools_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Tools",
+  __name: "tools",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M764.416 254.72a351.68 351.68 0 0 1 86.336 149.184H960v192.064H850.752a351.68 351.68 0 0 1-86.336 149.312l54.72 94.72-166.272 96-54.592-94.72a352.64 352.64 0 0 1-172.48 0L371.136 936l-166.272-96 54.72-94.72a351.68 351.68 0 0 1-86.336-149.312H64v-192h109.248a351.68 351.68 0 0 1 86.336-149.312L204.8 160l166.208-96h.192l54.656 94.592a352.64 352.64 0 0 1 172.48 0L652.8 64h.128L819.2 160l-54.72 94.72zM704 499.968a192 192 0 1 0-384 0 192 192 0 0 0 384 0"
+      })
+    ]));
+  }
+});
+var top_left_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "TopLeft",
+  __name: "top-left",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M256 256h416a32 32 0 1 0 0-64H224a32 32 0 0 0-32 32v448a32 32 0 0 0 64 0z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M246.656 201.344a32 32 0 0 0-45.312 45.312l544 544a32 32 0 0 0 45.312-45.312l-544-544z"
+      })
+    ]));
+  }
+});
+var top_right_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "TopRight",
+  __name: "top-right",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M768 256H353.6a32 32 0 1 1 0-64H800a32 32 0 0 1 32 32v448a32 32 0 0 1-64 0z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M777.344 201.344a32 32 0 0 1 45.312 45.312l-544 544a32 32 0 0 1-45.312-45.312l544-544z"
+      })
+    ]));
+  }
+});
+var top_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Top",
+  __name: "top",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M572.235 205.282v600.365a30.118 30.118 0 1 1-60.235 0V205.282L292.382 438.633a28.913 28.913 0 0 1-42.646 0 33.43 33.43 0 0 1 0-45.236l271.058-288.045a28.913 28.913 0 0 1 42.647 0L834.5 393.397a33.43 33.43 0 0 1 0 45.176 28.913 28.913 0 0 1-42.647 0l-219.618-233.23z"
+      })
+    ]));
+  }
+});
+var trend_charts_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "TrendCharts",
+  __name: "trend-charts",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 896V128h768v768zm291.712-327.296 128 102.4 180.16-201.792-47.744-42.624-139.84 156.608-128-102.4-180.16 201.792 47.744 42.624 139.84-156.608zM816 352a48 48 0 1 0-96 0 48 48 0 0 0 96 0"
+      })
+    ]));
+  }
+});
+var trophy_base_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "TrophyBase",
+  __name: "trophy-base",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M918.4 201.6c-6.4-6.4-12.8-9.6-22.4-9.6H768V96c0-9.6-3.2-16-9.6-22.4C752 67.2 745.6 64 736 64H288c-9.6 0-16 3.2-22.4 9.6C259.2 80 256 86.4 256 96v96H128c-9.6 0-16 3.2-22.4 9.6-6.4 6.4-9.6 16-9.6 22.4 3.2 108.8 25.6 185.6 64 224 34.4 34.4 77.56 55.65 127.65 61.99 10.91 20.44 24.78 39.25 41.95 56.41 40.86 40.86 91 65.47 150.4 71.9V768h-96c-9.6 0-16 3.2-22.4 9.6-6.4 6.4-9.6 12.8-9.6 22.4s3.2 16 9.6 22.4c6.4 6.4 12.8 9.6 22.4 9.6h256c9.6 0 16-3.2 22.4-9.6 6.4-6.4 9.6-12.8 9.6-22.4s-3.2-16-9.6-22.4c-6.4-6.4-12.8-9.6-22.4-9.6h-96V637.26c59.4-7.71 109.54-30.01 150.4-70.86 17.2-17.2 31.51-36.06 42.81-56.55 48.93-6.51 90.02-27.7 126.79-61.85 38.4-38.4 60.8-112 64-224 0-6.4-3.2-16-9.6-22.4zM256 438.4c-19.2-6.4-35.2-19.2-51.2-35.2-22.4-22.4-35.2-70.4-41.6-147.2H256zm390.4 80C608 553.6 566.4 576 512 576s-99.2-19.2-134.4-57.6C342.4 480 320 438.4 320 384V128h384v256c0 54.4-19.2 99.2-57.6 134.4m172.8-115.2c-16 16-32 25.6-51.2 35.2V256h92.8c-6.4 76.8-19.2 124.8-41.6 147.2zM768 896H256c-9.6 0-16 3.2-22.4 9.6-6.4 6.4-9.6 12.8-9.6 22.4s3.2 16 9.6 22.4c6.4 6.4 12.8 9.6 22.4 9.6h512c9.6 0 16-3.2 22.4-9.6 6.4-6.4 9.6-12.8 9.6-22.4s-3.2-16-9.6-22.4c-6.4-6.4-12.8-9.6-22.4-9.6"
+      })
+    ]));
+  }
+});
+var trophy_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Trophy",
+  __name: "trophy",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 896V702.08A256.256 256.256 0 0 1 264.064 512h-32.64a96 96 0 0 1-91.968-68.416L93.632 290.88a76.8 76.8 0 0 1 73.6-98.88H256V96a32 32 0 0 1 32-32h448a32 32 0 0 1 32 32v96h88.768a76.8 76.8 0 0 1 73.6 98.88L884.48 443.52A96 96 0 0 1 792.576 512h-32.64A256.256 256.256 0 0 1 544 702.08V896h128a32 32 0 1 1 0 64H352a32 32 0 1 1 0-64zm224-448V128H320v320a192 192 0 1 0 384 0m64 0h24.576a32 32 0 0 0 30.656-22.784l45.824-152.768A12.8 12.8 0 0 0 856.768 256H768zm-512 0V256h-88.768a12.8 12.8 0 0 0-12.288 16.448l45.824 152.768A32 32 0 0 0 231.424 448z"
+      })
+    ]));
+  }
+});
+var turn_off_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "TurnOff",
+  __name: "turn-off",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M329.956 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454m0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088"
+      })
+    ]));
+  }
+});
+var umbrella_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Umbrella",
+  __name: "umbrella",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M320 768a32 32 0 1 1 64 0 64 64 0 0 0 128 0V512H64a448 448 0 1 1 896 0H576v256a128 128 0 1 1-256 0m570.688-320a384.128 384.128 0 0 0-757.376 0z"
+      })
+    ]));
+  }
+});
+var unlock_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Unlock",
+  __name: "unlock",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M224 448a32 32 0 0 0-32 32v384a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32V480a32 32 0 0 0-32-32zm0-64h576a96 96 0 0 1 96 96v384a96 96 0 0 1-96 96H224a96 96 0 0 1-96-96V480a96 96 0 0 1 96-96"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 544a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V576a32 32 0 0 1 32-32m178.304-295.296A192.064 192.064 0 0 0 320 320v64h352l96 38.4V448H256V320a256 256 0 0 1 493.76-95.104z"
+      })
+    ]));
+  }
+});
+var upload_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "UploadFilled",
+  __name: "upload-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M544 864V672h128L512 480 352 672h128v192H320v-1.6c-5.376.32-10.496 1.6-16 1.6A240 240 0 0 1 64 624c0-123.136 93.12-223.488 212.608-237.248A239.808 239.808 0 0 1 512 192a239.872 239.872 0 0 1 235.456 194.752c119.488 13.76 212.48 114.112 212.48 237.248a240 240 0 0 1-240 240c-5.376 0-10.56-1.28-16-1.6v1.6z"
+      })
+    ]));
+  }
+});
+var upload_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Upload",
+  __name: "upload",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 832h704a32 32 0 1 1 0 64H160a32 32 0 1 1 0-64m384-578.304V704h-64V247.296L237.248 490.048 192 444.8 508.8 128l316.8 316.8-45.312 45.248z"
+      })
+    ]));
+  }
+});
+var user_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "UserFilled",
+  __name: "user-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M288 320a224 224 0 1 0 448 0 224 224 0 1 0-448 0m544 608H160a32 32 0 0 1-32-32v-96a160 160 0 0 1 160-160h448a160 160 0 0 1 160 160v96a32 32 0 0 1-32 32z"
+      })
+    ]));
+  }
+});
+var user_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "User",
+  __name: "user",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 512a192 192 0 1 0 0-384 192 192 0 0 0 0 384m0 64a256 256 0 1 1 0-512 256 256 0 0 1 0 512m320 320v-96a96 96 0 0 0-96-96H288a96 96 0 0 0-96 96v96a32 32 0 1 1-64 0v-96a160 160 0 0 1 160-160h448a160 160 0 0 1 160 160v96a32 32 0 1 1-64 0"
+      })
+    ]));
+  }
+});
+var van_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Van",
+  __name: "van",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128.896 736H96a32 32 0 0 1-32-32V224a32 32 0 0 1 32-32h576a32 32 0 0 1 32 32v96h164.544a32 32 0 0 1 31.616 27.136l54.144 352A32 32 0 0 1 922.688 736h-91.52a144 144 0 1 1-286.272 0H415.104a144 144 0 1 1-286.272 0zm23.36-64a143.872 143.872 0 0 1 239.488 0H568.32c17.088-25.6 42.24-45.376 71.744-55.808V256H128v416zm655.488 0h77.632l-19.648-128H704v64.896A144 144 0 0 1 807.744 672m48.128-192-14.72-96H704v96h151.872M688 832a80 80 0 1 0 0-160 80 80 0 0 0 0 160m-416 0a80 80 0 1 0 0-160 80 80 0 0 0 0 160"
+      })
+    ]));
+  }
+});
+var video_camera_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "VideoCameraFilled",
+  __name: "video-camera-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m768 576 192-64v320l-192-64v96a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V480a32 32 0 0 1 32-32h640a32 32 0 0 1 32 32zM192 768v64h384v-64zm192-480a160 160 0 0 1 320 0 160 160 0 0 1-320 0m64 0a96 96 0 1 0 192.064-.064A96 96 0 0 0 448 288m-320 32a128 128 0 1 1 256.064.064A128 128 0 0 1 128 320m64 0a64 64 0 1 0 128 0 64 64 0 0 0-128 0"
+      })
+    ]));
+  }
+});
+var video_camera_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "VideoCamera",
+  __name: "video-camera",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 768V256H128v512zm64-416 192-96v512l-192-96v128a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V224a32 32 0 0 1 32-32h640a32 32 0 0 1 32 32zm0 71.552v176.896l128 64V359.552zM192 320h192v64H192z"
+      })
+    ]));
+  }
+});
+var video_pause_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "VideoPause",
+  __name: "video-pause",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768m-96-544q32 0 32 32v256q0 32-32 32t-32-32V384q0-32 32-32m192 0q32 0 32 32v256q0 32-32 32t-32-32V384q0-32 32-32"
+      })
+    ]));
+  }
+});
+var video_play_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "VideoPlay",
+  __name: "video-play",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768m-48-247.616L668.608 512 464 375.616zm10.624-342.656 249.472 166.336a48 48 0 0 1 0 79.872L474.624 718.272A48 48 0 0 1 400 678.336V345.6a48 48 0 0 1 74.624-39.936z"
+      })
+    ]));
+  }
+});
+var view_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "View",
+  __name: "view",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 160c320 0 512 352 512 352S832 864 512 864 0 512 0 512s192-352 512-352m0 64c-225.28 0-384.128 208.064-436.8 288 52.608 79.872 211.456 288 436.8 288 225.28 0 384.128-208.064 436.8-288-52.608-79.872-211.456-288-436.8-288zm0 64a224 224 0 1 1 0 448 224 224 0 0 1 0-448m0 64a160.192 160.192 0 0 0-160 160c0 88.192 71.744 160 160 160s160-71.808 160-160-71.744-160-160-160"
+      })
+    ]));
+  }
+});
+var view_default = view_vue_vue_type_script_setup_true_lang_default;
+var wallet_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "WalletFilled",
+  __name: "wallet-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M688 512a112 112 0 1 0 0 224h208v160H128V352h768v160zm32 160h-32a48 48 0 0 1 0-96h32a48 48 0 0 1 0 96m-80-544 128 160H384z"
+      })
+    ]));
+  }
+});
+var wallet_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Wallet",
+  __name: "wallet",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M640 288h-64V128H128v704h384v32a32 32 0 0 0 32 32H96a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32h512a32 32 0 0 1 32 32z"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M128 320v512h768V320zm-32-64h832a32 32 0 0 1 32 32v576a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V288a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M704 640a64 64 0 1 1 0-128 64 64 0 0 1 0 128"
+      })
+    ]));
+  }
+});
+var warn_triangle_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "WarnTriangleFilled",
+  __name: "warn-triangle-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xml:space": "preserve",
+      style: { "enable-background": "new 0 0 1024 1024" },
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M928.99 755.83 574.6 203.25c-12.89-20.16-36.76-32.58-62.6-32.58s-49.71 12.43-62.6 32.58L95.01 755.83c-12.91 20.12-12.9 44.91.01 65.03 12.92 20.12 36.78 32.51 62.59 32.49h708.78c25.82.01 49.68-12.37 62.59-32.49 12.91-20.12 12.92-44.91.01-65.03M554.67 768h-85.33v-85.33h85.33zm0-426.67v298.66h-85.33V341.32z"
+      })
+    ]));
+  }
+});
+var warning_filled_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "WarningFilled",
+  __name: "warning-filled",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m0 192a58.432 58.432 0 0 0-58.24 63.744l23.36 256.384a35.072 35.072 0 0 0 69.76 0l23.296-256.384A58.432 58.432 0 0 0 512 256m0 512a51.2 51.2 0 1 0 0-102.4 51.2 51.2 0 0 0 0 102.4"
+      })
+    ]));
+  }
+});
+var warning_filled_default = warning_filled_vue_vue_type_script_setup_true_lang_default;
+var warning_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Warning",
+  __name: "warning",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896m0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768m48-176a48 48 0 1 1-96 0 48 48 0 0 1 96 0m-48-464a32 32 0 0 1 32 32v288a32 32 0 0 1-64 0V288a32 32 0 0 1 32-32"
+      })
+    ]));
+  }
+});
+var watch_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Watch",
+  __name: "watch",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M512 768a256 256 0 1 0 0-512 256 256 0 0 0 0 512m0 64a320 320 0 1 1 0-640 320 320 0 0 1 0 640"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 352a32 32 0 0 1 32 32v160a32 32 0 0 1-64 0V384a32 32 0 0 1 32-32"
+      }),
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M480 512h128q32 0 32 32t-32 32H480q-32 0-32-32t32-32m128-256V128H416v128h-64V64h320v192zM416 768v128h192V768h64v192H352V768z"
+      })
+    ]));
+  }
+});
+var watermelon_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "Watermelon",
+  __name: "watermelon",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m683.072 600.32-43.648 162.816-61.824-16.512 53.248-198.528L576 493.248l-158.4 158.4-45.248-45.248 158.4-158.4-55.616-55.616-198.528 53.248-16.512-61.824 162.816-43.648L282.752 200A384 384 0 0 0 824 741.248zm231.552 141.056a448 448 0 1 1-632-632l632 632"
+      })
+    ]));
+  }
+});
+var wind_power_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "WindPower",
+  __name: "wind-power",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "M160 64q32 0 32 32v832q0 32-32 32t-32-32V96q0-32 32-32m416 354.624 128-11.584V168.96l-128-11.52v261.12zm-64 5.824V151.552L320 134.08V160h-64V64l616.704 56.064A96 96 0 0 1 960 215.68v144.64a96 96 0 0 1-87.296 95.616L256 512V224h64v217.92zm256-23.232 98.88-8.96A32 32 0 0 0 896 360.32V215.68a32 32 0 0 0-29.12-31.872l-98.88-8.96z"
+      })
+    ]));
+  }
+});
+var zoom_in_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ZoomIn",
+  __name: "zoom-in",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m795.904 750.72 124.992 124.928a32 32 0 0 1-45.248 45.248L750.656 795.904a416 416 0 1 1 45.248-45.248zM480 832a352 352 0 1 0 0-704 352 352 0 0 0 0 704m-32-384v-96a32 32 0 0 1 64 0v96h96a32 32 0 0 1 0 64h-96v96a32 32 0 0 1-64 0v-96h-96a32 32 0 0 1 0-64z"
+      })
+    ]));
+  }
+});
+var zoom_in_default = zoom_in_vue_vue_type_script_setup_true_lang_default;
+var zoom_out_vue_vue_type_script_setup_true_lang_default = defineComponent({
+  name: "ZoomOut",
+  __name: "zoom-out",
+  setup(__props) {
+    return (_ctx, _cache) => (openBlock(), createElementBlock("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1024 1024"
+    }, [
+      createBaseVNode("path", {
+        fill: "currentColor",
+        d: "m795.904 750.72 124.992 124.928a32 32 0 0 1-45.248 45.248L750.656 795.904a416 416 0 1 1 45.248-45.248zM480 832a352 352 0 1 0 0-704 352 352 0 0 0 0 704M352 448h256a32 32 0 0 1 0 64H352a32 32 0 0 1 0-64"
+      })
+    ]));
+  }
+});
+var zoom_out_default = zoom_out_vue_vue_type_script_setup_true_lang_default;
 
 // node_modules/element-plus/es/utils/vue/props/runtime.mjs
 var epPropKey = "__epPropKey";
@@ -1931,6 +6926,7 @@ var EVENT_CODE = {
 // node_modules/element-plus/es/constants/date.mjs
 var datePickTypes = [
   "year",
+  "years",
   "month",
   "date",
   "dates",
@@ -2050,12 +7046,27 @@ var castArray = (arr) => {
 // node_modules/element-plus/es/utils/i18n.mjs
 var isKorean = (text) => /([\uAC00-\uD7AF\u3130-\u318F])+/gi.test(text);
 
-// node_modules/element-plus/es/utils/raf.mjs
-var rAF = (fn2) => isClient ? window.requestAnimationFrame(fn2) : setTimeout(fn2, 16);
-var cAF = (handle) => isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle);
-
 // node_modules/element-plus/es/utils/typescript.mjs
 var mutable = (val) => val;
+
+// node_modules/element-plus/es/utils/throttleByRaf.mjs
+function throttleByRaf(cb) {
+  let timer = 0;
+  const throttle = (...args) => {
+    if (timer) {
+      cAF(timer);
+    }
+    timer = rAF(() => {
+      cb(...args);
+      timer = 0;
+    });
+  };
+  throttle.cancel = () => {
+    cAF(timer);
+    timer = 0;
+  };
+  return throttle;
+}
 
 // node_modules/element-plus/es/hooks/use-attrs/index.mjs
 var DEFAULT_EXCLUDE_KEYS = ["class", "style"];
@@ -2090,7 +7101,7 @@ For more detail, please visit: ${ref2}
 };
 
 // node_modules/element-plus/es/hooks/use-draggable/index.mjs
-var useDraggable = (targetRef, dragRef, draggable2) => {
+var useDraggable = (targetRef, dragRef, draggable2, overflow) => {
   let transform = {
     offsetX: 0,
     offsetY: 0
@@ -2111,8 +7122,12 @@ var useDraggable = (targetRef, dragRef, draggable2) => {
     const maxLeft = clientWidth - targetLeft - targetWidth + offsetX;
     const maxTop = clientHeight - targetTop - targetHeight + offsetY;
     const onMousemove = (e2) => {
-      const moveX = Math.min(Math.max(offsetX + e2.clientX - downX, minLeft), maxLeft);
-      const moveY = Math.min(Math.max(offsetY + e2.clientY - downY, minTop), maxTop);
+      let moveX = offsetX + e2.clientX - downX;
+      let moveY = offsetY + e2.clientY - downY;
+      if (!(overflow == null ? void 0 : overflow.value)) {
+        moveX = Math.min(Math.max(moveX, minLeft), maxLeft);
+        moveY = Math.min(Math.max(moveY, minTop), maxTop);
+      }
       transform = {
         offsetX: moveX,
         offsetY: moveY
@@ -2166,6 +7181,9 @@ var useFocus = (el) => {
 var English = {
   name: "en",
   el: {
+    breadcrumb: {
+      label: "Breadcrumb"
+    },
     colorpicker: {
       confirm: "OK",
       clear: "Clear",
@@ -2327,6 +7345,11 @@ var English = {
     popconfirm: {
       confirmButtonText: "Yes",
       cancelButtonText: "No"
+    },
+    carousel: {
+      leftArrow: "Carousel arrow left",
+      rightArrow: "Carousel arrow right",
+      indicator: "Carousel switch to index {index}"
     }
   }
 };
@@ -3668,10 +8691,15 @@ var useForwardRefDirective = (setForwardRef) => {
 };
 
 // node_modules/element-plus/es/hooks/use-z-index/index.mjs
+var initial = {
+  current: 0
+};
 var zIndex = ref(0);
 var defaultInitialZIndex = 2e3;
+var ZINDEX_INJECTION_KEY = Symbol("elZIndexContextKey");
 var zIndexContextKey = Symbol("zIndexContextKey");
 var useZIndex = (zIndexOverrides) => {
+  const increasingInjection = getCurrentInstance() ? inject(ZINDEX_INJECTION_KEY, initial) : initial;
   const zIndexInjection = zIndexOverrides || (getCurrentInstance() ? inject(zIndexContextKey, void 0) : void 0);
   const initialZIndex = computed2(() => {
     const zIndexFromInjection = unref(zIndexInjection);
@@ -3679,9 +8707,14 @@ var useZIndex = (zIndexOverrides) => {
   });
   const currentZIndex = computed2(() => initialZIndex.value + zIndex.value);
   const nextZIndex = () => {
-    zIndex.value++;
+    increasingInjection.current++;
+    zIndex.value = increasingInjection.current;
     return currentZIndex.value;
   };
+  if (!isClient && !inject(ZINDEX_INJECTION_KEY)) {
+    debugWarn("ZIndexInjection", `Looks like you are using server rendering, you must provide a z-index provider to ensure the hydration process to be succeed
+usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`);
+  }
   return {
     initialZIndex,
     currentZIndex,
@@ -3805,12 +8838,21 @@ function getPaddingObject(padding) {
   };
 }
 function rectToClientRect(rect) {
+  const {
+    x: x2,
+    y,
+    width,
+    height
+  } = rect;
   return {
-    ...rect,
-    top: rect.y,
-    left: rect.x,
-    right: rect.x + rect.width,
-    bottom: rect.y + rect.height
+    width,
+    height,
+    top: y,
+    left: x2,
+    right: x2 + width,
+    bottom: y + height,
+    x: x2,
+    y
   };
 }
 
@@ -3943,7 +8985,6 @@ var computePosition = async (reference, floating, config) => {
         } = computeCoordsFromPlacement(rects, statefulPlacement, rtl));
       }
       i = -1;
-      continue;
     }
   }
   return {
@@ -3984,9 +9025,10 @@ async function detectOverflow(state, options) {
     strategy
   }));
   const rect = elementContext === "floating" ? {
-    ...rects.floating,
     x: x2,
-    y
+    y,
+    width: rects.floating.width,
+    height: rects.floating.height
   } : rects.reference;
   const offsetParent = await (platform2.getOffsetParent == null ? void 0 : platform2.getOffsetParent(elements.floating));
   const offsetScale = await (platform2.isElement == null ? void 0 : platform2.isElement(offsetParent)) ? await (platform2.getScale == null ? void 0 : platform2.getScale(offsetParent)) || {
@@ -3997,6 +9039,7 @@ async function detectOverflow(state, options) {
     y: 1
   };
   const elementClientRect = rectToClientRect(platform2.convertOffsetParentRelativeRectToViewportRelativeRect ? await platform2.convertOffsetParentRelativeRectToViewportRelativeRect({
+    elements,
     rect,
     offsetParent,
     strategy
@@ -4054,14 +9097,14 @@ var arrow = (options) => ({
     const min$1 = minPadding;
     const max3 = clientSize - arrowDimensions[length] - maxPadding;
     const center = clientSize / 2 - arrowDimensions[length] / 2 + centerToReference;
-    const offset2 = clamp2(min$1, center, max3);
-    const shouldAddOffset = !middlewareData.arrow && getAlignment(placement) != null && center != offset2 && rects.reference[length] / 2 - (center < min$1 ? minPadding : maxPadding) - arrowDimensions[length] / 2 < 0;
+    const offset3 = clamp2(min$1, center, max3);
+    const shouldAddOffset = !middlewareData.arrow && getAlignment(placement) != null && center !== offset3 && rects.reference[length] / 2 - (center < min$1 ? minPadding : maxPadding) - arrowDimensions[length] / 2 < 0;
     const alignmentOffset = shouldAddOffset ? center < min$1 ? center - min$1 : center - max3 : 0;
     return {
       [axis]: coords[axis] + alignmentOffset,
       data: {
-        [axis]: offset2,
-        centerOffset: center - offset2 - alignmentOffset,
+        [axis]: offset3,
+        centerOffset: center - offset3 - alignmentOffset,
         ...shouldAddOffset && {
           alignmentOffset
         }
@@ -4353,9 +9396,8 @@ function getContainingBlock(element) {
   while (isHTMLElement(currentNode) && !isLastTraversableNode(currentNode)) {
     if (isContainingBlock(currentNode)) {
       return currentNode;
-    } else {
-      currentNode = getParentNode(currentNode);
     }
+    currentNode = getParentNode(currentNode);
   }
   return null;
 }
@@ -4515,8 +9557,9 @@ function getBoundingClientRect(element, includeScale, isFixedStrategy, offsetPar
   if (domElement) {
     const win = getWindow(domElement);
     const offsetWin = offsetParent && isElement2(offsetParent) ? getWindow(offsetParent) : offsetParent;
-    let currentIFrame = win.frameElement;
-    while (currentIFrame && offsetParent && offsetWin !== win) {
+    let currentWin = win;
+    let currentIFrame = currentWin.frameElement;
+    while (currentIFrame && offsetParent && offsetWin !== currentWin) {
       const iframeScale = getScale(currentIFrame);
       const iframeRect = currentIFrame.getBoundingClientRect();
       const css = getComputedStyle2(currentIFrame);
@@ -4528,7 +9571,8 @@ function getBoundingClientRect(element, includeScale, isFixedStrategy, offsetPar
       height *= iframeScale.y;
       x2 += left2;
       y += top;
-      currentIFrame = getWindow(currentIFrame).frameElement;
+      currentWin = getWindow(currentIFrame);
+      currentIFrame = currentWin.frameElement;
     }
   }
   return rectToClientRect({
@@ -4538,15 +9582,27 @@ function getBoundingClientRect(element, includeScale, isFixedStrategy, offsetPar
     y
   });
 }
+var topLayerSelectors = [":popover-open", ":modal"];
+function isTopLayer(element) {
+  return topLayerSelectors.some((selector) => {
+    try {
+      return element.matches(selector);
+    } catch (e) {
+      return false;
+    }
+  });
+}
 function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
   let {
+    elements,
     rect,
     offsetParent,
     strategy
   } = _ref;
-  const isOffsetParentAnElement = isHTMLElement(offsetParent);
+  const isFixed = strategy === "fixed";
   const documentElement = getDocumentElement(offsetParent);
-  if (offsetParent === documentElement) {
+  const topLayer = elements ? isTopLayer(elements.floating) : false;
+  if (offsetParent === documentElement || topLayer && isFixed) {
     return rect;
   }
   let scroll = {
@@ -4555,7 +9611,8 @@ function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
   };
   let scale = createCoords(1);
   const offsets = createCoords(0);
-  if (isOffsetParentAnElement || !isOffsetParentAnElement && strategy !== "fixed") {
+  const isOffsetParentAnElement = isHTMLElement(offsetParent);
+  if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
     if (getNodeName(offsetParent) !== "body" || isOverflowElement(documentElement)) {
       scroll = getNodeScroll(offsetParent);
     }
@@ -4695,7 +9752,7 @@ function getClippingRect(_ref) {
     rootBoundary,
     strategy
   } = _ref;
-  const elementClippingAncestors = boundary === "clippingAncestors" ? getClippingElementAncestors(element, this._c) : [].concat(boundary);
+  const elementClippingAncestors = boundary === "clippingAncestors" ? isTopLayer(element) ? [] : getClippingElementAncestors(element, this._c) : [].concat(boundary);
   const clippingAncestors = [...elementClippingAncestors, rootBoundary];
   const firstClippingAncestor = clippingAncestors[0];
   const clippingRect = clippingAncestors.reduce((accRect, clippingAncestor) => {
@@ -4745,12 +9802,17 @@ function getRectRelativeToOffsetParent(element, offsetParent, strategy) {
       offsets.x = getWindowScrollBarX(documentElement);
     }
   }
+  const x2 = rect.left + scroll.scrollLeft - offsets.x;
+  const y = rect.top + scroll.scrollTop - offsets.y;
   return {
-    x: rect.left + scroll.scrollLeft - offsets.x,
-    y: rect.top + scroll.scrollTop - offsets.y,
+    x: x2,
+    y,
     width: rect.width,
     height: rect.height
   };
+}
+function isStaticPositioned(element) {
+  return getComputedStyle2(element).position === "static";
 }
 function getTrueOffsetParent(element, polyfill) {
   if (!isHTMLElement(element) || getComputedStyle2(element).position === "fixed") {
@@ -4762,33 +9824,40 @@ function getTrueOffsetParent(element, polyfill) {
   return element.offsetParent;
 }
 function getOffsetParent(element, polyfill) {
-  const window2 = getWindow(element);
+  const win = getWindow(element);
+  if (isTopLayer(element)) {
+    return win;
+  }
   if (!isHTMLElement(element)) {
-    return window2;
+    let svgOffsetParent = getParentNode(element);
+    while (svgOffsetParent && !isLastTraversableNode(svgOffsetParent)) {
+      if (isElement2(svgOffsetParent) && !isStaticPositioned(svgOffsetParent)) {
+        return svgOffsetParent;
+      }
+      svgOffsetParent = getParentNode(svgOffsetParent);
+    }
+    return win;
   }
   let offsetParent = getTrueOffsetParent(element, polyfill);
-  while (offsetParent && isTableElement(offsetParent) && getComputedStyle2(offsetParent).position === "static") {
+  while (offsetParent && isTableElement(offsetParent) && isStaticPositioned(offsetParent)) {
     offsetParent = getTrueOffsetParent(offsetParent, polyfill);
   }
-  if (offsetParent && (getNodeName(offsetParent) === "html" || getNodeName(offsetParent) === "body" && getComputedStyle2(offsetParent).position === "static" && !isContainingBlock(offsetParent))) {
-    return window2;
+  if (offsetParent && isLastTraversableNode(offsetParent) && isStaticPositioned(offsetParent) && !isContainingBlock(offsetParent)) {
+    return win;
   }
-  return offsetParent || getContainingBlock(element) || window2;
+  return offsetParent || getContainingBlock(element) || win;
 }
-var getElementRects = async function(_ref) {
-  let {
-    reference,
-    floating,
-    strategy
-  } = _ref;
+var getElementRects = async function(data) {
   const getOffsetParentFn = this.getOffsetParent || getOffsetParent;
   const getDimensionsFn = this.getDimensions;
+  const floatingDimensions = await getDimensionsFn(data.floating);
   return {
-    reference: getRectRelativeToOffsetParent(reference, await getOffsetParentFn(floating), strategy),
+    reference: getRectRelativeToOffsetParent(data.reference, await getOffsetParentFn(data.floating), data.strategy),
     floating: {
       x: 0,
       y: 0,
-      ...await getDimensionsFn(floating)
+      width: floatingDimensions.width,
+      height: floatingDimensions.height
     }
   };
 };
@@ -4812,8 +9881,9 @@ function observeMove(element, onMove) {
   let timeoutId;
   const root = getDocumentElement(element);
   function cleanup() {
+    var _io;
     clearTimeout(timeoutId);
-    io && io.disconnect();
+    (_io = io) == null || _io.disconnect();
     io = null;
   }
   function refresh(skip, threshold) {
@@ -4855,7 +9925,7 @@ function observeMove(element, onMove) {
         if (!ratio) {
           timeoutId = setTimeout(() => {
             refresh(false, 1e-7);
-          }, 100);
+          }, 1e3);
         } else {
           refresh(false, ratio);
         }
@@ -4905,7 +9975,8 @@ function autoUpdate(reference, floating, update, options) {
         resizeObserver.unobserve(floating);
         cancelAnimationFrame(reobserveFrame);
         reobserveFrame = requestAnimationFrame(() => {
-          resizeObserver && resizeObserver.observe(floating);
+          var _resizeObserver;
+          (_resizeObserver = resizeObserver) == null || _resizeObserver.observe(floating);
         });
       }
       update();
@@ -4930,18 +10001,21 @@ function autoUpdate(reference, floating, update, options) {
   }
   update();
   return () => {
+    var _resizeObserver2;
     ancestors.forEach((ancestor) => {
       ancestorScroll && ancestor.removeEventListener("scroll", update);
       ancestorResize && ancestor.removeEventListener("resize", update);
     });
-    cleanupIo && cleanupIo();
-    resizeObserver && resizeObserver.disconnect();
+    cleanupIo == null || cleanupIo();
+    (_resizeObserver2 = resizeObserver) == null || _resizeObserver2.disconnect();
     resizeObserver = null;
     if (animationFrame) {
       cancelAnimationFrame(frameId);
     }
   };
 }
+var detectOverflow2 = detectOverflow;
+var offset2 = offset;
 var shift2 = shift;
 var flip2 = flip;
 var arrow2 = arrow;
@@ -5171,6 +10245,62 @@ function useFocusController(target2, { afterFocus, beforeBlur, afterBlur } = {})
   };
 }
 
+// node_modules/element-plus/es/hooks/use-empty-values/index.mjs
+var SCOPE3 = "use-empty-values";
+var DEFAULT_EMPTY_VALUES = ["", void 0, null];
+var DEFAULT_VALUE_ON_CLEAR = void 0;
+var useEmptyValuesProps = buildProps({
+  emptyValues: Array,
+  valueOnClear: {
+    type: [String, Number, Boolean, Function],
+    default: void 0,
+    validator: (val) => isFunction(val) ? !val() : !val
+  }
+});
+var useEmptyValues = (props, defaultValue) => {
+  let config = useGlobalConfig();
+  if (!config.value) {
+    config = ref({});
+  }
+  const emptyValues = computed2(() => props.emptyValues || config.value.emptyValues || DEFAULT_EMPTY_VALUES);
+  const valueOnClear = computed2(() => {
+    if (isFunction(props.valueOnClear)) {
+      return props.valueOnClear();
+    } else if (props.valueOnClear !== void 0) {
+      return props.valueOnClear;
+    } else if (isFunction(config.value.valueOnClear)) {
+      return config.value.valueOnClear();
+    } else if (config.value.valueOnClear !== void 0) {
+      return config.value.valueOnClear;
+    }
+    return defaultValue !== void 0 ? defaultValue : DEFAULT_VALUE_ON_CLEAR;
+  });
+  const isEmptyValue2 = (value) => {
+    return emptyValues.value.includes(value);
+  };
+  if (!emptyValues.value.includes(valueOnClear.value)) {
+    debugWarn(SCOPE3, "value-on-clear should be a value of empty-values");
+  }
+  return {
+    emptyValues,
+    valueOnClear,
+    isEmptyValue: isEmptyValue2
+  };
+};
+
+// node_modules/element-plus/es/hooks/use-aria/index.mjs
+var ariaProps = buildProps({
+  ariaLabel: String,
+  ariaOrientation: {
+    type: String,
+    values: ["horizontal", "vertical", "undefined"]
+  },
+  ariaControls: String
+});
+var useAriaProps = (arias) => {
+  return pick_default(ariaProps, arias);
+};
+
 // node_modules/element-plus/es/components/config-provider/src/constants.mjs
 var configProviderContextKey = Symbol();
 
@@ -5241,11 +10371,10 @@ var provideGlobalConfig = (config, app, global2 = false) => {
   return context;
 };
 var mergeConfig = (a2, b2) => {
-  var _a2;
   const keys2 = [.../* @__PURE__ */ new Set([...keysOf(a2), ...keysOf(b2)])];
   const obj = {};
   for (const key of keys2) {
-    obj[key] = (_a2 = b2[key]) != null ? _a2 : a2[key];
+    obj[key] = b2[key] !== void 0 ? b2[key] : a2[key];
   }
   return obj;
 };
@@ -5277,7 +10406,8 @@ var configProviderProps = buildProps({
   namespace: {
     type: String,
     default: "el"
-  }
+  },
+  ...useEmptyValuesProps
 });
 
 // node_modules/element-plus/es/components/config-provider/src/config-provider.mjs
@@ -5298,7 +10428,7 @@ var ConfigProvider = defineComponent({
 var ElConfigProvider = withInstall(ConfigProvider);
 
 // node_modules/element-plus/es/version.mjs
-var version2 = "2.5.3";
+var version2 = "2.7.3";
 
 // node_modules/element-plus/es/make-installer.mjs
 var makeInstaller = (components = []) => {
@@ -5386,12 +10516,12 @@ var _sfc_main = defineComponent({
     const affixStyle = computed2(() => {
       if (!fixed.value)
         return {};
-      const offset2 = props.offset ? addUnit(props.offset) : 0;
+      const offset3 = props.offset ? addUnit(props.offset) : 0;
       return {
         height: `${rootHeight.value}px`,
         width: `${rootWidth.value}px`,
-        top: props.position === "top" ? offset2 : "",
-        bottom: props.position === "bottom" ? offset2 : "",
+        top: props.position === "top" ? offset3 : "",
+        bottom: props.position === "bottom" ? offset3 : "",
         transform: transform.value ? `translateY(${transform.value}px)` : "",
         zIndex: props.zIndex
       };
@@ -5429,7 +10559,7 @@ var _sfc_main = defineComponent({
       if (props.target) {
         target2.value = (_a2 = document.querySelector(props.target)) != null ? _a2 : void 0;
         if (!target2.value)
-          throwError(COMPONENT_NAME, `Target is not existed: ${props.target}`);
+          throwError(COMPONENT_NAME, `Target does not exist: ${props.target}`);
       } else {
         target2.value = document.documentElement;
       }
@@ -5564,8 +10694,8 @@ var _sfc_main3 = defineComponent({
       ns.e("icon"),
       { [ns.is("big")]: !!props.description || !!slots.default }
     ]);
-    const isBoldTitle = computed2(() => {
-      return { [ns.is("bold")]: props.description || slots.default };
+    const withDescription = computed2(() => {
+      return { "with-description": props.description || slots.default };
     });
     const close2 = (evt) => {
       visible.value = false;
@@ -5595,7 +10725,7 @@ var _sfc_main3 = defineComponent({
             }, [
               _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("span", {
                 key: 0,
-                class: normalizeClass([unref(ns).e("title"), unref(isBoldTitle)])
+                class: normalizeClass([unref(ns).e("title"), unref(withDescription)])
               }, [
                 renderSlot(_ctx.$slots, "title", {}, () => [
                   createTextVNode(toDisplayString(_ctx.title), 1)
@@ -5685,7 +10815,7 @@ var useFormItemInputId = (props, {
   let idUnwatch = void 0;
   const isLabeledByFormItem = computed2(() => {
     var _a2;
-    return !!(!props.label && formItemContext && formItemContext.inputIds && ((_a2 = formItemContext.inputIds) == null ? void 0 : _a2.length) <= 1);
+    return !!(!(props.label || props.ariaLabel) && formItemContext && formItemContext.inputIds && ((_a2 = formItemContext.inputIds) == null ? void 0 : _a2.length) <= 1);
   });
   onMounted(() => {
     idUnwatch = watch([toRef(props, "id"), disableIdGeneration], ([id, disableIdGeneration2]) => {
@@ -5767,7 +10897,7 @@ var formEmits = {
 };
 
 // node_modules/element-plus/es/components/form/src/utils.mjs
-var SCOPE3 = "ElForm";
+var SCOPE4 = "ElForm";
 function useFormLabelWidth() {
   const potentialLabelWidthArr = ref([]);
   const autoLabelWidth = computed2(() => {
@@ -5779,7 +10909,7 @@ function useFormLabelWidth() {
   function getLabelWidthIndex(width) {
     const index = potentialLabelWidthArr.value.indexOf(width);
     if (index === -1 && autoLabelWidth.value === "0") {
-      debugWarn(SCOPE3, `unexpected width ${width}`);
+      debugWarn(SCOPE4, `unexpected width ${width}`);
     }
     return index;
   }
@@ -5898,7 +11028,7 @@ var _sfc_main4 = defineComponent({
       try {
         const result = await doValidateField(modelProps);
         if (result === true) {
-          callback == null ? void 0 : callback(result);
+          await (callback == null ? void 0 : callback(result));
         }
         return result;
       } catch (e) {
@@ -5908,7 +11038,7 @@ var _sfc_main4 = defineComponent({
         if (props.scrollToError) {
           scrollToField(Object.keys(invalidFields)[0]);
         }
-        callback == null ? void 0 : callback(false, invalidFields);
+        await (callback == null ? void 0 : callback(false, invalidFields));
         return shouldThrow && Promise.reject(invalidFields);
       }
     };
@@ -5940,7 +11070,8 @@ var _sfc_main4 = defineComponent({
       validateField,
       resetFields,
       clearValidate,
-      scrollToField
+      scrollToField,
+      fields
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("form", {
@@ -7618,7 +12749,8 @@ var inputProps = buildProps({
   autofocus: {
     type: Boolean,
     default: false
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var inputEmits = {
   [UPDATE_MODEL_EVENT]: (value) => isString(value),
@@ -7671,7 +12803,8 @@ var _sfc_main6 = defineComponent({
         [nsInput.bm("group", "prepend")]: slots.prepend,
         [nsInput.m("prefix")]: slots.prefix || props.prefixIcon,
         [nsInput.m("suffix")]: slots.suffix || props.suffixIcon || props.clearable || props.showPassword,
-        [nsInput.bm("suffix", "password-clear")]: showClear.value && showPwdVisible.value
+        [nsInput.bm("suffix", "password-clear")]: showClear.value && showPwdVisible.value,
+        [nsInput.b("hidden")]: props.type === "hidden"
       },
       rawAttrs.class
     ]);
@@ -7877,6 +13010,13 @@ var _sfc_main6 = defineComponent({
       setNativeInputValue();
       nextTick(resizeTextarea);
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-input",
+      ref: "https://element-plus.org/en-US/component/input.html"
+    }, computed2(() => !!props.label));
     expose({
       input,
       textarea,
@@ -7890,7 +13030,7 @@ var _sfc_main6 = defineComponent({
       resizeTextarea
     });
     return (_ctx, _cache) => {
-      return withDirectives((openBlock(), createElementBlock("div", mergeProps(unref(containerAttrs), {
+      return openBlock(), createElementBlock("div", mergeProps(unref(containerAttrs), {
         class: unref(containerKls),
         style: unref(containerStyle),
         role: _ctx.containerRole,
@@ -7944,7 +13084,7 @@ var _sfc_main6 = defineComponent({
               readonly: _ctx.readonly,
               autocomplete: _ctx.autocomplete,
               tabindex: _ctx.tabindex,
-              "aria-label": _ctx.label,
+              "aria-label": _ctx.label || _ctx.ariaLabel,
               placeholder: _ctx.placeholder,
               style: _ctx.inputStyle,
               form: _ctx.form,
@@ -8045,7 +13185,7 @@ var _sfc_main6 = defineComponent({
             readonly: _ctx.readonly,
             autocomplete: _ctx.autocomplete,
             style: unref(textareaStyle),
-            "aria-label": _ctx.label,
+            "aria-label": _ctx.label || _ctx.ariaLabel,
             placeholder: _ctx.placeholder,
             form: _ctx.form,
             autofocus: _ctx.autofocus,
@@ -8064,9 +13204,7 @@ var _sfc_main6 = defineComponent({
             class: normalizeClass(unref(nsInput).e("count"))
           }, toDisplayString(unref(textLength)) + " / " + toDisplayString(_ctx.maxlength), 7)) : createCommentVNode("v-if", true)
         ], 64))
-      ], 16, _hoisted_12)), [
-        [vShow, _ctx.type !== "hidden"]
-      ]);
+      ], 16, _hoisted_12);
     };
   }
 });
@@ -8163,9 +13301,9 @@ var _sfc_main7 = defineComponent({
     const clickTrackHandler = (e) => {
       if (!thumb.value || !instance.value || !scrollbar.wrapElement)
         return;
-      const offset2 = Math.abs(e.target.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]);
+      const offset3 = Math.abs(e.target.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]);
       const thumbHalf = thumb.value[bar.value.offset] / 2;
-      const thumbPositionPercentage = (offset2 - thumbHalf) * 100 * offsetRatio.value / instance.value[bar.value.offset];
+      const thumbPositionPercentage = (offset3 - thumbHalf) * 100 * offsetRatio.value / instance.value[bar.value.offset];
       scrollbar.wrapElement[bar.value.scroll] = thumbPositionPercentage * scrollbar.wrapElement[bar.value.scrollSize] / 100;
     };
     const startDrag = (e) => {
@@ -8184,9 +13322,9 @@ var _sfc_main7 = defineComponent({
       const prevPage = thumbState.value[bar.value.axis];
       if (!prevPage)
         return;
-      const offset2 = (instance.value.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]) * -1;
+      const offset3 = (instance.value.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]) * -1;
       const thumbClickPosition = thumb.value[bar.value.offset] - prevPage;
-      const thumbPositionPercentage = (offset2 - thumbClickPosition) * 100 * offsetRatio.value / instance.value[bar.value.offset];
+      const thumbPositionPercentage = (offset3 - thumbClickPosition) * 100 * offsetRatio.value / instance.value[bar.value.offset];
       scrollbar.wrapElement[bar.value.scroll] = thumbPositionPercentage * scrollbar.wrapElement[bar.value.scrollSize] / 100;
     };
     const mouseUpDocumentHandler = () => {
@@ -8252,15 +13390,9 @@ var barProps = buildProps({
     type: Boolean,
     default: true
   },
-  width: String,
-  height: String,
-  ratioX: {
+  minSize: {
     type: Number,
-    default: 1
-  },
-  ratioY: {
-    type: Number,
-    default: 1
+    required: true
   }
 });
 
@@ -8270,31 +13402,52 @@ var _sfc_main8 = defineComponent({
   props: barProps,
   setup(__props, { expose }) {
     const props = __props;
+    const scrollbar = inject(scrollbarContextKey);
     const moveX = ref(0);
     const moveY = ref(0);
+    const sizeWidth = ref("");
+    const sizeHeight = ref("");
+    const ratioY = ref(1);
+    const ratioX = ref(1);
     const handleScroll2 = (wrap) => {
       if (wrap) {
         const offsetHeight = wrap.offsetHeight - GAP;
         const offsetWidth = wrap.offsetWidth - GAP;
-        moveY.value = wrap.scrollTop * 100 / offsetHeight * props.ratioY;
-        moveX.value = wrap.scrollLeft * 100 / offsetWidth * props.ratioX;
+        moveY.value = wrap.scrollTop * 100 / offsetHeight * ratioY.value;
+        moveX.value = wrap.scrollLeft * 100 / offsetWidth * ratioX.value;
       }
     };
+    const update = () => {
+      const wrap = scrollbar == null ? void 0 : scrollbar.wrapElement;
+      if (!wrap)
+        return;
+      const offsetHeight = wrap.offsetHeight - GAP;
+      const offsetWidth = wrap.offsetWidth - GAP;
+      const originalHeight = offsetHeight ** 2 / wrap.scrollHeight;
+      const originalWidth = offsetWidth ** 2 / wrap.scrollWidth;
+      const height = Math.max(originalHeight, props.minSize);
+      const width = Math.max(originalWidth, props.minSize);
+      ratioY.value = originalHeight / (offsetHeight - originalHeight) / (height / (offsetHeight - height));
+      ratioX.value = originalWidth / (offsetWidth - originalWidth) / (width / (offsetWidth - width));
+      sizeHeight.value = height + GAP < offsetHeight ? `${height}px` : "";
+      sizeWidth.value = width + GAP < offsetWidth ? `${width}px` : "";
+    };
     expose({
-      handleScroll: handleScroll2
+      handleScroll: handleScroll2,
+      update
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock(Fragment, null, [
         createVNode(Thumb, {
           move: moveX.value,
-          ratio: _ctx.ratioX,
-          size: _ctx.width,
+          ratio: ratioX.value,
+          size: sizeWidth.value,
           always: _ctx.always
         }, null, 8, ["move", "ratio", "size", "always"]),
         createVNode(Thumb, {
           move: moveY.value,
-          ratio: _ctx.ratioY,
-          size: _ctx.height,
+          ratio: ratioY.value,
+          size: sizeHeight.value,
           vertical: "",
           always: _ctx.always
         }, null, 8, ["move", "ratio", "size", "always"])
@@ -8346,11 +13499,7 @@ var scrollbarProps = buildProps({
   },
   id: String,
   role: String,
-  ariaLabel: String,
-  ariaOrientation: {
-    type: String,
-    values: ["horizontal", "vertical"]
-  }
+  ...useAriaProps(["ariaLabel", "ariaOrientation"])
 });
 var scrollbarEmits = {
   scroll: ({
@@ -8376,11 +13525,7 @@ var _sfc_main9 = defineComponent({
     const scrollbarRef = ref();
     const wrapRef = ref();
     const resizeRef = ref();
-    const sizeWidth = ref("0");
-    const sizeHeight = ref("0");
     const barRef = ref();
-    const ratioY = ref(1);
-    const ratioX = ref(1);
     const wrapStyle = computed2(() => {
       const style = {};
       if (props.height)
@@ -8431,18 +13576,8 @@ var _sfc_main9 = defineComponent({
       wrapRef.value.scrollLeft = value;
     };
     const update = () => {
-      if (!wrapRef.value)
-        return;
-      const offsetHeight = wrapRef.value.offsetHeight - GAP;
-      const offsetWidth = wrapRef.value.offsetWidth - GAP;
-      const originalHeight = offsetHeight ** 2 / wrapRef.value.scrollHeight;
-      const originalWidth = offsetWidth ** 2 / wrapRef.value.scrollWidth;
-      const height = Math.max(originalHeight, props.minSize);
-      const width = Math.max(originalWidth, props.minSize);
-      ratioY.value = originalHeight / (offsetHeight - originalHeight) / (height / (offsetHeight - height));
-      ratioX.value = originalWidth / (offsetWidth - originalWidth) / (width / (offsetWidth - width));
-      sizeHeight.value = height + GAP < offsetHeight ? `${height}px` : "";
-      sizeWidth.value = width + GAP < offsetWidth ? `${width}px` : "";
+      var _a2;
+      (_a2 = barRef.value) == null ? void 0 : _a2.update();
     };
     watch(() => props.noresize, (noresize) => {
       if (noresize) {
@@ -8516,12 +13651,9 @@ var _sfc_main9 = defineComponent({
           key: 0,
           ref_key: "barRef",
           ref: barRef,
-          height: sizeHeight.value,
-          width: sizeWidth.value,
           always: _ctx.always,
-          "ratio-x": ratioX.value,
-          "ratio-y": ratioY.value
-        }, null, 8, ["height", "width", "always", "ratio-x", "ratio-y"])) : createCommentVNode("v-if", true)
+          "min-size": _ctx.minSize
+        }, null, 8, ["always", "min-size"])) : createCommentVNode("v-if", true)
       ], 2);
     };
   }
@@ -9304,12 +14436,9 @@ var popperContentProps = buildProps({
     type: Boolean,
     default: true
   },
-  ariaLabel: {
-    type: String,
-    default: void 0
-  },
   virtualTriggering: Boolean,
-  zIndex: Number
+  zIndex: Number,
+  ...useAriaProps(["ariaLabel"])
 });
 var popperContentEmits = {
   mouseenter: (evt) => evt instanceof MouseEvent,
@@ -9340,12 +14469,12 @@ var unwrapMeasurableEl = ($el) => {
   return unrefElement($el);
 };
 function genModifiers(options) {
-  const { offset: offset2, gpuAcceleration, fallbackPlacements } = options;
+  const { offset: offset3, gpuAcceleration, fallbackPlacements } = options;
   return [
     {
       name: "offset",
       options: {
-        offset: [0, offset2 != null ? offset2 : 12]
+        offset: [0, offset3 != null ? offset3 : 12]
       }
     },
     {
@@ -9395,13 +14524,13 @@ var usePopperContent = (props) => {
   const arrowModifier = computed2(() => {
     var _a2;
     const arrowEl = unref(arrowRef);
-    const offset2 = (_a2 = unref(arrowOffset)) != null ? _a2 : DEFAULT_ARROW_OFFSET;
+    const offset3 = (_a2 = unref(arrowOffset)) != null ? _a2 : DEFAULT_ARROW_OFFSET;
     return {
       name: "arrow",
       enabled: !isUndefined_default(arrowEl),
       options: {
         element: arrowEl,
-        padding: offset2
+        padding: offset3
       }
     };
   });
@@ -9671,7 +14800,6 @@ var useTooltipContentProps = buildProps({
     default: false
   },
   persistent: Boolean,
-  ariaLabel: String,
   visible: {
     type: definePropType(Boolean),
     default: null
@@ -9681,7 +14809,8 @@ var useTooltipContentProps = buildProps({
     type: Boolean,
     default: true
   },
-  disabled: Boolean
+  disabled: Boolean,
+  ...useAriaProps(["ariaLabel"])
 });
 
 // node_modules/element-plus/es/components/tooltip/src/trigger.mjs
@@ -10183,9 +15312,6 @@ var autocompleteProps = buildProps({
     type: Boolean,
     default: false
   },
-  label: {
-    type: String
-  },
   teleported: useTooltipContentProps.teleported,
   highlightFirstItem: {
     type: Boolean,
@@ -10203,7 +15329,8 @@ var autocompleteProps = buildProps({
     type: Boolean,
     default: false
   },
-  name: String
+  name: String,
+  ...useAriaProps(["ariaLabel"])
 });
 var autocompleteEmits = {
   [UPDATE_MODEL_EVENT]: (value) => isString(value),
@@ -10513,6 +15640,7 @@ var _sfc_main18 = defineComponent({
               disabled: unref(disabled),
               name: _ctx.name,
               "model-value": _ctx.modelValue,
+              "aria-label": _ctx.ariaLabel,
               onInput: handleInput,
               onChange: handleChange,
               onFocus: handleFocus,
@@ -10551,7 +15679,7 @@ var _sfc_main18 = defineComponent({
                   renderSlot(_ctx.$slots, "suffix")
                 ])
               } : void 0
-            ]), 1040, ["clearable", "disabled", "name", "model-value", "onKeydown"])
+            ]), 1040, ["clearable", "disabled", "name", "model-value", "aria-label", "onKeydown"])
           ], 14, _hoisted_14)
         ]),
         _: 3
@@ -10784,6 +15912,27 @@ var badgeProps = buildProps({
     type: String,
     values: ["primary", "success", "warning", "info", "danger"],
     default: "danger"
+  },
+  showZero: {
+    type: Boolean,
+    default: true
+  },
+  color: String,
+  dotStyle: {
+    type: definePropType([String, Object, Array])
+  },
+  badgeStyle: {
+    type: definePropType([String, Object, Array])
+  },
+  offset: {
+    type: definePropType(Array),
+    default: [0, 0]
+  },
+  dotClass: {
+    type: String
+  },
+  badgeClass: {
+    type: String
   }
 });
 
@@ -10802,10 +15951,39 @@ var _sfc_main21 = defineComponent({
       if (props.isDot)
         return "";
       if (isNumber2(props.value) && isNumber2(props.max)) {
-        return props.max < props.value ? `${props.max}+` : `${props.value}`;
+        if (props.max < props.value) {
+          return `${props.max}+`;
+        }
+        return props.value === 0 && !props.showZero ? "" : `${props.value}`;
       }
       return `${props.value}`;
     });
+    const style = computed2(() => {
+      var _a2, _b, _c, _d, _e, _f;
+      return [
+        {
+          backgroundColor: props.color,
+          marginRight: addUnit(-((_b = (_a2 = props.offset) == null ? void 0 : _a2[0]) != null ? _b : 0)),
+          marginTop: addUnit((_d = (_c = props.offset) == null ? void 0 : _c[1]) != null ? _d : 0)
+        },
+        (_e = props.dotStyle) != null ? _e : {},
+        (_f = props.badgeStyle) != null ? _f : {}
+      ];
+    });
+    useDeprecated({
+      from: "dot-style",
+      replacement: "badge-style",
+      version: "2.8.0",
+      scope: "el-badge",
+      ref: "https://element-plus.org/en-US/component/badge.html"
+    }, computed2(() => !!props.dotStyle));
+    useDeprecated({
+      from: "dot-class",
+      replacement: "badge-class",
+      version: "2.8.0",
+      scope: "el-badge",
+      ref: "https://element-plus.org/en-US/component/badge.html"
+    }, computed2(() => !!props.dotClass));
     expose({
       content
     });
@@ -10824,10 +16002,13 @@ var _sfc_main21 = defineComponent({
                 unref(ns).e("content"),
                 unref(ns).em("content", _ctx.type),
                 unref(ns).is("fixed", !!_ctx.$slots.default),
-                unref(ns).is("dot", _ctx.isDot)
+                unref(ns).is("dot", _ctx.isDot),
+                _ctx.dotClass,
+                _ctx.badgeClass
               ]),
+              style: normalizeStyle(unref(style)),
               textContent: toDisplayString(unref(content))
-            }, null, 10, _hoisted_16), [
+            }, null, 14, _hoisted_16), [
               [vShow, !_ctx.hidden && (unref(content) || _ctx.isDot)]
             ])
           ]),
@@ -10857,6 +16038,7 @@ var breadcrumbProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/breadcrumb/src/breadcrumb2.mjs
+var _hoisted_17 = ["aria-label"];
 var __default__19 = defineComponent({
   name: "ElBreadcrumb"
 });
@@ -10865,6 +16047,7 @@ var _sfc_main22 = defineComponent({
   props: breadcrumbProps,
   setup(__props) {
     const props = __props;
+    const { t } = useLocale();
     const ns = useNamespace("breadcrumb");
     const breadcrumb = ref();
     provide(breadcrumbKey, props);
@@ -10879,11 +16062,11 @@ var _sfc_main22 = defineComponent({
         ref_key: "breadcrumb",
         ref: breadcrumb,
         class: normalizeClass(unref(ns).b()),
-        "aria-label": "Breadcrumb",
+        "aria-label": unref(t)("el.breadcrumb.label"),
         role: "navigation"
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 2);
+      ], 10, _hoisted_17);
     };
   }
 });
@@ -12043,6 +17226,19 @@ var _sfc_main24 = defineComponent({
     const buttonStyle = useButtonCustomStyle(props);
     const ns = useNamespace("button");
     const { _ref, _size, _type, _disabled, _props, shouldAddSpace, handleClick } = useButton(props, emit);
+    const buttonKls = computed2(() => [
+      ns.b(),
+      ns.m(_type.value),
+      ns.m(_size.value),
+      ns.is("disabled", _disabled.value),
+      ns.is("loading", props.loading),
+      ns.is("plain", props.plain),
+      ns.is("round", props.round),
+      ns.is("circle", props.circle),
+      ns.is("text", props.text),
+      ns.is("link", props.link),
+      ns.is("has-bg", props.bg)
+    ]);
     expose({
       ref: _ref,
       size: _size,
@@ -12055,19 +17251,7 @@ var _sfc_main24 = defineComponent({
         ref_key: "_ref",
         ref: _ref
       }, unref(_props), {
-        class: [
-          unref(ns).b(),
-          unref(ns).m(unref(_type)),
-          unref(ns).m(unref(_size)),
-          unref(ns).is("disabled", unref(_disabled)),
-          unref(ns).is("loading", _ctx.loading),
-          unref(ns).is("plain", _ctx.plain),
-          unref(ns).is("round", _ctx.round),
-          unref(ns).is("circle", _ctx.circle),
-          unref(ns).is("text", _ctx.text),
-          unref(ns).is("link", _ctx.link),
-          unref(ns).is("has-bg", _ctx.bg)
-        ],
+        class: unref(buttonKls),
         style: unref(buttonStyle),
         onClick: unref(handleClick)
       }), {
@@ -12152,6 +17336,7 @@ var DEFAULT_FORMATS_DATEPICKER = {
   dates: DEFAULT_FORMATS_DATE,
   week: "gggg[w]ww",
   year: "YYYY",
+  years: "YYYY",
   month: "YYYY-MM",
   datetime: `${DEFAULT_FORMATS_DATE} ${DEFAULT_FORMATS_TIME}`,
   monthrange: "YYYY-MM",
@@ -12334,11 +17519,13 @@ var timePickerDefaultProps = buildProps({
     type: Boolean,
     default: true
   },
-  unlinkPanels: Boolean
+  unlinkPanels: Boolean,
+  ...useEmptyValuesProps,
+  ...useAriaProps(["ariaLabel"])
 });
 
 // node_modules/element-plus/es/components/time-picker/src/common/picker.mjs
-var _hoisted_17 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
+var _hoisted_18 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
 var _hoisted_24 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
 var __default__23 = defineComponent({
   name: "Picker"
@@ -12365,6 +17552,7 @@ var _sfc_main26 = defineComponent({
     const nsRange = useNamespace("range");
     const { form, formItem } = useFormItem();
     const elPopperOptions = inject("ElPopperOptions", {});
+    const { valueOnClear } = useEmptyValues(props, null);
     const refPopper = ref();
     const inputRef = ref();
     const pickerVisible = ref(false);
@@ -12567,13 +17755,14 @@ var _sfc_main26 = defineComponent({
       if (!pickerVisible.value && valueIsEmpty.value)
         return "";
       if (formattedValue) {
-        return isDatesPicker.value ? formattedValue.join(", ") : formattedValue;
+        return isDatesPicker.value || isYearsPicker.value ? formattedValue.join(", ") : formattedValue;
       }
       return "";
     });
     const isTimeLikePicker = computed2(() => props.type.includes("time"));
     const isTimePicker = computed2(() => props.type.startsWith("time"));
     const isDatesPicker = computed2(() => props.type === "dates");
+    const isYearsPicker = computed2(() => props.type === "years");
     const triggerIcon = computed2(() => props.prefixIcon || (isTimeLikePicker.value ? clock_default : calendar_default));
     const showClose = ref(false);
     const onClearIconClick = (event) => {
@@ -12582,8 +17771,8 @@ var _sfc_main26 = defineComponent({
       if (showClose.value) {
         event.stopPropagation();
         focusOnInputBox();
-        emitInput(null);
-        emitChange(null, true);
+        emitInput(valueOnClear.value);
+        emitChange(valueOnClear.value, true);
         showClose.value = false;
         pickerVisible.value = false;
         pickerOptions.value.handleClear && pickerOptions.value.handleClear();
@@ -12653,8 +17842,8 @@ var _sfc_main26 = defineComponent({
         }
       }
       if (userInput.value === "") {
-        emitInput(null);
-        emitChange(null);
+        emitInput(valueOnClear.value);
+        emitChange(valueOnClear.value);
         userInput.value = null;
       }
     };
@@ -12788,6 +17977,13 @@ var _sfc_main26 = defineComponent({
     provide("EP_PICKER_BASE", {
       props
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-time-picker",
+      ref: "https://element-plus.org/en-US/component/time-picker.html"
+    }, computed2(() => !!props.label));
     expose({
       focus,
       handleFocusInput,
@@ -12833,8 +18029,8 @@ var _sfc_main26 = defineComponent({
             placeholder: _ctx.placeholder,
             class: normalizeClass([unref(nsDate).b("editor"), unref(nsDate).bm("editor", _ctx.type), _ctx.$attrs.class]),
             style: normalizeStyle(_ctx.$attrs.style),
-            readonly: !_ctx.editable || _ctx.readonly || unref(isDatesPicker) || _ctx.type === "week",
-            label: _ctx.label,
+            readonly: !_ctx.editable || _ctx.readonly || unref(isDatesPicker) || unref(isYearsPicker) || _ctx.type === "week",
+            "aria-label": _ctx.label || _ctx.ariaLabel,
             tabindex: _ctx.tabindex,
             "validate-event": false,
             onInput: onUserInput,
@@ -12845,7 +18041,7 @@ var _sfc_main26 = defineComponent({
             onMousedown: onMouseDownInput,
             onMouseenter: onMouseEnter,
             onMouseleave: onMouseLeave,
-            onTouchstart: onTouchStartInput,
+            onTouchstartPassive: onTouchStartInput,
             onClick: _cache[0] || (_cache[0] = withModifiers(() => {
             }, ["stop"]))
           }, {
@@ -12854,7 +18050,7 @@ var _sfc_main26 = defineComponent({
                 key: 0,
                 class: normalizeClass(unref(nsInput).e("icon")),
                 onMousedown: withModifiers(onMouseDownInput, ["prevent"]),
-                onTouchstart: onTouchStartInput
+                onTouchstartPassive: onTouchStartInput
               }, {
                 default: withCtx(() => [
                   (openBlock(), createBlock(resolveDynamicComponent(unref(triggerIcon))))
@@ -12875,7 +18071,7 @@ var _sfc_main26 = defineComponent({
               }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
             ]),
             _: 1
-          }, 8, ["id", "model-value", "name", "size", "disabled", "placeholder", "class", "style", "readonly", "label", "tabindex", "onKeydown"])) : (openBlock(), createElementBlock("div", {
+          }, 8, ["id", "model-value", "name", "size", "disabled", "placeholder", "class", "style", "readonly", "aria-label", "tabindex", "onKeydown"])) : (openBlock(), createElementBlock("div", {
             key: 1,
             ref_key: "inputRef",
             ref: inputRef,
@@ -12884,14 +18080,14 @@ var _sfc_main26 = defineComponent({
             onClick: handleFocusInput,
             onMouseenter: onMouseEnter,
             onMouseleave: onMouseLeave,
-            onTouchstart: onTouchStartInput,
+            onTouchstartPassive: onTouchStartInput,
             onKeydown: handleKeydownInput
           }, [
             unref(triggerIcon) ? (openBlock(), createBlock(unref(ElIcon), {
               key: 0,
               class: normalizeClass([unref(nsInput).e("icon"), unref(nsRange).e("icon")]),
               onMousedown: withModifiers(onMouseDownInput, ["prevent"]),
-              onTouchstart: onTouchStartInput
+              onTouchstartPassive: onTouchStartInput
             }, {
               default: withCtx(() => [
                 (openBlock(), createBlock(resolveDynamicComponent(unref(triggerIcon))))
@@ -12912,7 +18108,7 @@ var _sfc_main26 = defineComponent({
               onChange: handleStartChange,
               onFocus: handleFocusInput,
               onBlur: handleBlurInput
-            }, null, 42, _hoisted_17),
+            }, null, 42, _hoisted_18),
             renderSlot(_ctx.$slots, "range-separator", {}, () => [
               createBaseVNode("span", {
                 class: normalizeClass(unref(nsRange).b("separator"))
@@ -13383,7 +18579,7 @@ var basicTimeSpinnerProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/time-picker/src/time-picker-com/basic-time-spinner.mjs
-var _hoisted_18 = ["onClick"];
+var _hoisted_19 = ["onClick"];
 var _hoisted_25 = ["onMouseenter"];
 var _sfc_main27 = defineComponent({
   __name: "basic-time-spinner",
@@ -13611,7 +18807,7 @@ var _sfc_main27 = defineComponent({
                   ], 64)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                     createTextVNode(toDisplayString(("0" + key).slice(-2)), 1)
                   ], 64))
-                ], 10, _hoisted_18);
+                ], 10, _hoisted_19);
               }), 128))
             ]),
             _: 2
@@ -13840,7 +19036,7 @@ var panelTimeRangeProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/time-picker/src/time-picker-com/panel-time-range.mjs
-var _hoisted_19 = ["disabled"];
+var _hoisted_110 = ["disabled"];
 var _sfc_main29 = defineComponent({
   __name: "panel-time-range",
   props: panelTimeRangeProps,
@@ -13918,10 +19114,10 @@ var _sfc_main29 = defineComponent({
       emit("select-range", start, end2, "min");
       selectionRange.value = [start, end2];
     };
-    const offset2 = computed2(() => showSeconds.value ? 11 : 8);
+    const offset3 = computed2(() => showSeconds.value ? 11 : 8);
     const setMaxSelectionRange = (start, end2) => {
       emit("select-range", start, end2, "max");
-      const _offset = unref(offset2);
+      const _offset = unref(offset3);
       selectionRange.value = [start + _offset, end2 + _offset];
     };
     const changeSelectionRange = (step) => {
@@ -13947,7 +19143,7 @@ var _sfc_main29 = defineComponent({
       }
       if ([up2, down2].includes(code)) {
         const step = code === up2 ? -1 : 1;
-        const role = selectionRange.value[0] < offset2.value ? "start" : "end";
+        const role = selectionRange.value[0] < offset3.value ? "start" : "end";
         timePickerOptions[`${role}_scrollDown`](step);
         event.preventDefault();
         return;
@@ -14103,7 +19299,7 @@ var _sfc_main29 = defineComponent({
             class: normalizeClass([unref(nsTime).be("panel", "btn"), "confirm"]),
             disabled: unref(btnConfirmDisabled),
             onClick: _cache[1] || (_cache[1] = ($event) => handleConfirm())
-          }, toDisplayString(unref(t)("el.datepicker.confirm")), 11, _hoisted_19)
+          }, toDisplayString(unref(t)("el.datepicker.confirm")), 11, _hoisted_110)
         ], 2)
       ], 2)) : createCommentVNode("v-if", true);
     };
@@ -14288,7 +19484,7 @@ var useDateTable = (props, emit) => {
 };
 
 // node_modules/element-plus/es/components/calendar/src/date-table2.mjs
-var _hoisted_110 = { key: 0 };
+var _hoisted_111 = { key: 0 };
 var _hoisted_26 = ["onClick"];
 var __default__24 = defineComponent({
   name: "DateTable"
@@ -14332,7 +19528,7 @@ var _sfc_main30 = defineComponent({
         cellspacing: "0",
         cellpadding: "0"
       }, [
-        !_ctx.hideHeader ? (openBlock(), createElementBlock("thead", _hoisted_110, [
+        !_ctx.hideHeader ? (openBlock(), createElementBlock("thead", _hoisted_111, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(weekDays), (day) => {
             return openBlock(), createElementBlock("th", { key: day }, toDisplayString(day), 1);
           }), 128))
@@ -14398,7 +19594,6 @@ var threeConsecutiveMonth = (start, end2) => {
   ];
 };
 var useCalendar = (props, emit, componentName2) => {
-  const slots = useSlots();
   const { lang } = useLocale();
   const selectedDay = ref();
   const now = (0, import_dayjs6.default)().locale(lang.value);
@@ -14479,14 +19674,6 @@ var useCalendar = (props, emit, componentName2) => {
       pickDay(day);
     }
   };
-  useDeprecated({
-    from: '"dateCell"',
-    replacement: '"date-cell"',
-    scope: "ElCalendar",
-    version: "2.3.0",
-    ref: "https://element-plus.org/en-US/component/calendar.html#slots",
-    type: "Slot"
-  }, computed2(() => !!slots.dateCell));
   return {
     calculateValidatedDateRange,
     date: date5,
@@ -14603,10 +19790,10 @@ var _sfc_main31 = defineComponent({
             "selected-day": unref(realSelectedDay),
             onPick: unref(pickDay)
           }, createSlots({ _: 2 }, [
-            _ctx.$slots["date-cell"] || _ctx.$slots.dateCell ? {
+            _ctx.$slots["date-cell"] ? {
               name: "date-cell",
               fn: withCtx((data) => [
-                _ctx.$slots["date-cell"] ? renderSlot(_ctx.$slots, "date-cell", normalizeProps(mergeProps({ key: 0 }, data))) : renderSlot(_ctx.$slots, "dateCell", normalizeProps(mergeProps({ key: 1 }, data)))
+                renderSlot(_ctx.$slots, "date-cell", normalizeProps(guardReactiveProps(data)))
               ])
             } : void 0
           ]), 1032, ["date", "selected-day", "onPick"])
@@ -14623,10 +19810,10 @@ var _sfc_main31 = defineComponent({
               "hide-header": index !== 0,
               onPick: unref(pickDay)
             }, createSlots({ _: 2 }, [
-              _ctx.$slots["date-cell"] || _ctx.$slots.dateCell ? {
+              _ctx.$slots["date-cell"] ? {
                 name: "date-cell",
                 fn: withCtx((data) => [
-                  _ctx.$slots["date-cell"] ? renderSlot(_ctx.$slots, "date-cell", normalizeProps(mergeProps({ key: 0 }, data))) : renderSlot(_ctx.$slots, "dateCell", normalizeProps(mergeProps({ key: 1 }, data)))
+                  renderSlot(_ctx.$slots, "date-cell", normalizeProps(guardReactiveProps(data)))
                 ])
               } : void 0
             ]), 1032, ["date", "selected-day", "range", "hide-header", "onPick"]);
@@ -14757,6 +19944,10 @@ var carouselProps = buildProps({
   pauseOnHover: {
     type: Boolean,
     default: true
+  },
+  motionBlur: {
+    type: Boolean,
+    default: false
   }
 });
 var carouselEmits = {
@@ -14781,6 +19972,8 @@ var useCarousel = (props, emit, componentName2) => {
   const root = ref();
   const containerHeight = ref(0);
   const isItemsTwoLength = ref(true);
+  const isFirstCall = ref(true);
+  const isTransitioning = ref(false);
   const arrowDisplay = computed2(() => props.arrow !== "never" && !unref(isVertical));
   const hasLabel = computed2(() => {
     return items.value.some((item) => item.props.label.toString().length > 0);
@@ -14821,6 +20014,10 @@ var useCarousel = (props, emit, componentName2) => {
     timer.value = setInterval(() => playSlides(), props.interval);
   }
   const playSlides = () => {
+    if (!isFirstCall.value) {
+      isTransitioning.value = true;
+    }
+    isFirstCall.value = false;
     if (activeIndex.value < items.value.length - 1) {
       activeIndex.value = activeIndex.value + 1;
     } else if (props.loop) {
@@ -14828,6 +20025,10 @@ var useCarousel = (props, emit, componentName2) => {
     }
   };
   function setActiveItem(index) {
+    if (!isFirstCall.value) {
+      isTransitioning.value = true;
+    }
+    isFirstCall.value = false;
     if (isString(index)) {
       const filteredItems = items.value.filter((item) => item.props.name === index);
       if (filteredItems.length > 0) {
@@ -14888,6 +20089,9 @@ var useCarousel = (props, emit, componentName2) => {
     hover.value = false;
     startTimer();
   }
+  function handleTransitionEnd() {
+    isTransitioning.value = false;
+  }
   function handleButtonEnter(arrow3) {
     if (unref(isVertical))
       return;
@@ -14905,11 +20109,19 @@ var useCarousel = (props, emit, componentName2) => {
     });
   }
   function handleIndicatorClick(index) {
+    if (index !== activeIndex.value) {
+      if (!isFirstCall.value) {
+        isTransitioning.value = true;
+      }
+    }
     activeIndex.value = index;
   }
   function handleIndicatorHover(index) {
     if (props.trigger === "hover" && index !== activeIndex.value) {
       activeIndex.value = index;
+      if (!isFirstCall.value) {
+        isTransitioning.value = true;
+      }
     }
   }
   function prev() {
@@ -15000,11 +20212,13 @@ var useCarousel = (props, emit, componentName2) => {
     hasLabel,
     hover,
     isCardType,
+    isTransitioning,
     items,
     isVertical,
     containerStyle,
     isItemsTwoLength,
     handleButtonEnter,
+    handleTransitionEnd,
     handleButtonLeave,
     handleIndicatorClick,
     handleMouseEnter,
@@ -15020,8 +20234,34 @@ var useCarousel = (props, emit, componentName2) => {
 };
 
 // node_modules/element-plus/es/components/carousel/src/carousel2.mjs
-var _hoisted_111 = ["onMouseenter", "onClick"];
-var _hoisted_27 = { key: 0 };
+var _hoisted_112 = ["aria-label"];
+var _hoisted_27 = ["aria-label"];
+var _hoisted_33 = ["onMouseenter", "onClick"];
+var _hoisted_4 = ["aria-label"];
+var _hoisted_5 = { key: 0 };
+var _hoisted_6 = {
+  key: 3,
+  xmlns: "http://www.w3.org/2000/svg",
+  version: "1.1",
+  style: { "display": "none" }
+};
+var _hoisted_7 = createBaseVNode("defs", null, [
+  createBaseVNode("filter", { id: "elCarouselHorizontal" }, [
+    createBaseVNode("feGaussianBlur", {
+      in: "SourceGraphic",
+      stdDeviation: "12,0"
+    })
+  ]),
+  createBaseVNode("filter", { id: "elCarouselVertical" }, [
+    createBaseVNode("feGaussianBlur", {
+      in: "SourceGraphic",
+      stdDeviation: "0,10"
+    })
+  ])
+], -1);
+var _hoisted_8 = [
+  _hoisted_7
+];
 var COMPONENT_NAME9 = "ElCarousel";
 var __default__27 = defineComponent({
   name: COMPONENT_NAME9
@@ -15044,9 +20284,11 @@ var _sfc_main33 = defineComponent({
       containerStyle,
       handleButtonEnter,
       handleButtonLeave,
+      isTransitioning,
       handleIndicatorClick,
       handleMouseEnter,
       handleMouseLeave,
+      handleTransitionEnd,
       setActiveItem,
       prev,
       next,
@@ -15056,10 +20298,18 @@ var _sfc_main33 = defineComponent({
       throttledIndicatorHover
     } = useCarousel(props, emit, COMPONENT_NAME9);
     const ns = useNamespace("carousel");
+    const { t } = useLocale();
     const carouselClasses = computed2(() => {
       const classes = [ns.b(), ns.m(props.direction)];
       if (unref(isCardType)) {
         classes.push(ns.m("card"));
+      }
+      return classes;
+    });
+    const carouselContainer = computed2(() => {
+      const classes = [ns.e("container")];
+      if (props.motionBlur && unref(isTransitioning)) {
+        classes.push(unref(isVertical) ? `${ns.namespace.value}-transitioning-vertical` : `${ns.namespace.value}-transitioning`);
       }
       return classes;
     });
@@ -15086,74 +20336,77 @@ var _sfc_main33 = defineComponent({
         ref_key: "root",
         ref: root,
         class: normalizeClass(unref(carouselClasses)),
-        onMouseenter: _cache[6] || (_cache[6] = withModifiers((...args) => unref(handleMouseEnter) && unref(handleMouseEnter)(...args), ["stop"])),
-        onMouseleave: _cache[7] || (_cache[7] = withModifiers((...args) => unref(handleMouseLeave) && unref(handleMouseLeave)(...args), ["stop"]))
+        onMouseenter: _cache[7] || (_cache[7] = withModifiers((...args) => unref(handleMouseEnter) && unref(handleMouseEnter)(...args), ["stop"])),
+        onMouseleave: _cache[8] || (_cache[8] = withModifiers((...args) => unref(handleMouseLeave) && unref(handleMouseLeave)(...args), ["stop"]))
       }, [
+        unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
+          key: 0,
+          name: "carousel-arrow-left",
+          persisted: ""
+        }, {
+          default: withCtx(() => [
+            withDirectives(createBaseVNode("button", {
+              type: "button",
+              class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "left")]),
+              "aria-label": unref(t)("el.carousel.leftArrow"),
+              onMouseenter: _cache[0] || (_cache[0] = ($event) => unref(handleButtonEnter)("left")),
+              onMouseleave: _cache[1] || (_cache[1] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
+              onClick: _cache[2] || (_cache[2] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) - 1), ["stop"]))
+            }, [
+              createVNode(unref(ElIcon), null, {
+                default: withCtx(() => [
+                  createVNode(unref(arrow_left_default))
+                ]),
+                _: 1
+              })
+            ], 42, _hoisted_112), [
+              [
+                vShow,
+                (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) > 0)
+              ]
+            ])
+          ]),
+          _: 1
+        })) : createCommentVNode("v-if", true),
+        unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
+          key: 1,
+          name: "carousel-arrow-right",
+          persisted: ""
+        }, {
+          default: withCtx(() => [
+            withDirectives(createBaseVNode("button", {
+              type: "button",
+              class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "right")]),
+              "aria-label": unref(t)("el.carousel.rightArrow"),
+              onMouseenter: _cache[3] || (_cache[3] = ($event) => unref(handleButtonEnter)("right")),
+              onMouseleave: _cache[4] || (_cache[4] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
+              onClick: _cache[5] || (_cache[5] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) + 1), ["stop"]))
+            }, [
+              createVNode(unref(ElIcon), null, {
+                default: withCtx(() => [
+                  createVNode(unref(arrow_right_default))
+                ]),
+                _: 1
+              })
+            ], 42, _hoisted_27), [
+              [
+                vShow,
+                (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) < unref(items).length - 1)
+              ]
+            ])
+          ]),
+          _: 1
+        })) : createCommentVNode("v-if", true),
         createBaseVNode("div", {
-          class: normalizeClass(unref(ns).e("container")),
-          style: normalizeStyle(unref(containerStyle))
+          class: normalizeClass(unref(carouselContainer)),
+          style: normalizeStyle(unref(containerStyle)),
+          onTransitionend: _cache[6] || (_cache[6] = (...args) => unref(handleTransitionEnd) && unref(handleTransitionEnd)(...args))
         }, [
-          unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
-            key: 0,
-            name: "carousel-arrow-left",
-            persisted: ""
-          }, {
-            default: withCtx(() => [
-              withDirectives(createBaseVNode("button", {
-                type: "button",
-                class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "left")]),
-                onMouseenter: _cache[0] || (_cache[0] = ($event) => unref(handleButtonEnter)("left")),
-                onMouseleave: _cache[1] || (_cache[1] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
-                onClick: _cache[2] || (_cache[2] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) - 1), ["stop"]))
-              }, [
-                createVNode(unref(ElIcon), null, {
-                  default: withCtx(() => [
-                    createVNode(unref(arrow_left_default))
-                  ]),
-                  _: 1
-                })
-              ], 34), [
-                [
-                  vShow,
-                  (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) > 0)
-                ]
-              ])
-            ]),
-            _: 1
-          })) : createCommentVNode("v-if", true),
-          unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
-            key: 1,
-            name: "carousel-arrow-right",
-            persisted: ""
-          }, {
-            default: withCtx(() => [
-              withDirectives(createBaseVNode("button", {
-                type: "button",
-                class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "right")]),
-                onMouseenter: _cache[3] || (_cache[3] = ($event) => unref(handleButtonEnter)("right")),
-                onMouseleave: _cache[4] || (_cache[4] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
-                onClick: _cache[5] || (_cache[5] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) + 1), ["stop"]))
-              }, [
-                createVNode(unref(ElIcon), null, {
-                  default: withCtx(() => [
-                    createVNode(unref(arrow_right_default))
-                  ]),
-                  _: 1
-                })
-              ], 34), [
-                [
-                  vShow,
-                  (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) < unref(items).length - 1)
-                ]
-              ])
-            ]),
-            _: 1
-          })) : createCommentVNode("v-if", true),
           createVNode(unref(PlaceholderItem)),
           renderSlot(_ctx.$slots, "default")
-        ], 6),
+        ], 38),
         _ctx.indicatorPosition !== "none" ? (openBlock(), createElementBlock("ul", {
-          key: 0,
+          key: 2,
           class: normalizeClass(unref(indicatorsClasses))
         }, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(items), (item, index) => {
@@ -15168,15 +20421,17 @@ var _sfc_main33 = defineComponent({
               onClick: withModifiers(($event) => unref(handleIndicatorClick)(index), ["stop"])
             }, [
               createBaseVNode("button", {
-                class: normalizeClass(unref(ns).e("button"))
+                class: normalizeClass(unref(ns).e("button")),
+                "aria-label": unref(t)("el.carousel.indicator", { index: index + 1 })
               }, [
-                unref(hasLabel) ? (openBlock(), createElementBlock("span", _hoisted_27, toDisplayString(item.props.label), 1)) : createCommentVNode("v-if", true)
-              ], 2)
-            ], 42, _hoisted_111)), [
+                unref(hasLabel) ? (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(item.props.label), 1)) : createCommentVNode("v-if", true)
+              ], 10, _hoisted_4)
+            ], 42, _hoisted_33)), [
               [vShow, unref(isTwoLengthShow)(index)]
             ]);
           }), 128))
-        ], 2)) : createCommentVNode("v-if", true)
+        ], 2)) : createCommentVNode("v-if", true),
+        props.motionBlur ? (openBlock(), createElementBlock("svg", _hoisted_6, _hoisted_8)) : createCommentVNode("v-if", true)
       ], 34);
     };
   }
@@ -15394,11 +20649,23 @@ var checkboxProps = {
     type: [String, Boolean, Number, Object],
     default: void 0
   },
+  value: {
+    type: [String, Boolean, Number, Object],
+    default: void 0
+  },
   indeterminate: Boolean,
   disabled: Boolean,
   checked: Boolean,
   name: {
     type: String,
+    default: void 0
+  },
+  trueValue: {
+    type: [String, Number],
+    default: void 0
+  },
+  falseValue: {
+    type: [String, Number],
     default: void 0
   },
   trueLabel: {
@@ -15423,7 +20690,8 @@ var checkboxProps = {
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaControls"])
 };
 var checkboxEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNumber2(val) || isBoolean(val),
@@ -15464,8 +20732,8 @@ var useCheckboxEvent = (props, {
   const { formItem } = useFormItem();
   const { emit } = getCurrentInstance();
   function getLabeledValue(value) {
-    var _a2, _b;
-    return value === props.trueLabel || value === true ? (_a2 = props.trueLabel) != null ? _a2 : true : (_b = props.falseLabel) != null ? _b : false;
+    var _a2, _b, _c, _d;
+    return [true, props.trueValue, props.trueLabel].includes(value) ? (_b = (_a2 = props.trueValue) != null ? _a2 : props.trueLabel) != null ? _b : true : (_d = (_c = props.falseValue) != null ? _c : props.falseLabel) != null ? _d : false;
   }
   function emitChangeEvent(checked, e) {
     emit("change", getLabeledValue(checked), e);
@@ -15483,7 +20751,7 @@ var useCheckboxEvent = (props, {
       const eventTargets = e.composedPath();
       const hasLabel = eventTargets.some((item) => item.tagName === "LABEL");
       if (!hasLabel) {
-        model.value = getLabeledValue([false, props.falseLabel].includes(model.value));
+        model.value = getLabeledValue([false, props.falseValue, props.falseLabel].includes(model.value));
         await nextTick();
         emitChangeEvent(model.value, e);
       }
@@ -15535,18 +20803,24 @@ var useCheckboxModel = (props) => {
 var useCheckboxStatus = (props, slots, { model }) => {
   const checkboxGroup = inject(checkboxGroupContextKey, void 0);
   const isFocused = ref(false);
+  const actualValue = computed2(() => {
+    if (!isPropAbsent(props.value)) {
+      return props.value;
+    }
+    return props.label;
+  });
   const isChecked = computed2(() => {
     const value = model.value;
     if (isBoolean(value)) {
       return value;
     } else if (isArray(value)) {
-      if (isObject(props.label)) {
-        return value.map(toRaw).some((o2) => isEqual_default(o2, props.label));
+      if (isObject(actualValue.value)) {
+        return value.map(toRaw).some((o2) => isEqual_default(o2, actualValue.value));
       } else {
-        return value.map(toRaw).includes(props.label);
+        return value.map(toRaw).includes(actualValue.value);
       }
     } else if (value !== null && value !== void 0) {
-      return value === props.trueLabel;
+      return value === props.trueValue || value === props.trueLabel;
     } else {
       return !!value;
     }
@@ -15562,28 +20836,19 @@ var useCheckboxStatus = (props, slots, { model }) => {
     return (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.size) == null ? void 0 : _a2.value;
   }));
   const hasOwnLabel = computed2(() => {
-    return !!slots.default || !isNil_default(props.label);
+    return !!slots.default || !isPropAbsent(actualValue.value);
   });
   return {
     checkboxButtonSize,
     isChecked,
     isFocused,
     checkboxSize,
-    hasOwnLabel
+    hasOwnLabel,
+    actualValue
   };
 };
 
 // node_modules/element-plus/es/components/checkbox/src/composables/use-checkbox.mjs
-var setStoreValue = (props, { model }) => {
-  function addToStore() {
-    if (isArray(model.value) && !model.value.includes(props.label)) {
-      model.value.push(props.label);
-    } else {
-      model.value = props.trueLabel || true;
-    }
-  }
-  props.checked && addToStore();
-};
 var useCheckbox = (props, slots) => {
   const { formItem: elFormItem } = useFormItem();
   const { model, isGroup, isLimitExceeded } = useCheckboxModel(props);
@@ -15592,7 +20857,8 @@ var useCheckbox = (props, slots) => {
     isChecked,
     checkboxButtonSize,
     checkboxSize,
-    hasOwnLabel
+    hasOwnLabel,
+    actualValue
   } = useCheckboxStatus(props, slots, { model });
   const { isDisabled } = useCheckboxDisabled({ model, isChecked });
   const { inputId, isLabeledByFormItem } = useFormItemInputId(props, {
@@ -15607,7 +20873,46 @@ var useCheckbox = (props, slots) => {
     isDisabled,
     isLabeledByFormItem
   });
-  setStoreValue(props, { model });
+  const setStoreValue = () => {
+    function addToStore() {
+      var _a2, _b;
+      if (isArray(model.value) && !model.value.includes(actualValue.value)) {
+        model.value.push(actualValue.value);
+      } else {
+        model.value = (_b = (_a2 = props.trueValue) != null ? _a2 : props.trueLabel) != null ? _b : true;
+      }
+    }
+    props.checked && addToStore();
+  };
+  setStoreValue();
+  useDeprecated({
+    from: "controls",
+    replacement: "aria-controls",
+    version: "2.8.0",
+    scope: "el-checkbox",
+    ref: "https://element-plus.org/en-US/component/checkbox.html"
+  }, computed2(() => !!props.controls));
+  useDeprecated({
+    from: "label act as value",
+    replacement: "value",
+    version: "3.0.0",
+    scope: "el-checkbox",
+    ref: "https://element-plus.org/en-US/component/checkbox.html"
+  }, computed2(() => isGroup.value && isPropAbsent(props.value)));
+  useDeprecated({
+    from: "true-label",
+    replacement: "true-value",
+    version: "3.0.0",
+    scope: "el-checkbox",
+    ref: "https://element-plus.org/en-US/component/checkbox.html"
+  }, computed2(() => !!props.trueLabel));
+  useDeprecated({
+    from: "false-label",
+    replacement: "false-value",
+    version: "3.0.0",
+    scope: "el-checkbox",
+    ref: "https://element-plus.org/en-US/component/checkbox.html"
+  }, computed2(() => !!props.falseLabel));
   return {
     inputId,
     isLabeledByFormItem,
@@ -15618,13 +20923,14 @@ var useCheckbox = (props, slots) => {
     checkboxSize,
     hasOwnLabel,
     model,
+    actualValue,
     handleChange,
     onClickRoot
   };
 };
 
 // node_modules/element-plus/es/components/checkbox/src/checkbox2.mjs
-var _hoisted_112 = ["id", "indeterminate", "name", "tabindex", "disabled", "true-value", "false-value"];
+var _hoisted_113 = ["id", "indeterminate", "name", "tabindex", "disabled", "true-value", "false-value"];
 var _hoisted_28 = ["id", "indeterminate", "disabled", "value", "name", "tabindex"];
 var __default__29 = defineComponent({
   name: "ElCheckbox"
@@ -15645,6 +20951,7 @@ var _sfc_main35 = defineComponent({
       checkboxSize,
       hasOwnLabel,
       model,
+      actualValue,
       handleChange,
       onClickRoot
     } = useCheckbox(props, slots);
@@ -15670,65 +20977,68 @@ var _sfc_main35 = defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createBlock(resolveDynamicComponent(!unref(hasOwnLabel) && unref(isLabeledByFormItem) ? "span" : "label"), {
         class: normalizeClass(unref(compKls)),
-        "aria-controls": _ctx.indeterminate ? _ctx.controls : null,
+        "aria-controls": _ctx.indeterminate ? _ctx.controls || _ctx.ariaControls : null,
         onClick: unref(onClickRoot)
       }, {
-        default: withCtx(() => [
-          createBaseVNode("span", {
-            class: normalizeClass(unref(spanKls))
-          }, [
-            _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
-              key: 0,
-              id: unref(inputId),
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
-              class: normalizeClass(unref(ns).e("original")),
-              type: "checkbox",
-              indeterminate: _ctx.indeterminate,
-              name: _ctx.name,
-              tabindex: _ctx.tabindex,
-              disabled: unref(isDisabled),
-              "true-value": _ctx.trueLabel,
-              "false-value": _ctx.falseLabel,
-              onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
-              onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
-              onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
-              onClick: _cache[4] || (_cache[4] = withModifiers(() => {
-              }, ["stop"]))
-            }, null, 42, _hoisted_112)), [
-              [vModelCheckbox, unref(model)]
-            ]) : withDirectives((openBlock(), createElementBlock("input", {
-              key: 1,
-              id: unref(inputId),
-              "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => isRef(model) ? model.value = $event : null),
-              class: normalizeClass(unref(ns).e("original")),
-              type: "checkbox",
-              indeterminate: _ctx.indeterminate,
-              disabled: unref(isDisabled),
-              value: _ctx.label,
-              name: _ctx.name,
-              tabindex: _ctx.tabindex,
-              onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
-              onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
-              onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
-              onClick: _cache[9] || (_cache[9] = withModifiers(() => {
-              }, ["stop"]))
-            }, null, 42, _hoisted_28)), [
-              [vModelCheckbox, unref(model)]
-            ]),
+        default: withCtx(() => {
+          var _a2, _b;
+          return [
             createBaseVNode("span", {
-              class: normalizeClass(unref(ns).e("inner"))
-            }, null, 2)
-          ], 2),
-          unref(hasOwnLabel) ? (openBlock(), createElementBlock("span", {
-            key: 0,
-            class: normalizeClass(unref(ns).e("label"))
-          }, [
-            renderSlot(_ctx.$slots, "default"),
-            !_ctx.$slots.default ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
-              createTextVNode(toDisplayString(_ctx.label), 1)
-            ], 64)) : createCommentVNode("v-if", true)
-          ], 2)) : createCommentVNode("v-if", true)
-        ]),
+              class: normalizeClass(unref(spanKls))
+            }, [
+              _ctx.trueValue || _ctx.falseValue || _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
+                key: 0,
+                id: unref(inputId),
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
+                class: normalizeClass(unref(ns).e("original")),
+                type: "checkbox",
+                indeterminate: _ctx.indeterminate,
+                name: _ctx.name,
+                tabindex: _ctx.tabindex,
+                disabled: unref(isDisabled),
+                "true-value": (_a2 = _ctx.trueValue) != null ? _a2 : _ctx.trueLabel,
+                "false-value": (_b = _ctx.falseValue) != null ? _b : _ctx.falseLabel,
+                onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
+                onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
+                onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
+                onClick: _cache[4] || (_cache[4] = withModifiers(() => {
+                }, ["stop"]))
+              }, null, 42, _hoisted_113)), [
+                [vModelCheckbox, unref(model)]
+              ]) : withDirectives((openBlock(), createElementBlock("input", {
+                key: 1,
+                id: unref(inputId),
+                "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => isRef(model) ? model.value = $event : null),
+                class: normalizeClass(unref(ns).e("original")),
+                type: "checkbox",
+                indeterminate: _ctx.indeterminate,
+                disabled: unref(isDisabled),
+                value: unref(actualValue),
+                name: _ctx.name,
+                tabindex: _ctx.tabindex,
+                onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
+                onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
+                onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
+                onClick: _cache[9] || (_cache[9] = withModifiers(() => {
+                }, ["stop"]))
+              }, null, 42, _hoisted_28)), [
+                [vModelCheckbox, unref(model)]
+              ]),
+              createBaseVNode("span", {
+                class: normalizeClass(unref(ns).e("inner"))
+              }, null, 2)
+            ], 2),
+            unref(hasOwnLabel) ? (openBlock(), createElementBlock("span", {
+              key: 0,
+              class: normalizeClass(unref(ns).e("label"))
+            }, [
+              renderSlot(_ctx.$slots, "default"),
+              !_ctx.$slots.default ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
+                createTextVNode(toDisplayString(_ctx.label), 1)
+              ], 64)) : createCommentVNode("v-if", true)
+            ], 2)) : createCommentVNode("v-if", true)
+          ];
+        }),
         _: 3
       }, 8, ["class", "aria-controls", "onClick"]);
     };
@@ -15737,7 +21047,7 @@ var _sfc_main35 = defineComponent({
 var Checkbox = _export_sfc(_sfc_main35, [["__file", "checkbox.vue"]]);
 
 // node_modules/element-plus/es/components/checkbox/src/checkbox-button.mjs
-var _hoisted_113 = ["name", "tabindex", "disabled", "true-value", "false-value"];
+var _hoisted_114 = ["name", "tabindex", "disabled", "true-value", "false-value"];
 var _hoisted_29 = ["name", "tabindex", "disabled", "value"];
 var __default__30 = defineComponent({
   name: "ElCheckboxButton"
@@ -15755,6 +21065,7 @@ var _sfc_main36 = defineComponent({
       isDisabled,
       checkboxButtonSize,
       model,
+      actualValue,
       handleChange
     } = useCheckbox(props, slots);
     const checkboxGroup = inject(checkboxGroupContextKey, void 0);
@@ -15779,10 +21090,11 @@ var _sfc_main36 = defineComponent({
       ];
     });
     return (_ctx, _cache) => {
+      var _a2, _b;
       return openBlock(), createElementBlock("label", {
         class: normalizeClass(unref(labelKls))
       }, [
-        _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
+        _ctx.trueValue || _ctx.falseValue || _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
           key: 0,
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
           class: normalizeClass(unref(ns).be("button", "original")),
@@ -15790,14 +21102,14 @@ var _sfc_main36 = defineComponent({
           name: _ctx.name,
           tabindex: _ctx.tabindex,
           disabled: unref(isDisabled),
-          "true-value": _ctx.trueLabel,
-          "false-value": _ctx.falseLabel,
+          "true-value": (_a2 = _ctx.trueValue) != null ? _a2 : _ctx.trueLabel,
+          "false-value": (_b = _ctx.falseValue) != null ? _b : _ctx.falseLabel,
           onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
           onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
           onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
           onClick: _cache[4] || (_cache[4] = withModifiers(() => {
           }, ["stop"]))
-        }, null, 42, _hoisted_113)), [
+        }, null, 42, _hoisted_114)), [
           [vModelCheckbox, unref(model)]
         ]) : withDirectives((openBlock(), createElementBlock("input", {
           key: 1,
@@ -15807,7 +21119,7 @@ var _sfc_main36 = defineComponent({
           name: _ctx.name,
           tabindex: _ctx.tabindex,
           disabled: unref(isDisabled),
-          value: _ctx.label,
+          value: unref(actualValue),
           onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
           onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
           onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
@@ -15851,7 +21163,8 @@ var checkboxGroupProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var checkboxGroupEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isArray(val),
@@ -15899,6 +21212,13 @@ var _sfc_main37 = defineComponent({
       modelValue,
       changeEvent
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-checkbox-group",
+      ref: "https://element-plus.org/en-US/component/checkbox.html"
+    }, computed2(() => !!props.label));
     watch(() => props.modelValue, () => {
       if (props.validateEvent) {
         formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
@@ -15910,7 +21230,7 @@ var _sfc_main37 = defineComponent({
         id: unref(groupId),
         class: normalizeClass(unref(ns).b("group")),
         role: "group",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "checkbox-group" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "checkbox-group" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? (_a2 = unref(formItem)) == null ? void 0 : _a2.labelId : void 0
       }, {
         default: withCtx(() => [
@@ -15933,23 +21253,27 @@ var ElCheckboxGroup = withNoopInstall(CheckboxGroup);
 
 // node_modules/element-plus/es/components/radio/src/radio.mjs
 var radioPropsBase = buildProps({
+  modelValue: {
+    type: [String, Number, Boolean],
+    default: void 0
+  },
   size: useSizeProp,
   disabled: Boolean,
   label: {
     type: [String, Number, Boolean],
-    default: ""
+    default: void 0
+  },
+  value: {
+    type: [String, Number, Boolean],
+    default: void 0
+  },
+  name: {
+    type: String,
+    default: void 0
   }
 });
 var radioProps = buildProps({
   ...radioPropsBase,
-  modelValue: {
-    type: [String, Number, Boolean],
-    default: ""
-  },
-  name: {
-    type: String,
-    default: ""
-  },
   border: Boolean
 });
 var radioEmits = {
@@ -15965,6 +21289,12 @@ var useRadio = (props, emit) => {
   const radioRef = ref();
   const radioGroup = inject(radioGroupKey, void 0);
   const isGroup = computed2(() => !!radioGroup);
+  const actualValue = computed2(() => {
+    if (!isPropAbsent(props.value)) {
+      return props.value;
+    }
+    return props.label;
+  });
   const modelValue = computed2({
     get() {
       return isGroup.value ? radioGroup.modelValue : props.modelValue;
@@ -15975,15 +21305,22 @@ var useRadio = (props, emit) => {
       } else {
         emit && emit(UPDATE_MODEL_EVENT, val);
       }
-      radioRef.value.checked = props.modelValue === props.label;
+      radioRef.value.checked = props.modelValue === actualValue.value;
     }
   });
   const size2 = useFormSize(computed2(() => radioGroup == null ? void 0 : radioGroup.size));
   const disabled = useFormDisabled(computed2(() => radioGroup == null ? void 0 : radioGroup.disabled));
   const focus = ref(false);
   const tabIndex = computed2(() => {
-    return disabled.value || isGroup.value && modelValue.value !== props.label ? -1 : 0;
+    return disabled.value || isGroup.value && modelValue.value !== actualValue.value ? -1 : 0;
   });
+  useDeprecated({
+    from: "label act as value",
+    replacement: "value",
+    version: "3.0.0",
+    scope: "el-radio",
+    ref: "https://element-plus.org/en-US/component/radio.html"
+  }, computed2(() => isGroup.value && isPropAbsent(props.value)));
   return {
     radioRef,
     isGroup,
@@ -15992,12 +21329,13 @@ var useRadio = (props, emit) => {
     size: size2,
     disabled,
     tabIndex,
-    modelValue
+    modelValue,
+    actualValue
   };
 };
 
 // node_modules/element-plus/es/components/radio/src/radio2.mjs
-var _hoisted_114 = ["value", "name", "disabled"];
+var _hoisted_115 = ["value", "name", "disabled"];
 var __default__32 = defineComponent({
   name: "ElRadio"
 });
@@ -16008,7 +21346,7 @@ var _sfc_main38 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("radio");
-    const { radioRef, radioGroup, focus, size: size2, disabled, modelValue } = useRadio(props, emit);
+    const { radioRef, radioGroup, focus, size: size2, disabled, modelValue, actualValue } = useRadio(props, emit);
     function handleChange() {
       nextTick(() => emit("change", modelValue.value));
     }
@@ -16020,7 +21358,7 @@ var _sfc_main38 = defineComponent({
           unref(ns).is("disabled", unref(disabled)),
           unref(ns).is("focus", unref(focus)),
           unref(ns).is("bordered", _ctx.border),
-          unref(ns).is("checked", unref(modelValue) === _ctx.label),
+          unref(ns).is("checked", unref(modelValue) === unref(actualValue)),
           unref(ns).m(unref(size2))
         ])
       }, [
@@ -16028,7 +21366,7 @@ var _sfc_main38 = defineComponent({
           class: normalizeClass([
             unref(ns).e("input"),
             unref(ns).is("disabled", unref(disabled)),
-            unref(ns).is("checked", unref(modelValue) === _ctx.label)
+            unref(ns).is("checked", unref(modelValue) === unref(actualValue))
           ])
         }, [
           withDirectives(createBaseVNode("input", {
@@ -16036,7 +21374,7 @@ var _sfc_main38 = defineComponent({
             ref: radioRef,
             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(modelValue) ? modelValue.value = $event : null),
             class: normalizeClass(unref(ns).e("original")),
-            value: _ctx.label,
+            value: unref(actualValue),
             name: _ctx.name || ((_a2 = unref(radioGroup)) == null ? void 0 : _a2.name),
             disabled: unref(disabled),
             type: "radio",
@@ -16045,7 +21383,7 @@ var _sfc_main38 = defineComponent({
             onChange: handleChange,
             onClick: _cache[3] || (_cache[3] = withModifiers(() => {
             }, ["stop"]))
-          }, null, 42, _hoisted_114), [
+          }, null, 42, _hoisted_115), [
             [vModelRadio, unref(modelValue)]
           ]),
           createBaseVNode("span", {
@@ -16069,15 +21407,11 @@ var Radio = _export_sfc(_sfc_main38, [["__file", "radio.vue"]]);
 
 // node_modules/element-plus/es/components/radio/src/radio-button.mjs
 var radioButtonProps = buildProps({
-  ...radioPropsBase,
-  name: {
-    type: String,
-    default: ""
-  }
+  ...radioPropsBase
 });
 
 // node_modules/element-plus/es/components/radio/src/radio-button2.mjs
-var _hoisted_115 = ["value", "name", "disabled"];
+var _hoisted_116 = ["value", "name", "disabled"];
 var __default__33 = defineComponent({
   name: "ElRadioButton"
 });
@@ -16087,7 +21421,7 @@ var _sfc_main39 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("radio");
-    const { radioRef, focus, size: size2, disabled, modelValue, radioGroup } = useRadio(props);
+    const { radioRef, focus, size: size2, disabled, modelValue, radioGroup, actualValue } = useRadio(props);
     const activeStyle = computed2(() => {
       return {
         backgroundColor: (radioGroup == null ? void 0 : radioGroup.fill) || "",
@@ -16101,7 +21435,7 @@ var _sfc_main39 = defineComponent({
       return openBlock(), createElementBlock("label", {
         class: normalizeClass([
           unref(ns).b("button"),
-          unref(ns).is("active", unref(modelValue) === _ctx.label),
+          unref(ns).is("active", unref(modelValue) === unref(actualValue)),
           unref(ns).is("disabled", unref(disabled)),
           unref(ns).is("focus", unref(focus)),
           unref(ns).bm("button", unref(size2))
@@ -16112,7 +21446,7 @@ var _sfc_main39 = defineComponent({
           ref: radioRef,
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(modelValue) ? modelValue.value = $event : null),
           class: normalizeClass(unref(ns).be("button", "original-radio")),
-          value: _ctx.label,
+          value: unref(actualValue),
           type: "radio",
           name: _ctx.name || ((_a2 = unref(radioGroup)) == null ? void 0 : _a2.name),
           disabled: unref(disabled),
@@ -16120,12 +21454,12 @@ var _sfc_main39 = defineComponent({
           onBlur: _cache[2] || (_cache[2] = ($event) => focus.value = false),
           onClick: _cache[3] || (_cache[3] = withModifiers(() => {
           }, ["stop"]))
-        }, null, 42, _hoisted_115), [
+        }, null, 42, _hoisted_116), [
           [vModelRadio, unref(modelValue)]
         ]),
         createBaseVNode("span", {
           class: normalizeClass(unref(ns).be("button", "inner")),
-          style: normalizeStyle(unref(modelValue) === _ctx.label ? unref(activeStyle) : {}),
+          style: normalizeStyle(unref(modelValue) === unref(actualValue) ? unref(activeStyle) : {}),
           onKeydown: _cache[4] || (_cache[4] = withModifiers(() => {
           }, ["stop"]))
         }, [
@@ -16149,7 +21483,7 @@ var radioGroupProps = buildProps({
   disabled: Boolean,
   modelValue: {
     type: [String, Number, Boolean],
-    default: ""
+    default: void 0
   },
   fill: {
     type: String,
@@ -16170,12 +21504,13 @@ var radioGroupProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var radioGroupEmits = radioEmits;
 
 // node_modules/element-plus/es/components/radio/src/radio-group2.mjs
-var _hoisted_116 = ["id", "aria-label", "aria-labelledby"];
+var _hoisted_117 = ["id", "aria-label", "aria-labelledby"];
 var __default__34 = defineComponent({
   name: "ElRadioGroup"
 });
@@ -16216,6 +21551,13 @@ var _sfc_main40 = defineComponent({
         formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
       }
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-radio-group",
+      ref: "https://element-plus.org/en-US/component/radio.html"
+    }, computed2(() => !!props.label));
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         id: unref(groupId),
@@ -16223,11 +21565,11 @@ var _sfc_main40 = defineComponent({
         ref: radioGroupRef,
         class: normalizeClass(unref(ns).b("group")),
         role: "radiogroup",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "radio-group" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "radio-group" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? unref(formItem).labelId : void 0
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 10, _hoisted_116);
+      ], 10, _hoisted_117);
     };
   }
 });
@@ -16378,7 +21720,7 @@ var _sfc_main41 = defineComponent({
     };
   }
 });
-var _hoisted_117 = ["id", "aria-haspopup", "aria-owns", "aria-expanded", "tabindex"];
+var _hoisted_118 = ["id", "aria-haspopup", "aria-owns", "aria-expanded", "tabindex"];
 var _hoisted_210 = createBaseVNode("span", null, null, -1);
 function _sfc_render2(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_checkbox = resolveComponent("el-checkbox");
@@ -16461,7 +21803,7 @@ function _sfc_render2(_ctx, _cache, $props, $setup, $data, $options) {
         _: 1
       }, 8, ["class"]))
     ], 64)) : createCommentVNode("v-if", true)
-  ], 42, _hoisted_117);
+  ], 42, _hoisted_118);
 }
 var ElCascaderNode = _export_sfc(_sfc_main41, [["render", _sfc_render2], ["__file", "node.vue"]]);
 
@@ -16989,11 +22331,7 @@ var _sfc_main43 = defineComponent({
         expandingNode.value = null;
       }
       oldNodes.forEach((node) => node.doCheck(false));
-      if (props.props.multiple) {
-        reactive(newNodes).forEach((node) => node.doCheck(true));
-      } else {
-        newNodes.forEach((node) => node.doCheck(true));
-      }
+      reactive(newNodes).forEach((node) => node.doCheck(true));
       checkedNodes.value = newNodes;
       nextTick(scrollToExpandingNode);
     };
@@ -17113,20 +22451,16 @@ var ElCascaderPanel = _CascaderPanel;
 var tagProps = buildProps({
   type: {
     type: String,
-    values: ["success", "info", "warning", "danger", ""],
-    default: ""
+    values: ["primary", "success", "info", "warning", "danger"],
+    default: "primary"
   },
   closable: Boolean,
   disableTransitions: Boolean,
   hit: Boolean,
-  color: {
-    type: String,
-    default: ""
-  },
+  color: String,
   size: {
     type: String,
-    values: componentSizes,
-    default: ""
+    values: componentSizes
   },
   effect: {
     type: String,
@@ -17157,7 +22491,7 @@ var _sfc_main44 = defineComponent({
       return [
         ns.b(),
         ns.is("closable", closable),
-        ns.m(type4),
+        ns.m(type4 || "primary"),
         ns.m(tagSize.value),
         ns.m(effect),
         ns.is("hit", hit),
@@ -17276,11 +22610,12 @@ var cascaderProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useEmptyValuesProps
 });
 var cascaderEmits = {
-  [UPDATE_MODEL_EVENT]: (val) => !!val || val === null,
-  [CHANGE_EVENT]: (val) => !!val || val === null,
+  [UPDATE_MODEL_EVENT]: (_2) => true,
+  [CHANGE_EVENT]: (_2) => true,
   focus: (evt) => evt instanceof FocusEvent,
   blur: (evt) => evt instanceof FocusEvent,
   visibleChange: (val) => isBoolean(val),
@@ -17289,9 +22624,9 @@ var cascaderEmits = {
 };
 
 // node_modules/element-plus/es/components/cascader/src/cascader2.mjs
-var _hoisted_118 = { key: 0 };
+var _hoisted_119 = { key: 0 };
 var _hoisted_211 = ["placeholder", "onKeydown"];
-var _hoisted_33 = ["onClick"];
+var _hoisted_34 = ["onClick"];
 var COMPONENT_NAME11 = "ElCascader";
 var __default__36 = defineComponent({
   name: COMPONENT_NAME11
@@ -17325,6 +22660,7 @@ var _sfc_main45 = defineComponent({
     const nsInput = useNamespace("input");
     const { t } = useLocale();
     const { form, formItem } = useFormItem();
+    const { valueOnClear } = useEmptyValues(props);
     const tooltipRef = ref(null);
     const input = ref(null);
     const tagWrapper = ref(null);
@@ -17365,13 +22701,15 @@ var _sfc_main45 = defineComponent({
       const nodes = checkedNodes.value;
       return nodes.length ? multiple.value ? "" : nodes[0].calcText(showAllLevels, separator) : "";
     });
+    const validateState = computed2(() => (formItem == null ? void 0 : formItem.validateState) || "");
     const checkedValue = computed2({
       get() {
         return cloneDeep_default(props.modelValue);
       },
       set(val) {
-        emit(UPDATE_MODEL_EVENT, val);
-        emit(CHANGE_EVENT, val);
+        const value = val || valueOnClear.value;
+        emit(UPDATE_MODEL_EVENT, value);
+        emit(CHANGE_EVENT, value);
         if (props.validateEvent) {
           formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
         }
@@ -17752,7 +23090,10 @@ var _sfc_main45 = defineComponent({
               key: 0,
               ref_key: "tagWrapper",
               ref: tagWrapper,
-              class: normalizeClass(unref(nsCascader).e("tags"))
+              class: normalizeClass([
+                unref(nsCascader).e("tags"),
+                unref(nsCascader).is("validate", Boolean(unref(validateState)))
+              ])
             }, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(presentTags.value, (tag) => {
                 return openBlock(), createBlock(unref(ElTag), {
@@ -17765,7 +23106,7 @@ var _sfc_main45 = defineComponent({
                   onClose: ($event) => deleteTag(tag)
                 }, {
                   default: withCtx(() => [
-                    tag.isCollapseTag === false ? (openBlock(), createElementBlock("span", _hoisted_118, toDisplayString(tag.text), 1)) : (openBlock(), createBlock(unref(ElTooltip), {
+                    tag.isCollapseTag === false ? (openBlock(), createElementBlock("span", _hoisted_119, toDisplayString(tag.text), 1)) : (openBlock(), createBlock(unref(ElTooltip), {
                       key: 1,
                       disabled: popperVisible.value || !_ctx.collapseTagsTooltip,
                       "fallback-placements": ["bottom", "top", "right", "left"],
@@ -17873,7 +23214,7 @@ var _sfc_main45 = defineComponent({
                     ]),
                     _: 1
                   })) : createCommentVNode("v-if", true)
-                ], 10, _hoisted_33);
+                ], 10, _hoisted_34);
               }), 128)) : renderSlot(_ctx.$slots, "empty", { key: 1 }, () => [
                 createBaseVNode("li", {
                   class: normalizeClass(unref(nsCascader).e("empty-text"))
@@ -17904,6 +23245,11 @@ var checkTagProps = buildProps({
   checked: {
     type: Boolean,
     default: false
+  },
+  type: {
+    type: String,
+    values: ["primary", "success", "info", "warning", "danger"],
+    default: "primary"
   }
 });
 var checkTagEmits = {
@@ -17922,7 +23268,11 @@ var _sfc_main46 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("check-tag");
-    const containerKls = computed2(() => [ns.b(), ns.is("checked", props.checked)]);
+    const containerKls = computed2(() => [
+      ns.b(),
+      ns.is("checked", props.checked),
+      ns.m(props.type || "primary")
+    ]);
     const handleChange = () => {
       const checked = !props.checked;
       emit(CHANGE_EVENT, checked);
@@ -18391,7 +23741,7 @@ var useCollapseItemDOM = (props, { focusing, isActive, id }) => {
 };
 
 // node_modules/element-plus/es/components/collapse/src/collapse-item2.mjs
-var _hoisted_119 = ["id", "aria-expanded", "aria-controls", "aria-describedby", "tabindex"];
+var _hoisted_120 = ["id", "aria-expanded", "aria-controls", "aria-describedby", "tabindex"];
 var _hoisted_212 = ["id", "aria-hidden", "aria-labelledby"];
 var __default__42 = defineComponent({
   name: "ElCollapseItem"
@@ -18449,7 +23799,7 @@ var _sfc_main51 = defineComponent({
             ]),
             _: 1
           }, 8, ["class"])
-        ], 42, _hoisted_119),
+        ], 42, _hoisted_120),
         createVNode(unref(_CollapseTransition), null, {
           default: withCtx(() => [
             withDirectives(createBaseVNode("div", {
@@ -18827,13 +24177,15 @@ var colorPickerProps = buildProps({
     type: [String, Number],
     default: 0
   },
+  teleported: useTooltipContentProps.teleported,
   predefine: {
     type: definePropType(Array)
   },
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var colorPickerEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNil_default(val),
@@ -19176,7 +24528,7 @@ var _sfc_main54 = defineComponent({
     };
   }
 });
-var _hoisted_120 = ["onClick"];
+var _hoisted_121 = ["onClick"];
 function _sfc_render6(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("div", {
     class: normalizeClass(_ctx.ns.b())
@@ -19197,7 +24549,7 @@ function _sfc_render6(_ctx, _cache, $props, $setup, $data, $options) {
           createBaseVNode("div", {
             style: normalizeStyle({ backgroundColor: item.value })
           }, null, 4)
-        ], 10, _hoisted_120);
+        ], 10, _hoisted_121);
       }), 128))
     ], 2)
   ], 2);
@@ -19275,9 +24627,9 @@ var _sfc_main55 = defineComponent({
     };
   }
 });
-var _hoisted_121 = createBaseVNode("div", null, null, -1);
+var _hoisted_122 = createBaseVNode("div", null, null, -1);
 var _hoisted_213 = [
-  _hoisted_121
+  _hoisted_122
 ];
 function _sfc_render7(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("div", {
@@ -19304,7 +24656,7 @@ function _sfc_render7(_ctx, _cache, $props, $setup, $data, $options) {
 var SvPanel = _export_sfc(_sfc_main55, [["render", _sfc_render7], ["__file", "sv-panel.vue"]]);
 
 // node_modules/element-plus/es/components/color-picker/src/color-picker2.mjs
-var _hoisted_122 = ["onKeydown"];
+var _hoisted_123 = ["onKeydown"];
 var _hoisted_214 = ["id", "aria-label", "aria-labelledby", "aria-description", "aria-disabled", "tabindex"];
 var __default__44 = defineComponent({
   name: "ElColorPicker"
@@ -19367,8 +24719,15 @@ var _sfc_main56 = defineComponent({
       return !props.modelValue && !showPanelColor.value ? "" : color.value;
     });
     const buttonAriaLabel = computed2(() => {
-      return !isLabeledByFormItem.value ? props.label || t("el.colorpicker.defaultLabel") : void 0;
+      return !isLabeledByFormItem.value ? props.label || props.ariaLabel || t("el.colorpicker.defaultLabel") : void 0;
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-color-picker",
+      ref: "https://element-plus.org/en-US/component/color-picker.html"
+    }, computed2(() => !!props.label));
     const buttonAriaLabelledby = computed2(() => {
       return isLabeledByFormItem.value ? formItem == null ? void 0 : formItem.labelId : void 0;
     });
@@ -19537,6 +24896,7 @@ var _sfc_main56 = defineComponent({
         "stop-popper-mouse-event": false,
         effect: "light",
         trigger: "click",
+        teleported: _ctx.teleported,
         transition: `${unref(ns).namespace.value}-zoom-in-top`,
         persistent: "",
         onHide: _cache[2] || (_cache[2] = ($event) => setShowPicker(false))
@@ -19613,7 +24973,7 @@ var _sfc_main56 = defineComponent({
                 _: 1
               }, 8, ["class"])
             ], 2)
-          ], 40, _hoisted_122)), [
+          ], 40, _hoisted_123)), [
             [unref(ClickOutside), handleClickOutside]
           ])
         ]),
@@ -19676,7 +25036,7 @@ var _sfc_main56 = defineComponent({
           ], 42, _hoisted_214)
         ]),
         _: 1
-      }, 8, ["visible", "popper-class", "transition"]);
+      }, 8, ["visible", "popper-class", "teleported", "transition"]);
     };
   }
 });
@@ -19873,7 +25233,15 @@ var datePickerProps = buildProps({
 var import_dayjs11 = __toESM(require_dayjs_min(), 1);
 
 // node_modules/element-plus/es/components/date-picker/src/props/shared.mjs
-var selectionModes = ["date", "dates", "year", "month", "week", "range"];
+var selectionModes = [
+  "date",
+  "dates",
+  "year",
+  "years",
+  "month",
+  "week",
+  "range"
+];
 var datePickerSharedProps = buildProps({
   disabledDate: {
     type: definePropType(Function)
@@ -20069,9 +25437,9 @@ var useBasicDateTable = (props, emit) => {
   });
   const setDateText = (cell, { count, rowIndex, columnIndex }) => {
     const { startOfMonthDay, dateCountOfMonth, dateCountOfLastMonth } = unref(days);
-    const offset2 = unref(offsetDay);
+    const offset3 = unref(offsetDay);
     if (rowIndex >= 0 && rowIndex <= 1) {
-      const numberOfDaysFromPreviousMonth = startOfMonthDay + offset2 < 0 ? 7 + startOfMonthDay + offset2 : startOfMonthDay + offset2;
+      const numberOfDaysFromPreviousMonth = startOfMonthDay + offset3 < 0 ? 7 + startOfMonthDay + offset3 : startOfMonthDay + offset3;
       if (columnIndex + rowIndex * 7 >= numberOfDaysFromPreviousMonth) {
         cell.text = count;
         return true;
@@ -20095,7 +25463,7 @@ var useBasicDateTable = (props, emit) => {
     const _selectedDate = unref(selectedDate);
     const shouldIncrement = setDateText(cell, { count, rowIndex, columnIndex });
     const cellDate = cell.dayjs.toDate();
-    cell.selected = _selectedDate.find((d2) => d2.valueOf() === cell.dayjs.valueOf());
+    cell.selected = _selectedDate.find((d2) => d2.isSame(cell.dayjs, "day"));
     cell.isSelected = !!cell.selected;
     cell.isCurrent = isCurrent(cell);
     cell.disabled = disabledDate2 == null ? void 0 : disabledDate2(cellDate);
@@ -20114,7 +25482,7 @@ var useBasicDateTable = (props, emit) => {
   };
   const rows = computed2(() => {
     const { minDate, maxDate, rangeState, showWeekNumber } = props;
-    const offset2 = unref(offsetDay);
+    const offset3 = unref(offsetDay);
     const rows_ = unref(tableRows);
     const dateUnit = "day";
     let count = 1;
@@ -20134,7 +25502,7 @@ var useBasicDateTable = (props, emit) => {
       nextEndDate: rangeState.endDate || maxDate || rangeState.selecting && minDate || null,
       now: (0, import_dayjs8.default)().locale(unref(lang)).startOf(dateUnit),
       unit: dateUnit,
-      relativeDateGetter: (idx) => unref(startDate).add(idx - offset2, dateUnit),
+      relativeDateGetter: (idx) => unref(startDate).add(idx - offset3, dateUnit),
       setCellMetadata: (...args) => {
         if (setCellMetadata(...args, count)) {
           count += 1;
@@ -20397,13 +25765,13 @@ var ElDatePickerCell = defineComponent({
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-date-table.mjs
-var _hoisted_123 = ["aria-label"];
+var _hoisted_124 = ["aria-label"];
 var _hoisted_215 = {
   key: 0,
   scope: "col"
 };
-var _hoisted_34 = ["aria-label"];
-var _hoisted_4 = ["aria-current", "aria-selected", "tabindex"];
+var _hoisted_35 = ["aria-label"];
+var _hoisted_42 = ["aria-current", "aria-selected", "tabindex"];
 var _sfc_main62 = defineComponent({
   __name: "basic-date-table",
   props: basicDateTableProps,
@@ -20455,7 +25823,7 @@ var _sfc_main62 = defineComponent({
                 key,
                 "aria-label": unref(t)("el.datepicker.weeksFull." + week),
                 scope: "col"
-              }, toDisplayString(unref(t)("el.datepicker.weeks." + week)), 9, _hoisted_34);
+              }, toDisplayString(unref(t)("el.datepicker.weeks." + week)), 9, _hoisted_35);
             }), 128))
           ]),
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(rows), (row, rowKey2) => {
@@ -20475,12 +25843,12 @@ var _sfc_main62 = defineComponent({
                   onFocus: _cache[0] || (_cache[0] = (...args) => unref(handleFocus) && unref(handleFocus)(...args))
                 }, [
                   createVNode(unref(ElDatePickerCell), { cell }, null, 8, ["cell"])
-                ], 42, _hoisted_4);
+                ], 42, _hoisted_42);
               }), 128))
             ], 2);
           }), 128))
         ], 512)
-      ], 42, _hoisted_123);
+      ], 42, _hoisted_124);
     };
   }
 });
@@ -20496,9 +25864,9 @@ var basicMonthTableProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-month-table.mjs
-var _hoisted_124 = ["aria-label"];
+var _hoisted_125 = ["aria-label"];
 var _hoisted_216 = ["aria-selected", "aria-label", "tabindex", "onKeydown"];
-var _hoisted_35 = { class: "cell" };
+var _hoisted_36 = { class: "cell" };
 var _sfc_main63 = defineComponent({
   __name: "basic-month-table",
   props: basicMonthTableProps,
@@ -20681,14 +26049,14 @@ var _sfc_main63 = defineComponent({
                   ]
                 }, [
                   createBaseVNode("div", null, [
-                    createBaseVNode("span", _hoisted_35, toDisplayString(unref(t)("el.datepicker.months." + months.value[cell.text])), 1)
+                    createBaseVNode("span", _hoisted_36, toDisplayString(unref(t)("el.datepicker.months." + months.value[cell.text])), 1)
                   ])
                 ], 42, _hoisted_216);
               }), 128))
             ]);
           }), 128))
         ], 512)
-      ], 42, _hoisted_124);
+      ], 42, _hoisted_125);
     };
   }
 });
@@ -20702,14 +26070,15 @@ var { date: date4, disabledDate, parsedValue } = datePickerSharedProps;
 var basicYearTableProps = buildProps({
   date: date4,
   disabledDate,
-  parsedValue
+  parsedValue,
+  selectionMode: selectionModeWithDefault("year")
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-year-table.mjs
-var _hoisted_125 = ["aria-label"];
+var _hoisted_126 = ["aria-label"];
 var _hoisted_217 = ["aria-selected", "tabindex", "onKeydown"];
-var _hoisted_36 = { class: "cell" };
-var _hoisted_42 = { key: 1 };
+var _hoisted_37 = { class: "cell" };
+var _hoisted_43 = { key: 1 };
 var _sfc_main64 = defineComponent({
   __name: "basic-year-table",
   props: basicYearTableProps,
@@ -20742,7 +26111,7 @@ var _sfc_main64 = defineComponent({
       return kls;
     };
     const isSelectedCell = (year) => {
-      return year === startYear.value && props.date.year() < startYear.value && props.date.year() > startYear.value + 9 || castArray(props.date).findIndex((date5) => date5.year() === year) >= 0;
+      return year === startYear.value && props.date.year() < startYear.value && props.date.year() > startYear.value + 9 || castArray(props.date).findIndex((date5) => date5.year() === year) >= 0 || castArray(props.parsedValue).findIndex((date5) => (date5 == null ? void 0 : date5.year()) === year) >= 0;
     };
     const handleYearTableClick = (event) => {
       const clickTarget = event.target;
@@ -20751,7 +26120,16 @@ var _sfc_main64 = defineComponent({
         if (hasClass(target2, "disabled"))
           return;
         const year = target2.textContent || target2.innerText;
-        emit("pick", Number(year));
+        if (props.selectionMode === "years") {
+          if (event.type === "keydown") {
+            emit("pick", castArray(props.parsedValue), false);
+            return;
+          }
+          const newValue = hasClass(target2, "current") ? castArray(props.parsedValue).filter((d2) => (d2 == null ? void 0 : d2.year()) !== Number(year)) : castArray(props.parsedValue).concat([(0, import_dayjs10.default)(year)]);
+          emit("pick", newValue);
+        } else {
+          emit("pick", Number(year));
+        }
       }
     };
     watch(() => props.date, async () => {
@@ -20793,25 +26171,27 @@ var _sfc_main64 = defineComponent({
                       withKeys(withModifiers(handleYearTableClick, ["prevent", "stop"]), ["enter"])
                     ]
                   }, [
-                    createBaseVNode("span", _hoisted_36, toDisplayString(unref(startYear) + i * 4 + j), 1)
-                  ], 42, _hoisted_217)) : (openBlock(), createElementBlock("td", _hoisted_42))
+                    createBaseVNode("div", null, [
+                      createBaseVNode("span", _hoisted_37, toDisplayString(unref(startYear) + i * 4 + j), 1)
+                    ])
+                  ], 42, _hoisted_217)) : (openBlock(), createElementBlock("td", _hoisted_43))
                 ], 64);
               }), 64))
             ]);
           }), 64))
         ], 512)
-      ], 10, _hoisted_125);
+      ], 10, _hoisted_126);
     };
   }
 });
 var YearTable = _export_sfc(_sfc_main64, [["__file", "basic-year-table.vue"]]);
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-date-pick.mjs
-var _hoisted_126 = ["onClick"];
+var _hoisted_127 = ["onClick"];
 var _hoisted_218 = ["aria-label"];
-var _hoisted_37 = ["aria-label"];
-var _hoisted_43 = ["aria-label"];
-var _hoisted_5 = ["aria-label"];
+var _hoisted_38 = ["aria-label"];
+var _hoisted_44 = ["aria-label"];
+var _hoisted_52 = ["aria-label"];
 var _sfc_main65 = defineComponent({
   __name: "panel-date-pick",
   props: panelDatePickProps,
@@ -20928,7 +26308,7 @@ var _sfc_main65 = defineComponent({
     };
     const selectionMode = computed2(() => {
       const { type: type4 } = props;
-      if (["week", "month", "year", "dates"].includes(type4))
+      if (["week", "month", "year", "years", "dates"].includes(type4))
         return type4;
       return "date";
     });
@@ -20950,10 +26330,12 @@ var _sfc_main65 = defineComponent({
       }
       handlePanelChange("month");
     };
-    const handleYearPick = async (year2) => {
+    const handleYearPick = async (year2, keepOpen) => {
       if (selectionMode.value === "year") {
         innerDate.value = innerDate.value.startOf("year").year(year2);
         emit(innerDate.value, false);
+      } else if (selectionMode.value === "years") {
+        emit(year2, keepOpen != null ? keepOpen : true);
       } else {
         innerDate.value = innerDate.value.year(year2);
         currentView.value = "month";
@@ -20972,7 +26354,11 @@ var _sfc_main65 = defineComponent({
     };
     const showTime = computed2(() => props.type === "datetime" || props.type === "datetimerange");
     const footerVisible = computed2(() => {
-      return showTime.value || selectionMode.value === "dates";
+      const showDateFooter = showTime.value || selectionMode.value === "dates";
+      const showYearFooter = selectionMode.value === "years";
+      const isDateView = currentView.value === "date";
+      const isYearView = currentView.value === "year";
+      return showDateFooter && isDateView || showYearFooter && isYearView;
     });
     const disabledConfirm = computed2(() => {
       if (!disabledDate2)
@@ -20985,7 +26371,7 @@ var _sfc_main65 = defineComponent({
       return disabledDate2(props.parsedValue.toDate());
     });
     const onConfirm = () => {
-      if (selectionMode.value === "dates") {
+      if (selectionMode.value === "dates" || selectionMode.value === "years") {
         emit(props.parsedValue);
       } else {
         let result = props.parsedValue;
@@ -21084,10 +26470,7 @@ var _sfc_main65 = defineComponent({
       return import_dayjs11.default.isDayjs(date5) && date5.isValid() && (disabledDate2 ? !disabledDate2(date5.toDate()) : true);
     };
     const formatToString = (value) => {
-      if (selectionMode.value === "dates") {
-        return value.map((_2) => _2.format(props.format));
-      }
-      return value.format(props.format);
+      return isArray(value) ? value.map((_2) => _2.format(props.format)) : value.format(props.format);
     };
     const parseUserInput = (value) => {
       return (0, import_dayjs11.default)(value, props.format).locale(lang.value);
@@ -21190,6 +26573,9 @@ var _sfc_main65 = defineComponent({
       if (["month", "year"].includes(val)) {
         currentView.value = val;
         return;
+      } else if (val === "years") {
+        currentView.value = "year";
+        return;
       }
       currentView.value = "date";
     }, { immediate: true });
@@ -21203,7 +26589,7 @@ var _sfc_main65 = defineComponent({
     }, { immediate: true });
     watch(() => props.parsedValue, (val) => {
       if (val) {
-        if (selectionMode.value === "dates")
+        if (selectionMode.value === "dates" || selectionMode.value === "years")
           return;
         if (Array.isArray(val))
           return;
@@ -21243,7 +26629,7 @@ var _sfc_main65 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => handleShortcutClick(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_126);
+              }, toDisplayString(shortcut.text), 11, _hoisted_127);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -21321,7 +26707,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_37), [
+                ], 10, _hoisted_38), [
                   [vShow, currentView.value === "date"]
                 ])
               ], 2),
@@ -21361,7 +26747,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_43), [
+                ], 10, _hoisted_44), [
                   [vShow, currentView.value === "date"]
                 ]),
                 createBaseVNode("button", {
@@ -21376,7 +26762,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_5)
+                ], 10, _hoisted_52)
               ], 2)
             ], 2), [
               [vShow, currentView.value !== "time"]
@@ -21400,11 +26786,12 @@ var _sfc_main65 = defineComponent({
                 key: 1,
                 ref_key: "currentViewRef",
                 ref: currentViewRef,
+                "selection-mode": unref(selectionMode),
                 date: innerDate.value,
                 "disabled-date": unref(disabledDate2),
                 "parsed-value": _ctx.parsedValue,
                 onPick: handleYearPick
-              }, null, 8, ["date", "disabled-date", "parsed-value"])) : createCommentVNode("v-if", true),
+              }, null, 8, ["selection-mode", "date", "disabled-date", "parsed-value"])) : createCommentVNode("v-if", true),
               currentView.value === "month" ? (openBlock(), createBlock(MonthTable, {
                 key: 2,
                 ref_key: "currentViewRef",
@@ -21432,7 +26819,7 @@ var _sfc_main65 = defineComponent({
             ]),
             _: 1
           }, 8, ["class", "disabled"]), [
-            [vShow, unref(selectionMode) !== "dates"]
+            [vShow, unref(selectionMode) !== "dates" && unref(selectionMode) !== "years"]
           ]),
           createVNode(unref(ElButton), {
             plain: "",
@@ -21447,7 +26834,7 @@ var _sfc_main65 = defineComponent({
             _: 1
           }, 8, ["class", "disabled"])
         ], 2), [
-          [vShow, unref(footerVisible) && currentView.value === "date"]
+          [vShow, unref(footerVisible)]
         ])
       ], 2);
     };
@@ -21568,14 +26955,14 @@ var useRangePicker = (props, {
 };
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-date-range.mjs
-var _hoisted_127 = ["onClick"];
+var _hoisted_128 = ["onClick"];
 var _hoisted_219 = ["aria-label"];
-var _hoisted_38 = ["aria-label"];
-var _hoisted_44 = ["disabled", "aria-label"];
-var _hoisted_52 = ["disabled", "aria-label"];
-var _hoisted_6 = ["disabled", "aria-label"];
-var _hoisted_7 = ["disabled", "aria-label"];
-var _hoisted_8 = ["aria-label"];
+var _hoisted_39 = ["aria-label"];
+var _hoisted_45 = ["disabled", "aria-label"];
+var _hoisted_53 = ["disabled", "aria-label"];
+var _hoisted_62 = ["disabled", "aria-label"];
+var _hoisted_72 = ["disabled", "aria-label"];
+var _hoisted_82 = ["aria-label"];
 var _hoisted_9 = ["aria-label"];
 var unit = "month";
 var _sfc_main66 = defineComponent({
@@ -21866,6 +27253,8 @@ var _sfc_main66 = defineComponent({
         unlinkPanels: props.unlinkPanels
       })[0];
       rightDate.value = leftDate.value.add(1, "month");
+      maxDate.value = void 0;
+      minDate.value = void 0;
       emit("pick", null);
     };
     const formatToString = (value) => {
@@ -21919,7 +27308,7 @@ var _sfc_main66 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => unref(handleShortcutClick)(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_127);
+              }, toDisplayString(shortcut.text), 11, _hoisted_128);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -22055,7 +27444,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_38),
+                ], 10, _hoisted_39),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 0,
                   type: "button",
@@ -22070,7 +27459,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_44)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_45)) : createCommentVNode("v-if", true),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 1,
                   type: "button",
@@ -22088,7 +27477,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_52)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_53)) : createCommentVNode("v-if", true),
                 createBaseVNode("div", null, toDisplayString(unref(leftLabel)), 1)
               ], 2),
               createVNode(DateTable2, {
@@ -22124,7 +27513,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_6)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_62)) : createCommentVNode("v-if", true),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 1,
                   type: "button",
@@ -22142,7 +27531,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_7)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_72)) : createCommentVNode("v-if", true),
                 createBaseVNode("button", {
                   type: "button",
                   "aria-label": unref(t)(`el.datepicker.nextYear`),
@@ -22155,7 +27544,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_8),
+                ], 10, _hoisted_82),
                 createBaseVNode("button", {
                   type: "button",
                   class: normalizeClass([unref(ppNs).e("icon-btn"), "arrow-right"]),
@@ -22284,9 +27673,9 @@ var useMonthRangeHeader = ({
 };
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-month-range.mjs
-var _hoisted_128 = ["onClick"];
+var _hoisted_129 = ["onClick"];
 var _hoisted_220 = ["disabled"];
-var _hoisted_39 = ["disabled"];
+var _hoisted_310 = ["disabled"];
 var unit2 = "year";
 var __default__50 = defineComponent({
   name: "DatePickerMonthRange"
@@ -22390,7 +27779,7 @@ var _sfc_main67 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => unref(handleShortcutClick)(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_128);
+              }, toDisplayString(shortcut.text), 11, _hoisted_129);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -22464,7 +27853,7 @@ var _sfc_main67 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_39)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_310)) : createCommentVNode("v-if", true),
                 createBaseVNode("button", {
                   type: "button",
                   class: normalizeClass([unref(ppNs).e("icon-btn"), "d-arrow-right"]),
@@ -22672,7 +28061,7 @@ var ElDescriptionsCell = defineComponent({
   }
 });
 
-// node_modules/element-plus/es/components/descriptions/src/descriptions-row.mjs
+// node_modules/element-plus/es/components/descriptions/src/descriptions-row2.mjs
 var descriptionsRowProps = buildProps({
   row: {
     type: definePropType(Array),
@@ -22680,8 +28069,8 @@ var descriptionsRowProps = buildProps({
   }
 });
 
-// node_modules/element-plus/es/components/descriptions/src/descriptions-row2.mjs
-var _hoisted_129 = { key: 1 };
+// node_modules/element-plus/es/components/descriptions/src/descriptions-row.mjs
+var _hoisted_130 = { key: 1 };
 var __default__51 = defineComponent({
   name: "ElDescriptionsRow"
 });
@@ -22712,7 +28101,7 @@ var _sfc_main68 = defineComponent({
             }, null, 8, ["cell"]);
           }), 128))
         ])
-      ], 64)) : (openBlock(), createElementBlock("tr", _hoisted_129, [
+      ], 64)) : (openBlock(), createElementBlock("tr", _hoisted_130, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.row, (cell, _index) => {
           return openBlock(), createElementBlock(Fragment, {
             key: `tr3-${_index}`
@@ -22992,11 +28381,8 @@ var dialogContentProps = buildProps({
   closeIcon: {
     type: iconPropType
   },
-  customClass: {
-    type: String,
-    default: ""
-  },
   draggable: Boolean,
+  overflow: Boolean,
   fullscreen: Boolean,
   showClose: {
     type: Boolean,
@@ -23016,9 +28402,9 @@ var dialogContentEmits = {
 };
 
 // node_modules/element-plus/es/components/dialog/src/dialog-content2.mjs
-var _hoisted_130 = ["aria-level"];
+var _hoisted_131 = ["aria-level"];
 var _hoisted_221 = ["aria-label"];
-var _hoisted_310 = ["id"];
+var _hoisted_311 = ["id"];
 var __default__53 = defineComponent({ name: "ElDialogContent" });
 var _sfc_main70 = defineComponent({
   ...__default__53,
@@ -23035,12 +28421,12 @@ var _sfc_main70 = defineComponent({
       ns.is("fullscreen", props.fullscreen),
       ns.is("draggable", props.draggable),
       ns.is("align-center", props.alignCenter),
-      { [ns.m("center")]: props.center },
-      props.customClass
+      { [ns.m("center")]: props.center }
     ]);
     const composedDialogRef = composeRefs(focusTrapRef, dialogRef);
     const draggable2 = computed2(() => props.draggable);
-    useDraggable(dialogRef, headerRef, draggable2);
+    const overflow = computed2(() => props.overflow);
+    useDraggable(dialogRef, headerRef, draggable2, overflow);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         ref: unref(composedDialogRef),
@@ -23051,14 +28437,14 @@ var _sfc_main70 = defineComponent({
         createBaseVNode("header", {
           ref_key: "headerRef",
           ref: headerRef,
-          class: normalizeClass(unref(ns).e("header"))
+          class: normalizeClass([unref(ns).e("header"), { "show-close": _ctx.showClose }])
         }, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             createBaseVNode("span", {
               role: "heading",
               "aria-level": _ctx.ariaLevel,
               class: normalizeClass(unref(ns).e("title"))
-            }, toDisplayString(_ctx.title), 11, _hoisted_130)
+            }, toDisplayString(_ctx.title), 11, _hoisted_131)
           ]),
           _ctx.showClose ? (openBlock(), createElementBlock("button", {
             key: 0,
@@ -23082,7 +28468,7 @@ var _sfc_main70 = defineComponent({
           class: normalizeClass(unref(ns).e("body"))
         }, [
           renderSlot(_ctx.$slots, "default")
-        ], 10, _hoisted_310),
+        ], 10, _hoisted_311),
         _ctx.$slots.footer ? (openBlock(), createElementBlock("footer", {
           key: 0,
           class: normalizeClass(unref(ns).e("footer"))
@@ -23334,7 +28720,7 @@ var useDialog = (props, targetRef) => {
 };
 
 // node_modules/element-plus/es/components/dialog/src/dialog2.mjs
-var _hoisted_131 = ["aria-label", "aria-labelledby", "aria-describedby"];
+var _hoisted_132 = ["aria-label", "aria-labelledby", "aria-describedby"];
 var __default__54 = defineComponent({
   name: "ElDialog",
   inheritAttrs: false
@@ -23353,14 +28739,6 @@ var _sfc_main71 = defineComponent({
       version: "3.0.0",
       ref: "https://element-plus.org/en-US/component/dialog.html#slots"
     }, computed2(() => !!slots.title));
-    useDeprecated({
-      scope: "el-dialog",
-      from: "custom-class",
-      replacement: "class",
-      version: "2.3.0",
-      ref: "https://element-plus.org/en-US/component/dialog.html#attributes",
-      type: "Attribute"
-    }, computed2(() => !!props.customClass));
     const ns = useNamespace("dialog");
     const dialogRef = ref();
     const headerRef = ref();
@@ -23444,11 +28822,11 @@ var _sfc_main71 = defineComponent({
                         ref_key: "dialogContentRef",
                         ref: dialogContentRef
                       }, _ctx.$attrs, {
-                        "custom-class": _ctx.customClass,
                         center: _ctx.center,
                         "align-center": _ctx.alignCenter,
                         "close-icon": _ctx.closeIcon,
                         draggable: unref(draggable2),
+                        overflow: _ctx.overflow,
                         fullscreen: _ctx.fullscreen,
                         "show-close": _ctx.showClose,
                         title: _ctx.title,
@@ -23474,11 +28852,11 @@ var _sfc_main71 = defineComponent({
                             renderSlot(_ctx.$slots, "footer")
                           ])
                         } : void 0
-                      ]), 1040, ["custom-class", "center", "align-center", "close-icon", "draggable", "fullscreen", "show-close", "title", "aria-level", "onClose"])) : createCommentVNode("v-if", true)
+                      ]), 1040, ["center", "align-center", "close-icon", "draggable", "overflow", "fullscreen", "show-close", "title", "aria-level", "onClose"])) : createCommentVNode("v-if", true)
                     ]),
                     _: 3
                   }, 8, ["trapped", "onFocusAfterTrapped", "onFocusAfterReleased", "onFocusoutPrevented", "onReleaseRequested"])
-                ], 46, _hoisted_131)
+                ], 46, _hoisted_132)
               ]),
               _: 3
             }, 8, ["mask", "overlay-class", "z-index"]), [
@@ -23578,10 +28956,10 @@ var drawerProps = buildProps({
 var drawerEmits = dialogEmits;
 
 // node_modules/element-plus/es/components/drawer/src/drawer2.mjs
-var _hoisted_132 = ["aria-label", "aria-labelledby", "aria-describedby"];
+var _hoisted_133 = ["aria-label", "aria-labelledby", "aria-describedby"];
 var _hoisted_222 = ["id", "aria-level"];
-var _hoisted_311 = ["aria-label"];
-var _hoisted_45 = ["id"];
+var _hoisted_312 = ["aria-label"];
+var _hoisted_46 = ["id"];
 var __default__56 = defineComponent({
   name: "ElDrawer",
   inheritAttrs: false
@@ -23600,14 +28978,6 @@ var _sfc_main73 = defineComponent({
       version: "3.0.0",
       ref: "https://element-plus.org/en-US/component/drawer.html#slots"
     }, computed2(() => !!slots.title));
-    useDeprecated({
-      scope: "el-drawer",
-      from: "custom-class",
-      replacement: "class",
-      version: "2.3.0",
-      ref: "https://element-plus.org/en-US/component/drawer.html#attributes",
-      type: "Attribute"
-    }, computed2(() => !!props.customClass));
     const drawerRef = ref();
     const focusStartRef = ref();
     const ns = useNamespace("drawer");
@@ -23620,7 +28990,11 @@ var _sfc_main73 = defineComponent({
       rendered,
       titleId,
       bodyId,
+      zIndex: zIndex2,
       onModalClick,
+      onOpenAutoFocus,
+      onCloseAutoFocus,
+      onFocusoutPrevented,
       onCloseRequested,
       handleClose
     } = useDialog(props, drawerRef);
@@ -23647,7 +29021,7 @@ var _sfc_main73 = defineComponent({
             withDirectives(createVNode(unref(ElOverlay), {
               mask: _ctx.modal,
               "overlay-class": _ctx.modalClass,
-              "z-index": _ctx.zIndex,
+              "z-index": unref(zIndex2),
               onClick: unref(onModalClick)
             }, {
               default: withCtx(() => [
@@ -23656,6 +29030,9 @@ var _sfc_main73 = defineComponent({
                   trapped: unref(visible),
                   "focus-trap-el": drawerRef.value,
                   "focus-start-el": focusStartRef.value,
+                  onFocusAfterTrapped: unref(onOpenAutoFocus),
+                  onFocusAfterReleased: unref(onCloseAutoFocus),
+                  onFocusoutPrevented: unref(onFocusoutPrevented),
                   onReleaseRequested: unref(onCloseRequested)
                 }, {
                   default: withCtx(() => [
@@ -23667,7 +29044,7 @@ var _sfc_main73 = defineComponent({
                       "aria-labelledby": !_ctx.title ? unref(titleId) : void 0,
                       "aria-describedby": unref(bodyId)
                     }, _ctx.$attrs, {
-                      class: [unref(ns).b(), _ctx.direction, unref(visible) && "open", _ctx.customClass],
+                      class: [unref(ns).b(), _ctx.direction, unref(visible) && "open"],
                       style: unref(isHorizontal2) ? "width: " + unref(drawerSize) : "height: " + unref(drawerSize),
                       role: "dialog",
                       onClick: _cache[1] || (_cache[1] = withModifiers(() => {
@@ -23714,7 +29091,7 @@ var _sfc_main73 = defineComponent({
                             ]),
                             _: 1
                           }, 8, ["class"])
-                        ], 10, _hoisted_311)) : createCommentVNode("v-if", true)
+                        ], 10, _hoisted_312)) : createCommentVNode("v-if", true)
                       ], 2)) : createCommentVNode("v-if", true),
                       unref(rendered) ? (openBlock(), createElementBlock("div", {
                         key: 1,
@@ -23722,17 +29099,17 @@ var _sfc_main73 = defineComponent({
                         class: normalizeClass(unref(ns).e("body"))
                       }, [
                         renderSlot(_ctx.$slots, "default")
-                      ], 10, _hoisted_45)) : createCommentVNode("v-if", true),
+                      ], 10, _hoisted_46)) : createCommentVNode("v-if", true),
                       _ctx.$slots.footer ? (openBlock(), createElementBlock("div", {
                         key: 2,
                         class: normalizeClass(unref(ns).e("footer"))
                       }, [
                         renderSlot(_ctx.$slots, "footer")
                       ], 2)) : createCommentVNode("v-if", true)
-                    ], 16, _hoisted_132)
+                    ], 16, _hoisted_133)
                   ]),
                   _: 3
-                }, 8, ["trapped", "focus-trap-el", "focus-start-el", "onReleaseRequested"])
+                }, 8, ["trapped", "focus-trap-el", "focus-start-el", "onFocusAfterTrapped", "onFocusAfterReleased", "onFocusoutPrevented", "onReleaseRequested"])
               ]),
               _: 3
             }, 8, ["mask", "overlay-class", "z-index", "onClick"]), [
@@ -24564,7 +29941,7 @@ var _sfc_main80 = defineComponent({
     };
   }
 });
-var _hoisted_133 = ["aria-disabled", "tabindex", "role"];
+var _hoisted_134 = ["aria-disabled", "tabindex", "role"];
 function _sfc_render14(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
   return openBlock(), createElementBlock(Fragment, null, [
@@ -24592,7 +29969,7 @@ function _sfc_render14(_ctx, _cache, $props, $setup, $data, $options) {
         _: 1
       })) : createCommentVNode("v-if", true),
       renderSlot(_ctx.$slots, "default")
-    ], 16, _hoisted_133)
+    ], 16, _hoisted_134)
   ], 64);
 }
 var ElDropdownItemImpl = _export_sfc(_sfc_main80, [["render", _sfc_render14], ["__file", "dropdown-item-impl.vue"]]);
@@ -24778,7 +30155,7 @@ var _sfc_main82 = defineComponent({
     };
   }
 });
-var _hoisted_134 = ["role", "aria-labelledby"];
+var _hoisted_135 = ["role", "aria-labelledby"];
 function _sfc_render16(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("ul", {
     ref: _ctx.dropdownListWrapperRef,
@@ -24793,7 +30170,7 @@ function _sfc_render16(_ctx, _cache, $props, $setup, $data, $options) {
     onMousedown: _cache[3] || (_cache[3] = withModifiers((...args) => _ctx.onMousedown && _ctx.onMousedown(...args), ["self"]))
   }, [
     renderSlot(_ctx.$slots, "default")
-  ], 46, _hoisted_134);
+  ], 46, _hoisted_135);
 }
 var DropdownMenu = _export_sfc(_sfc_main82, [["render", _sfc_render16], ["__file", "dropdown-menu.vue"]]);
 
@@ -24806,19 +30183,19 @@ var ElDropdownItem = withNoopInstall(DropdownItem);
 var ElDropdownMenu = withNoopInstall(DropdownMenu);
 
 // node_modules/element-plus/es/components/empty/src/img-empty.mjs
-var _hoisted_135 = {
+var _hoisted_136 = {
   viewBox: "0 0 79 86",
   version: "1.1",
   xmlns: "http://www.w3.org/2000/svg",
   "xmlns:xlink": "http://www.w3.org/1999/xlink"
 };
 var _hoisted_223 = ["id"];
-var _hoisted_312 = ["stop-color"];
-var _hoisted_46 = ["stop-color"];
-var _hoisted_53 = ["id"];
-var _hoisted_62 = ["stop-color"];
-var _hoisted_72 = ["stop-color"];
-var _hoisted_82 = ["id"];
+var _hoisted_313 = ["stop-color"];
+var _hoisted_47 = ["stop-color"];
+var _hoisted_54 = ["id"];
+var _hoisted_63 = ["stop-color"];
+var _hoisted_73 = ["stop-color"];
+var _hoisted_83 = ["id"];
 var _hoisted_92 = {
   id: "Illustrations",
   stroke: "none",
@@ -24835,7 +30212,7 @@ var _hoisted_11 = {
   transform: "translate(1268.000000, 535.000000)"
 };
 var _hoisted_1210 = ["fill"];
-var _hoisted_136 = ["fill"];
+var _hoisted_137 = ["fill"];
 var _hoisted_142 = {
   id: "Group-Copy",
   transform: "translate(34.500000, 31.500000) scale(-1, 1) rotate(-25.000000) translate(-34.500000, -31.500000) translate(7.000000, 10.000000)"
@@ -24861,7 +30238,7 @@ var _sfc_main83 = defineComponent({
     const ns = useNamespace("empty");
     const id = useId();
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("svg", _hoisted_135, [
+      return openBlock(), createElementBlock("svg", _hoisted_136, [
         createBaseVNode("defs", null, [
           createBaseVNode("linearGradient", {
             id: `linearGradient-1-${unref(id)}`,
@@ -24873,11 +30250,11 @@ var _sfc_main83 = defineComponent({
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-1")})`,
               offset: "0%"
-            }, null, 8, _hoisted_312),
+            }, null, 8, _hoisted_313),
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-4")})`,
               offset: "100%"
-            }, null, 8, _hoisted_46)
+            }, null, 8, _hoisted_47)
           ], 8, _hoisted_223),
           createBaseVNode("linearGradient", {
             id: `linearGradient-2-${unref(id)}`,
@@ -24889,19 +30266,19 @@ var _sfc_main83 = defineComponent({
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-1")})`,
               offset: "0%"
-            }, null, 8, _hoisted_62),
+            }, null, 8, _hoisted_63),
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-6")})`,
               offset: "100%"
-            }, null, 8, _hoisted_72)
-          ], 8, _hoisted_53),
+            }, null, 8, _hoisted_73)
+          ], 8, _hoisted_54),
           createBaseVNode("rect", {
             id: `path-3-${unref(id)}`,
             x: "0",
             y: "0",
             width: "17",
             height: "36"
-          }, null, 8, _hoisted_82)
+          }, null, 8, _hoisted_83)
         ]),
         createBaseVNode("g", _hoisted_92, [
           createBaseVNode("g", _hoisted_10, [
@@ -24916,7 +30293,7 @@ var _sfc_main83 = defineComponent({
                 fill: `var(${unref(ns).cssVarBlockName("fill-color-7")})`,
                 transform: "translate(27.500000, 51.500000) scale(1, -1) translate(-27.500000, -51.500000) ",
                 points: "13 58 53 58 42 45 2 45"
-              }, null, 8, _hoisted_136),
+              }, null, 8, _hoisted_137),
               createBaseVNode("g", _hoisted_142, [
                 createBaseVNode("polygon", {
                   id: "Rectangle-Copy-10",
@@ -24983,7 +30360,7 @@ var _sfc_main83 = defineComponent({
 });
 var ImgEmpty = _export_sfc(_sfc_main83, [["__file", "img-empty.vue"]]);
 
-// node_modules/element-plus/es/components/empty/src/empty2.mjs
+// node_modules/element-plus/es/components/empty/src/empty.mjs
 var emptyProps = buildProps({
   image: {
     type: String,
@@ -24996,8 +30373,8 @@ var emptyProps = buildProps({
   }
 });
 
-// node_modules/element-plus/es/components/empty/src/empty.mjs
-var _hoisted_137 = ["src"];
+// node_modules/element-plus/es/components/empty/src/empty2.mjs
+var _hoisted_138 = ["src"];
 var _hoisted_225 = { key: 1 };
 var __default__58 = defineComponent({
   name: "ElEmpty"
@@ -25025,7 +30402,7 @@ var _sfc_main84 = defineComponent({
             key: 0,
             src: _ctx.image,
             ondragstart: "return false"
-          }, null, 8, _hoisted_137)) : renderSlot(_ctx.$slots, "image", { key: 1 }, () => [
+          }, null, 8, _hoisted_138)) : renderSlot(_ctx.$slots, "image", { key: 1 }, () => [
             createVNode(ImgEmpty)
           ])
         ], 6),
@@ -25095,7 +30472,7 @@ var imageViewerEmits = {
 };
 
 // node_modules/element-plus/es/components/image-viewer/src/image-viewer2.mjs
-var _hoisted_138 = ["src", "crossorigin"];
+var _hoisted_139 = ["src", "crossorigin"];
 var __default__59 = defineComponent({
   name: "ElImageViewer"
 });
@@ -25468,7 +30845,7 @@ var _sfc_main85 = defineComponent({
                     onLoad: handleImgLoad,
                     onError: handleImgError,
                     onMousedown: handleMouseDown
-                  }, null, 46, _hoisted_138)), [
+                  }, null, 46, _hoisted_139)), [
                     [vShow, i === activeIndex.value]
                   ]);
                 }), 128))
@@ -25552,7 +30929,7 @@ var imageEmits = {
 };
 
 // node_modules/element-plus/es/components/image/src/image2.mjs
-var _hoisted_139 = ["src", "loading", "crossorigin"];
+var _hoisted_140 = ["src", "loading", "crossorigin"];
 var _hoisted_226 = { key: 0 };
 var __default__60 = defineComponent({
   name: "ElImage",
@@ -25725,7 +31102,7 @@ var _sfc_main86 = defineComponent({
             onClick: clickHandler,
             onLoad: handleLoad,
             onError: handleError
-          }), null, 16, _hoisted_139)) : createCommentVNode("v-if", true),
+          }), null, 16, _hoisted_140)) : createCommentVNode("v-if", true),
           isLoading.value ? (openBlock(), createElementBlock("div", {
             key: 1,
             class: normalizeClass(unref(ns).e("wrapper"))
@@ -25817,7 +31194,8 @@ var inputNumberProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var inputNumberEmits = {
   [CHANGE_EVENT]: (cur, prev) => prev !== cur,
@@ -25828,7 +31206,7 @@ var inputNumberEmits = {
 };
 
 // node_modules/element-plus/es/components/input-number/src/input-number2.mjs
-var _hoisted_140 = ["aria-label", "onKeydown"];
+var _hoisted_141 = ["aria-label", "onKeydown"];
 var _hoisted_227 = ["aria-label", "onKeydown"];
 var __default__61 = defineComponent({
   name: "ElInputNumber"
@@ -25969,11 +31347,13 @@ var _sfc_main87 = defineComponent({
         emit(UPDATE_MODEL_EVENT, newVal);
         return;
       }
-      if (oldVal === newVal)
+      if (oldVal === newVal && value)
         return;
       data.userInput = null;
       emit(UPDATE_MODEL_EVENT, newVal);
-      emit(CHANGE_EVENT, newVal, oldVal);
+      if (oldVal !== newVal) {
+        emit(CHANGE_EVENT, newVal, oldVal);
+      }
       if (props.validateEvent) {
         (_a2 = formItem == null ? void 0 : formItem.validate) == null ? void 0 : _a2.call(formItem, "change").catch((err) => debugWarn(err));
       }
@@ -26017,6 +31397,10 @@ var _sfc_main87 = defineComponent({
         data.currentValue = props.modelValue;
       }
     };
+    const handleWheel = (e) => {
+      if (document.activeElement === e.target)
+        e.preventDefault();
+    };
     watch(() => props.modelValue, (value, oldValue) => {
       const newValue = verifyValue(value, true);
       if (data.userInput === null && newValue !== oldValue) {
@@ -26047,12 +31431,20 @@ var _sfc_main87 = defineComponent({
         }
         emit(UPDATE_MODEL_EVENT, val);
       }
+      innerInput.addEventListener("wheel", handleWheel, { passive: false });
     });
     onUpdated(() => {
       var _a2, _b;
       const innerInput = (_a2 = input.value) == null ? void 0 : _a2.input;
       innerInput == null ? void 0 : innerInput.setAttribute("aria-valuenow", `${(_b = data.currentValue) != null ? _b : ""}`);
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-input-number",
+      ref: "https://element-plus.org/en-US/component/input-number.html"
+    }, computed2(() => !!props.label));
     expose({
       focus,
       blur
@@ -26066,7 +31458,7 @@ var _sfc_main87 = defineComponent({
           unref(ns).is("without-controls", !_ctx.controls),
           unref(ns).is("controls-right", unref(controlsAtRight))
         ]),
-        onDragstart: _cache[1] || (_cache[1] = withModifiers(() => {
+        onDragstart: _cache[0] || (_cache[0] = withModifiers(() => {
         }, ["prevent"]))
       }, [
         _ctx.controls ? withDirectives((openBlock(), createElementBlock("span", {
@@ -26076,13 +31468,15 @@ var _sfc_main87 = defineComponent({
           class: normalizeClass([unref(ns).e("decrease"), unref(ns).is("disabled", unref(minDisabled))]),
           onKeydown: withKeys(decrease, ["enter"])
         }, [
-          createVNode(unref(ElIcon), null, {
-            default: withCtx(() => [
-              unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_down_default), { key: 0 })) : (openBlock(), createBlock(unref(minus_default), { key: 1 }))
-            ]),
-            _: 1
-          })
-        ], 42, _hoisted_140)), [
+          renderSlot(_ctx.$slots, "decrease-icon", {}, () => [
+            createVNode(unref(ElIcon), null, {
+              default: withCtx(() => [
+                unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_down_default), { key: 0 })) : (openBlock(), createBlock(unref(minus_default), { key: 1 }))
+              ]),
+              _: 1
+            })
+          ])
+        ], 42, _hoisted_141)), [
           [unref(vRepeatClick), decrease]
         ]) : createCommentVNode("v-if", true),
         _ctx.controls ? withDirectives((openBlock(), createElementBlock("span", {
@@ -26092,12 +31486,14 @@ var _sfc_main87 = defineComponent({
           class: normalizeClass([unref(ns).e("increase"), unref(ns).is("disabled", unref(maxDisabled))]),
           onKeydown: withKeys(increase, ["enter"])
         }, [
-          createVNode(unref(ElIcon), null, {
-            default: withCtx(() => [
-              unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_up_default), { key: 0 })) : (openBlock(), createBlock(unref(plus_default), { key: 1 }))
-            ]),
-            _: 1
-          })
+          renderSlot(_ctx.$slots, "increase-icon", {}, () => [
+            createVNode(unref(ElIcon), null, {
+              default: withCtx(() => [
+                unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_up_default), { key: 0 })) : (openBlock(), createBlock(unref(plus_default), { key: 1 }))
+              ]),
+              _: 1
+            })
+          ])
         ], 42, _hoisted_227)), [
           [unref(vRepeatClick), increase]
         ]) : createCommentVNode("v-if", true),
@@ -26115,10 +31511,8 @@ var _sfc_main87 = defineComponent({
           max: _ctx.max,
           min: _ctx.min,
           name: _ctx.name,
-          label: _ctx.label,
+          "aria-label": _ctx.label || _ctx.ariaLabel,
           "validate-event": false,
-          onWheel: _cache[0] || (_cache[0] = withModifiers(() => {
-          }, ["prevent"])),
           onKeydown: [
             withKeys(withModifiers(increase, ["prevent"]), ["up"]),
             withKeys(withModifiers(decrease, ["prevent"]), ["down"])
@@ -26127,7 +31521,7 @@ var _sfc_main87 = defineComponent({
           onFocus: handleFocus,
           onInput: handleInput,
           onChange: handleInputChange
-        }, null, 8, ["id", "step", "model-value", "placeholder", "readonly", "disabled", "size", "max", "min", "name", "label", "onKeydown"])
+        }, null, 8, ["id", "step", "model-value", "placeholder", "readonly", "disabled", "size", "max", "min", "name", "aria-label", "onKeydown"])
       ], 34);
     };
   }
@@ -26163,7 +31557,7 @@ var linkEmits = {
 };
 
 // node_modules/element-plus/es/components/link/src/link2.mjs
-var _hoisted_141 = ["href", "target"];
+var _hoisted_143 = ["href", "target"];
 var __default__62 = defineComponent({
   name: "ElLink"
 });
@@ -26204,7 +31598,7 @@ var _sfc_main88 = defineComponent({
           renderSlot(_ctx.$slots, "default")
         ], 2)) : createCommentVNode("v-if", true),
         _ctx.$slots.icon ? renderSlot(_ctx.$slots, "icon", { key: 2 }) : createCommentVNode("v-if", true)
-      ], 10, _hoisted_141);
+      ], 10, _hoisted_143);
     };
   }
 });
@@ -26458,10 +31852,6 @@ var subMenuProps = buildProps({
   hideTimeout: Number,
   popperClass: String,
   disabled: Boolean,
-  popperAppendToBody: {
-    type: Boolean,
-    default: void 0
-  },
   teleported: {
     type: Boolean,
     default: void 0
@@ -26485,13 +31875,6 @@ var SubMenu2 = defineComponent({
   name: COMPONENT_NAME13,
   props: subMenuProps,
   setup(props, { slots, expose }) {
-    useDeprecated({
-      from: "popper-append-to-body",
-      replacement: "teleported",
-      scope: COMPONENT_NAME13,
-      version: "2.3.0",
-      ref: "https://element-plus.org/en-US/component/menu.html#submenu-attributes"
-    }, computed2(() => props.popperAppendToBody !== void 0));
     const instance = getCurrentInstance();
     const { indexPath, parentMenu } = useMenu(instance, computed2(() => props.index));
     const nsMenu = useNamespace("menu");
@@ -26516,8 +31899,7 @@ var SubMenu2 = defineComponent({
       return subMenu.level === 0;
     });
     const appendToBody = computed2(() => {
-      var _a2;
-      const value = (_a2 = props.teleported) != null ? _a2 : props.popperAppendToBody;
+      const value = props.teleported;
       return value === void 0 ? isFirstLevel.value : value;
     });
     const menuTransitionName = computed2(() => rootMenu.props.collapse ? `${nsMenu.namespace.value}-zoom-in-left` : `${nsMenu.namespace.value}-zoom-in-top`);
@@ -26892,19 +32274,26 @@ var Menu2 = defineComponent({
         activeIndex.value = val;
       }
     };
+    const calcMenuItemWidth = (menuItem) => {
+      const computedStyle = getComputedStyle(menuItem);
+      const marginLeft = Number.parseInt(computedStyle.marginLeft, 10);
+      const marginRight = Number.parseInt(computedStyle.marginRight, 10);
+      return menuItem.offsetWidth + marginLeft + marginRight || 0;
+    };
     const calcSliceIndex = () => {
       var _a2, _b;
       if (!menu.value)
         return -1;
       const items2 = Array.from((_b = (_a2 = menu.value) == null ? void 0 : _a2.childNodes) != null ? _b : []).filter((item) => item.nodeName !== "#comment" && (item.nodeName !== "#text" || item.nodeValue));
       const moreItemWidth = 64;
-      const paddingLeft = Number.parseInt(getComputedStyle(menu.value).paddingLeft, 10);
-      const paddingRight = Number.parseInt(getComputedStyle(menu.value).paddingRight, 10);
+      const computedMenuStyle = getComputedStyle(menu.value);
+      const paddingLeft = Number.parseInt(computedMenuStyle.paddingLeft, 10);
+      const paddingRight = Number.parseInt(computedMenuStyle.paddingRight, 10);
       const menuWidth = menu.value.clientWidth - paddingLeft - paddingRight;
       let calcWidth = 0;
       let sliceIndex2 = 0;
       items2.forEach((item, index) => {
-        calcWidth += item.offsetWidth || 0;
+        calcWidth += calcMenuItemWidth(item);
         if (calcWidth <= menuWidth - moreItemWidth) {
           sliceIndex2 = index + 1;
         }
@@ -26923,6 +32312,8 @@ var Menu2 = defineComponent({
     };
     let isFirstTimeRender = true;
     const handleResize = () => {
+      if (sliceIndex.value === calcSliceIndex())
+        return;
       const callback = () => {
         sliceIndex.value = -1;
         nextTick(() => {
@@ -27229,7 +32620,7 @@ var pageHeaderEmits = {
 };
 
 // node_modules/element-plus/es/components/page-header/src/page-header2.mjs
-var _hoisted_143 = ["aria-label"];
+var _hoisted_144 = ["aria-label"];
 var __default__63 = defineComponent({
   name: "ElPageHeader"
 });
@@ -27289,7 +32680,7 @@ var _sfc_main92 = defineComponent({
                     _: 1
                   })) : createCommentVNode("v-if", true)
                 ])
-              ], 10, _hoisted_143)) : createCommentVNode("v-if", true),
+              ], 10, _hoisted_144)) : createCommentVNode("v-if", true),
               createBaseVNode("div", {
                 class: normalizeClass(unref(ns).e("title"))
               }, [
@@ -27351,7 +32742,7 @@ var paginationPrevEmits = {
 };
 
 // node_modules/element-plus/es/components/pagination/src/components/prev2.mjs
-var _hoisted_144 = ["disabled", "aria-label", "aria-disabled"];
+var _hoisted_145 = ["disabled", "aria-label", "aria-disabled"];
 var _hoisted_228 = { key: 0 };
 var __default__64 = defineComponent({
   name: "ElPaginationPrev"
@@ -27379,7 +32770,7 @@ var _sfc_main93 = defineComponent({
           ]),
           _: 1
         }))
-      ], 8, _hoisted_144);
+      ], 8, _hoisted_145);
     };
   }
 });
@@ -27405,7 +32796,7 @@ var paginationNextProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/next2.mjs
-var _hoisted_145 = ["disabled", "aria-label", "aria-disabled"];
+var _hoisted_146 = ["disabled", "aria-label", "aria-disabled"];
 var _hoisted_229 = { key: 0 };
 var __default__65 = defineComponent({
   name: "ElPaginationNext"
@@ -27433,7 +32824,7 @@ var _sfc_main94 = defineComponent({
           ]),
           _: 1
         }))
-      ], 8, _hoisted_145);
+      ], 8, _hoisted_146);
     };
   }
 });
@@ -27448,10 +32839,10 @@ function useOption(props, states) {
   const select = inject(selectKey);
   const selectGroup = inject(selectGroupKey, { disabled: false });
   const itemSelected = computed2(() => {
-    if (!select.props.multiple) {
-      return isEqual_default(props.value, select.props.modelValue);
-    } else {
+    if (select.props.multiple) {
       return contains(select.props.modelValue, props.value);
+    } else {
+      return contains([select.props.modelValue], props.value);
     }
   });
   const limitReached = computed2(() => {
@@ -27597,7 +32988,7 @@ var _sfc_main95 = defineComponent({
     };
   }
 });
-var _hoisted_146 = ["id", "aria-disabled", "aria-selected"];
+var _hoisted_147 = ["id", "aria-disabled", "aria-selected"];
 function _sfc_render20(_ctx, _cache, $props, $setup, $data, $options) {
   return withDirectives((openBlock(), createElementBlock("li", {
     id: _ctx.id,
@@ -27611,7 +33002,7 @@ function _sfc_render20(_ctx, _cache, $props, $setup, $data, $options) {
     renderSlot(_ctx.$slots, "default", {}, () => [
       createBaseVNode("span", null, toDisplayString(_ctx.currentLabel), 1)
     ])
-  ], 42, _hoisted_146)), [
+  ], 42, _hoisted_147)), [
     [vShow, _ctx.visible]
   ]);
 }
@@ -27717,13 +33108,6 @@ var useSelect = (props, emit) => {
     menuVisibleOnFocus: false,
     isBeforeHide: false
   });
-  useDeprecated({
-    from: "suffixTransition",
-    replacement: "override style scheme",
-    version: "2.3.0",
-    scope: "props",
-    ref: "https://element-plus.org/en-US/component/select.html#select-attributes"
-  }, computed2(() => props.suffixTransition === false));
   const selectRef = ref(null);
   const selectionRef = ref(null);
   const tooltipRef = ref(null);
@@ -27758,16 +33142,16 @@ var useSelect = (props, emit) => {
   const { inputId } = useFormItemInputId(props, {
     formItemContext: formItem
   });
+  const { valueOnClear, isEmptyValue: isEmptyValue2 } = useEmptyValues(props);
   const selectDisabled = computed2(() => props.disabled || (form == null ? void 0 : form.disabled));
   const hasModelValue = computed2(() => {
-    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : props.modelValue !== void 0 && props.modelValue !== null && props.modelValue !== "";
+    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : !isEmptyValue2(props.modelValue);
   });
   const showClose = computed2(() => {
-    const criteria = props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
-    return criteria;
+    return props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
   });
   const iconComponent = computed2(() => props.remote && props.filterable && !props.remoteShowSuffix ? "" : props.suffixIcon);
-  const iconReverse = computed2(() => nsSelect.is("reverse", iconComponent.value && expanded.value && props.suffixTransition));
+  const iconReverse = computed2(() => nsSelect.is("reverse", iconComponent.value && expanded.value));
   const validateState = computed2(() => (formItem == null ? void 0 : formItem.validateState) || "");
   const validateIcon = computed2(() => ValidateComponentsMap[validateState.value]);
   const debounce$1 = computed2(() => props.remote ? 300 : 0);
@@ -27813,7 +33197,8 @@ var useSelect = (props, emit) => {
     if (props.filterable && props.remote && isFunction(props.remoteMethod))
       return;
     optionsArray.value.forEach((option) => {
-      option.updateOption(states.inputValue);
+      var _a2;
+      (_a2 = option.updateOption) == null ? void 0 : _a2.call(option, states.inputValue);
     });
   };
   const selectSize = useFormSize();
@@ -27942,7 +33327,9 @@ var useSelect = (props, emit) => {
         option = {
           value,
           currentLabel: cachedOption.currentLabel,
-          isDisabled: cachedOption.isDisabled
+          get isDisabled() {
+            return cachedOption.isDisabled;
+          }
         };
         break;
       }
@@ -27962,15 +33349,7 @@ var useSelect = (props, emit) => {
         return getValueKey(item) === getValueKey(states.selected);
       });
     } else {
-      if (states.selected.length > 0) {
-        states.hoveringIndex = Math.min(...states.selected.map((selected) => {
-          return optionsArray.value.findIndex((item) => {
-            return getValueKey(item) === getValueKey(selected);
-          });
-        }));
-      } else {
-        states.hoveringIndex = -1;
-      }
+      states.hoveringIndex = optionsArray.value.findIndex((item) => states.selected.some((selected) => getValueKey(selected) === getValueKey(item)));
     }
   };
   const resetSelectionWidth = () => {
@@ -28042,8 +33421,8 @@ var useSelect = (props, emit) => {
   };
   const deleteSelected = (event) => {
     event.stopPropagation();
-    const value = props.multiple ? [] : "";
-    if (!isString(value)) {
+    const value = props.multiple ? [] : valueOnClear.value;
+    if (props.multiple) {
       for (const item of states.selected) {
         if (item.isDisabled)
           value.push(item.value);
@@ -28137,6 +33516,7 @@ var useSelect = (props, emit) => {
     return (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
   });
   const handleMenuEnter = () => {
+    states.isBeforeHide = false;
     nextTick(() => scrollToOption(states.selected));
   };
   const focus = () => {
@@ -28165,8 +33545,6 @@ var useSelect = (props, emit) => {
   };
   const toggleMenu = () => {
     if (selectDisabled.value)
-      return;
-    if (props.filterable && props.remote && isFunction(props.remoteMethod))
       return;
     if (states.menuVisibleOnFocus) {
       states.menuVisibleOnFocus = false;
@@ -28452,19 +33830,17 @@ var SelectProps = buildProps({
     default: true
   },
   remoteShowSuffix: Boolean,
-  suffixTransition: {
-    type: Boolean,
-    default: true
-  },
   placement: {
     type: definePropType(String),
     values: Ee,
     default: "bottom-start"
   },
-  ariaLabel: {
-    type: String,
-    default: void 0
-  }
+  fallbackPlacements: {
+    type: definePropType(Array),
+    default: ["bottom-start", "top-start", "right", "left"]
+  },
+  ...useEmptyValuesProps,
+  ...useAriaProps(["ariaLabel"])
 });
 
 // node_modules/element-plus/es/components/select/src/select2.mjs
@@ -28510,7 +33886,7 @@ var _sfc_main97 = defineComponent({
     };
   }
 });
-var _hoisted_147 = ["id", "disabled", "autocomplete", "readonly", "aria-activedescendant", "aria-controls", "aria-expanded", "aria-label"];
+var _hoisted_148 = ["id", "disabled", "autocomplete", "readonly", "aria-activedescendant", "aria-controls", "aria-expanded", "aria-label"];
 var _hoisted_230 = ["textContent"];
 function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_tag = resolveComponent("el-tag");
@@ -28524,9 +33900,9 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
   return withDirectives((openBlock(), createElementBlock("div", {
     ref: "selectRef",
     class: normalizeClass([_ctx.nsSelect.b(), _ctx.nsSelect.m(_ctx.selectSize)]),
-    onMouseenter: _cache[14] || (_cache[14] = ($event) => _ctx.states.inputHovering = true),
-    onMouseleave: _cache[15] || (_cache[15] = ($event) => _ctx.states.inputHovering = false),
-    onClick: _cache[16] || (_cache[16] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
+    onMouseenter: _cache[16] || (_cache[16] = ($event) => _ctx.states.inputHovering = true),
+    onMouseleave: _cache[17] || (_cache[17] = ($event) => _ctx.states.inputHovering = false),
+    onClick: _cache[18] || (_cache[18] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["prevent", "stop"]))
   }, [
     createVNode(_component_el_tooltip, {
       ref: "tooltipRef",
@@ -28535,7 +33911,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
       teleported: _ctx.teleported,
       "popper-class": [_ctx.nsSelect.e("popper"), _ctx.popperClass],
       "popper-options": _ctx.popperOptions,
-      "fallback-placements": ["bottom-start", "top-start", "right", "left"],
+      "fallback-placements": _ctx.fallbackPlacements,
       effect: _ctx.effect,
       pure: "",
       trigger: "click",
@@ -28544,7 +33920,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
       "gpu-acceleration": false,
       persistent: _ctx.persistent,
       onBeforeShow: _ctx.handleMenuEnter,
-      onHide: _cache[13] || (_cache[13] = ($event) => _ctx.states.isBeforeHide = false)
+      onHide: _cache[15] || (_cache[15] = ($event) => _ctx.states.isBeforeHide = false)
     }, {
       default: withCtx(() => {
         var _a2;
@@ -28698,7 +34074,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                   onCompositionend: _cache[10] || (_cache[10] = (...args) => _ctx.handleCompositionEnd && _ctx.handleCompositionEnd(...args)),
                   onInput: _cache[11] || (_cache[11] = (...args) => _ctx.onInput && _ctx.onInput(...args)),
                   onClick: _cache[12] || (_cache[12] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
-                }, null, 46, _hoisted_147), [
+                }, null, 46, _hoisted_148), [
                   [vModelText, _ctx.states.inputValue]
                 ]),
                 _ctx.filterable ? (openBlock(), createElementBlock("span", {
@@ -28761,7 +34137,9 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
           default: withCtx(() => [
             _ctx.$slots.header ? (openBlock(), createElementBlock("div", {
               key: 0,
-              class: normalizeClass(_ctx.nsSelect.be("dropdown", "header"))
+              class: normalizeClass(_ctx.nsSelect.be("dropdown", "header")),
+              onClick: _cache[13] || (_cache[13] = withModifiers(() => {
+              }, ["stop"]))
             }, [
               renderSlot(_ctx.$slots, "header")
             ], 2)) : createCommentVNode("v-if", true),
@@ -28808,7 +34186,9 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
             ], 2)) : createCommentVNode("v-if", true),
             _ctx.$slots.footer ? (openBlock(), createElementBlock("div", {
               key: 3,
-              class: normalizeClass(_ctx.nsSelect.be("dropdown", "footer"))
+              class: normalizeClass(_ctx.nsSelect.be("dropdown", "footer")),
+              onClick: _cache[14] || (_cache[14] = withModifiers(() => {
+              }, ["stop"]))
             }, [
               renderSlot(_ctx.$slots, "footer")
             ], 2)) : createCommentVNode("v-if", true)
@@ -28817,7 +34197,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
         }, 512)
       ]),
       _: 3
-    }, 8, ["visible", "placement", "teleported", "popper-class", "popper-options", "effect", "transition", "persistent", "onBeforeShow"])
+    }, 8, ["visible", "placement", "teleported", "popper-class", "popper-options", "fallback-placements", "effect", "transition", "persistent", "onBeforeShow"])
   ], 34)), [
     [_directive_click_outside, _ctx.handleClickOutside, _ctx.popperRef]
   ]);
@@ -28841,18 +34221,23 @@ var _sfc_main98 = defineComponent({
       ...toRefs(props)
     }));
     const visible = computed2(() => children.value.some((option) => option.visible === true));
+    const isOption = (node) => {
+      var _a2, _b;
+      return ((_a2 = node.type) == null ? void 0 : _a2.name) === "ElOption" && !!((_b = node.component) == null ? void 0 : _b.proxy);
+    };
     const flattedChildren2 = (node) => {
+      const Nodes = castArray_default(node);
       const children2 = [];
-      if (isArray(node.children)) {
-        node.children.forEach((child) => {
-          var _a2;
-          if (child.type && child.type.name === "ElOption" && child.component && child.component.proxy) {
-            children2.push(child.component.proxy);
-          } else if ((_a2 = child.children) == null ? void 0 : _a2.length) {
-            children2.push(...flattedChildren2(child));
-          }
-        });
-      }
+      Nodes.forEach((child) => {
+        var _a2, _b;
+        if (isOption(child)) {
+          children2.push(child.component.proxy);
+        } else if ((_a2 = child.children) == null ? void 0 : _a2.length) {
+          children2.push(...flattedChildren2(child.children));
+        } else if ((_b = child.component) == null ? void 0 : _b.subTree) {
+          children2.push(...flattedChildren2(child.component.subTree));
+        }
+      });
       return children2;
     };
     const updateChildren = () => {
@@ -28905,7 +34290,7 @@ var ElOptionGroup = withNoopInstall(OptionGroup);
 // node_modules/element-plus/es/components/pagination/src/usePagination.mjs
 var usePagination = () => inject(elPaginationKey, {});
 
-// node_modules/element-plus/es/components/pagination/src/components/sizes.mjs
+// node_modules/element-plus/es/components/pagination/src/components/sizes2.mjs
 var paginationSizesProps = buildProps({
   pageSize: {
     type: Number,
@@ -28926,7 +34311,7 @@ var paginationSizesProps = buildProps({
   }
 });
 
-// node_modules/element-plus/es/components/pagination/src/components/sizes2.mjs
+// node_modules/element-plus/es/components/pagination/src/components/sizes.mjs
 var __default__66 = defineComponent({
   name: "ElPaginationSizes"
 });
@@ -28998,7 +34383,7 @@ var paginationJumperProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/jumper2.mjs
-var _hoisted_148 = ["disabled"];
+var _hoisted_149 = ["disabled"];
 var __default__67 = defineComponent({
   name: "ElPaginationJumper"
 });
@@ -29038,15 +34423,15 @@ var _sfc_main100 = defineComponent({
           disabled: unref(disabled),
           "model-value": unref(innerValue),
           "validate-event": false,
-          label: unref(t)("el.pagination.page"),
+          "aria-label": unref(t)("el.pagination.page"),
           type: "number",
           "onUpdate:modelValue": handleInput,
           onChange: handleChange
-        }, null, 8, ["size", "class", "max", "disabled", "model-value", "label"]),
+        }, null, 8, ["size", "class", "max", "disabled", "model-value", "aria-label"]),
         createBaseVNode("span", {
           class: normalizeClass([unref(ns).e("classifier")])
         }, toDisplayString(unref(t)("el.pagination.pageClassifier")), 3)
-      ], 10, _hoisted_148);
+      ], 10, _hoisted_149);
     };
   }
 });
@@ -29061,7 +34446,7 @@ var paginationTotalProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/total2.mjs
-var _hoisted_149 = ["disabled"];
+var _hoisted_150 = ["disabled"];
 var __default__68 = defineComponent({
   name: "ElPaginationTotal"
 });
@@ -29078,7 +34463,7 @@ var _sfc_main101 = defineComponent({
         disabled: unref(disabled)
       }, toDisplayString(unref(t)("el.pagination.total", {
         total: _ctx.total
-      })), 11, _hoisted_149);
+      })), 11, _hoisted_150);
     };
   }
 });
@@ -29102,12 +34487,12 @@ var paginationPagerProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/pager2.mjs
-var _hoisted_150 = ["onKeyup"];
+var _hoisted_151 = ["onKeyup"];
 var _hoisted_231 = ["aria-current", "aria-label", "tabindex"];
-var _hoisted_313 = ["tabindex", "aria-label"];
-var _hoisted_47 = ["aria-current", "aria-label", "tabindex"];
-var _hoisted_54 = ["tabindex", "aria-label"];
-var _hoisted_63 = ["aria-current", "aria-label", "tabindex"];
+var _hoisted_314 = ["tabindex", "aria-label"];
+var _hoisted_48 = ["aria-current", "aria-label", "tabindex"];
+var _hoisted_55 = ["tabindex", "aria-label"];
+var _hoisted_64 = ["aria-current", "aria-label", "tabindex"];
 var __default__69 = defineComponent({
   name: "ElPaginationPager"
 });
@@ -29152,8 +34537,8 @@ var _sfc_main102 = defineComponent({
           array4.push(i);
         }
       } else if (showPrevMore2 && showNextMore2) {
-        const offset2 = Math.floor(pagerCount / 2) - 1;
-        for (let i = currentPage - offset2; i <= currentPage + offset2; i++) {
+        const offset3 = Math.floor(pagerCount / 2) - 1;
+        for (let i = currentPage - offset3; i <= currentPage + offset3; i++) {
           array4.push(i);
         }
       } else {
@@ -29271,7 +34656,7 @@ var _sfc_main102 = defineComponent({
           onBlur: _cache[3] || (_cache[3] = ($event) => quickPrevFocus.value = false)
         }, [
           (quickPrevHover.value || quickPrevFocus.value) && !_ctx.disabled ? (openBlock(), createBlock(unref(d_arrow_left_default), { key: 0 })) : (openBlock(), createBlock(unref(more_filled_default), { key: 1 }))
-        ], 42, _hoisted_313)) : createCommentVNode("v-if", true),
+        ], 42, _hoisted_314)) : createCommentVNode("v-if", true),
         (openBlock(true), createElementBlock(Fragment, null, renderList(unref(pagers), (pager) => {
           return openBlock(), createElementBlock("li", {
             key: pager,
@@ -29282,7 +34667,7 @@ var _sfc_main102 = defineComponent({
             "aria-current": _ctx.currentPage === pager,
             "aria-label": unref(t)("el.pagination.currentPage", { pager }),
             tabindex: unref(tabindex)
-          }, toDisplayString(pager), 11, _hoisted_47);
+          }, toDisplayString(pager), 11, _hoisted_48);
         }), 128)),
         showNextMore.value ? (openBlock(), createElementBlock("li", {
           key: 2,
@@ -29295,7 +34680,7 @@ var _sfc_main102 = defineComponent({
           onBlur: _cache[7] || (_cache[7] = ($event) => quickNextFocus.value = false)
         }, [
           (quickNextHover.value || quickNextFocus.value) && !_ctx.disabled ? (openBlock(), createBlock(unref(d_arrow_right_default), { key: 0 })) : (openBlock(), createBlock(unref(more_filled_default), { key: 1 }))
-        ], 42, _hoisted_54)) : createCommentVNode("v-if", true),
+        ], 42, _hoisted_55)) : createCommentVNode("v-if", true),
         _ctx.pageCount > 1 ? (openBlock(), createElementBlock("li", {
           key: 3,
           class: normalizeClass([[
@@ -29305,8 +34690,8 @@ var _sfc_main102 = defineComponent({
           "aria-current": _ctx.currentPage === _ctx.pageCount,
           "aria-label": unref(t)("el.pagination.currentPage", { pager: _ctx.pageCount }),
           tabindex: unref(tabindex)
-        }, toDisplayString(_ctx.pageCount), 11, _hoisted_63)) : createCommentVNode("v-if", true)
-      ], 42, _hoisted_150);
+        }, toDisplayString(_ctx.pageCount), 11, _hoisted_64)) : createCommentVNode("v-if", true)
+      ], 42, _hoisted_151);
     };
   }
 });
@@ -29984,11 +35369,11 @@ var progressProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/progress/src/progress2.mjs
-var _hoisted_151 = ["aria-valuenow"];
+var _hoisted_153 = ["aria-valuenow"];
 var _hoisted_233 = { viewBox: "0 0 100 100" };
-var _hoisted_314 = ["d", "stroke", "stroke-linecap", "stroke-width"];
-var _hoisted_48 = ["d", "stroke", "opacity", "stroke-linecap", "stroke-width"];
-var _hoisted_55 = { key: 0 };
+var _hoisted_315 = ["d", "stroke", "stroke-linecap", "stroke-width"];
+var _hoisted_49 = ["d", "stroke", "opacity", "stroke-linecap", "stroke-width"];
+var _hoisted_56 = { key: 0 };
 var __default__72 = defineComponent({
   name: "ElProgress"
 });
@@ -30007,7 +35392,7 @@ var _sfc_main105 = defineComponent({
     const barStyle = computed2(() => ({
       width: `${props.percentage}%`,
       animationDuration: `${props.duration}s`,
-      backgroundColor: getCurrentColor(props.percentage)
+      background: getCurrentColor(props.percentage)
     }));
     const relativeStrokeWidth = computed2(() => (props.strokeWidth / props.width * 100).toFixed(1));
     const radius = computed2(() => {
@@ -30029,8 +35414,8 @@ var _sfc_main105 = defineComponent({
     const perimeter = computed2(() => 2 * Math.PI * radius.value);
     const rate = computed2(() => props.type === "dashboard" ? 0.75 : 1);
     const strokeDashoffset = computed2(() => {
-      const offset2 = -1 * perimeter.value * (1 - rate.value) / 2;
-      return `${offset2}px`;
+      const offset3 = -1 * perimeter.value * (1 - rate.value) / 2;
+      return `${offset3}px`;
     });
     const trailPathStyle = computed2(() => ({
       strokeDasharray: `${perimeter.value * rate.value}px, ${perimeter.value}px`,
@@ -30150,7 +35535,7 @@ var _sfc_main105 = defineComponent({
               "stroke-width": unref(relativeStrokeWidth),
               fill: "none",
               style: normalizeStyle(unref(trailPathStyle))
-            }, null, 14, _hoisted_314),
+            }, null, 14, _hoisted_315),
             createBaseVNode("path", {
               class: normalizeClass(unref(ns).be("circle", "path")),
               d: unref(trackPath),
@@ -30160,7 +35545,7 @@ var _sfc_main105 = defineComponent({
               "stroke-linecap": _ctx.strokeLinecap,
               "stroke-width": unref(relativeStrokeWidth),
               style: normalizeStyle(unref(circlePathStyle))
-            }, null, 14, _hoisted_48)
+            }, null, 14, _hoisted_49)
           ]))
         ], 6)),
         (_ctx.showText || _ctx.$slots.default) && !_ctx.textInside ? (openBlock(), createElementBlock("div", {
@@ -30169,7 +35554,7 @@ var _sfc_main105 = defineComponent({
           style: normalizeStyle({ fontSize: `${unref(progressTextSize)}px` })
         }, [
           renderSlot(_ctx.$slots, "default", { percentage: _ctx.percentage }, () => [
-            !_ctx.status ? (openBlock(), createElementBlock("span", _hoisted_55, toDisplayString(unref(content)), 1)) : (openBlock(), createBlock(unref(ElIcon), { key: 1 }, {
+            !_ctx.status ? (openBlock(), createElementBlock("span", _hoisted_56, toDisplayString(unref(content)), 1)) : (openBlock(), createBlock(unref(ElIcon), { key: 1 }, {
               default: withCtx(() => [
                 (openBlock(), createBlock(resolveDynamicComponent(unref(statusIcon))))
               ]),
@@ -30177,7 +35562,7 @@ var _sfc_main105 = defineComponent({
             }))
           ])
         ], 6)) : createCommentVNode("v-if", true)
-      ], 10, _hoisted_151);
+      ], 10, _hoisted_153);
     };
   }
 });
@@ -30262,7 +35647,8 @@ var rateProps = buildProps({
   clearable: {
     type: Boolean,
     default: false
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var rateEmits = {
   [CHANGE_EVENT]: (value) => isNumber2(value),
@@ -30270,7 +35656,7 @@ var rateEmits = {
 };
 
 // node_modules/element-plus/es/components/rate/src/rate2.mjs
-var _hoisted_153 = ["id", "aria-label", "aria-labelledby", "aria-valuenow", "aria-valuetext", "aria-valuemax"];
+var _hoisted_154 = ["id", "aria-label", "aria-labelledby", "aria-valuenow", "aria-valuetext", "aria-valuemax"];
 var _hoisted_234 = ["onMousemove", "onClick"];
 var __default__73 = defineComponent({
   name: "ElRate"
@@ -30445,6 +35831,13 @@ var _sfc_main106 = defineComponent({
     if (!props.modelValue) {
       emit(UPDATE_MODEL_EVENT, 0);
     }
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-rate",
+      ref: "https://element-plus.org/en-US/component/rate.html"
+    }, computed2(() => !!props.label));
     expose({
       setCurrentValue,
       resetCurrentValue
@@ -30455,7 +35848,7 @@ var _sfc_main106 = defineComponent({
         id: unref(inputId),
         class: normalizeClass([unref(rateClasses), unref(ns).is("disabled", unref(rateDisabled))]),
         role: "slider",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "rating" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "rating" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? (_a2 = unref(formItemContext)) == null ? void 0 : _a2.labelId : void 0,
         "aria-valuenow": currentValue.value,
         "aria-valuetext": unref(text) || void 0,
@@ -30513,7 +35906,7 @@ var _sfc_main106 = defineComponent({
           class: normalizeClass(unref(ns).e("text")),
           style: normalizeStyle({ color: _ctx.textColor })
         }, toDisplayString(unref(text)), 7)) : createCommentVNode("v-if", true)
-      ], 46, _hoisted_153);
+      ], 46, _hoisted_154);
     };
   }
 });
@@ -30715,7 +36108,7 @@ var LayoutKeys = {
 };
 var useWheel = ({ atEndEdge, atStartEdge, layout: layout2 }, onWheelDelta) => {
   let frameHandle;
-  let offset2 = 0;
+  let offset3 = 0;
   const hasReachedEdge = (offset22) => {
     const edgeReached = offset22 < 0 && atStartEdge.value || offset22 > 0 && atEndEdge.value;
     return edgeReached;
@@ -30723,15 +36116,15 @@ var useWheel = ({ atEndEdge, atStartEdge, layout: layout2 }, onWheelDelta) => {
   const onWheel = (e) => {
     cAF(frameHandle);
     const newOffset = e[LayoutKeys[layout2.value]];
-    if (hasReachedEdge(offset2) && hasReachedEdge(offset2 + newOffset))
+    if (hasReachedEdge(offset3) && hasReachedEdge(offset3 + newOffset))
       return;
-    offset2 += newOffset;
+    offset3 += newOffset;
     if (!isFirefox()) {
       e.preventDefault();
     }
     frameHandle = rAF(() => {
-      onWheelDelta(offset2);
-      offset2 = 0;
+      onWheelDelta(offset3);
+      offset3 = 0;
     });
   };
   return {
@@ -31027,18 +36420,18 @@ var ScrollBar = defineComponent({
       if (!prevPage)
         return;
       cAF(frameHandle);
-      const offset2 = (trackRef.value.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]) * -1;
+      const offset3 = (trackRef.value.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]) * -1;
       const thumbClickPosition = thumbRef.value[bar.value.offset] - prevPage;
-      const distance = offset2 - thumbClickPosition;
+      const distance = offset3 - thumbClickPosition;
       frameHandle = rAF(() => {
         state.traveled = Math.max(props.startGap, Math.min(distance, totalSteps.value));
         emit("scroll", distance, totalSteps.value);
       });
     };
     const clickTrackHandler = (e) => {
-      const offset2 = Math.abs(e.target.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]);
+      const offset3 = Math.abs(e.target.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]);
       const thumbHalf = thumbRef.value[bar.value.offset] / 2;
-      const distance = offset2 - thumbHalf;
+      const distance = offset3 - thumbHalf;
       state.traveled = Math.max(0, Math.min(distance, totalSteps.value));
       emit("scroll", distance, totalSteps.value);
     };
@@ -31153,11 +36546,11 @@ var createList = ({
         atStartEdge: computed2(() => states.value.scrollOffset <= 0),
         atEndEdge: computed2(() => states.value.scrollOffset >= estimatedTotalSize.value),
         layout: computed2(() => props.layout)
-      }, (offset2) => {
+      }, (offset3) => {
         var _a2, _b;
         ;
         (_b = (_a2 = scrollbarRef.value).onMouseUp) == null ? void 0 : _b.call(_a2);
-        scrollTo(Math.min(states.value.scrollOffset + offset2, estimatedTotalSize.value - clientSize.value));
+        scrollTo(Math.min(states.value.scrollOffset + offset3, estimatedTotalSize.value - clientSize.value));
       });
       const emitEvents = () => {
         const { total: total2 } = props;
@@ -31219,18 +36612,18 @@ var createList = ({
         emitEvents();
       };
       const onScrollbarScroll = (distanceToGo, totalSteps) => {
-        const offset2 = (estimatedTotalSize.value - clientSize.value) / totalSteps * distanceToGo;
-        scrollTo(Math.min(estimatedTotalSize.value - clientSize.value, offset2));
+        const offset3 = (estimatedTotalSize.value - clientSize.value) / totalSteps * distanceToGo;
+        scrollTo(Math.min(estimatedTotalSize.value - clientSize.value, offset3));
       };
-      const scrollTo = (offset2) => {
-        offset2 = Math.max(offset2, 0);
-        if (offset2 === unref(states).scrollOffset) {
+      const scrollTo = (offset3) => {
+        offset3 = Math.max(offset3, 0);
+        if (offset3 === unref(states).scrollOffset) {
           return;
         }
         states.value = {
           ...unref(states),
-          scrollOffset: offset2,
-          scrollDir: getScrollDir(unref(states).scrollOffset, offset2),
+          scrollOffset: offset3,
+          scrollDir: getScrollDir(unref(states).scrollOffset, offset3),
           updateRequested: true
         };
         nextTick(resetIsScrolling);
@@ -31247,16 +36640,16 @@ var createList = ({
         if (hasOwn(itemStyleCache, String(idx))) {
           style = itemStyleCache[idx];
         } else {
-          const offset2 = getItemOffset(props, idx, unref(dynamicSizeCache));
+          const offset3 = getItemOffset(props, idx, unref(dynamicSizeCache));
           const size2 = getItemSize(props, idx, unref(dynamicSizeCache));
           const horizontal = unref(_isHorizontal);
           const isRtl = direction2 === RTL;
-          const offsetHorizontal = horizontal ? offset2 : 0;
+          const offsetHorizontal = horizontal ? offset3 : 0;
           itemStyleCache[idx] = style = {
             position: "absolute",
             left: isRtl ? void 0 : `${offsetHorizontal}px`,
             right: isRtl ? `${offsetHorizontal}px` : void 0,
-            top: !horizontal ? `${offset2}px` : 0,
+            top: !horizontal ? `${offset3}px` : 0,
             height: !horizontal ? `${size2}px` : "100%",
             width: horizontal ? `${size2}px` : "100%"
           };
@@ -31474,11 +36867,11 @@ var FixedSizeList = createList({
       }
     }
   },
-  getStartIndexForOffset: ({ total: total2, itemSize: itemSize3 }, offset2) => Math.max(0, Math.min(total2 - 1, Math.floor(offset2 / itemSize3))),
+  getStartIndexForOffset: ({ total: total2, itemSize: itemSize3 }, offset3) => Math.max(0, Math.min(total2 - 1, Math.floor(offset3 / itemSize3))),
   getStopIndexForStartIndex: ({ height, total: total2, itemSize: itemSize3, layout: layout2, width }, startIndex, scrollOffset) => {
-    const offset2 = startIndex * itemSize3;
+    const offset3 = startIndex * itemSize3;
     const size2 = isHorizontal(layout2) ? width : height;
-    const numVisibleItems = Math.ceil((size2 + scrollOffset - offset2) / itemSize3);
+    const numVisibleItems = Math.ceil((size2 + scrollOffset - offset3) / itemSize3);
     return Math.max(0, Math.min(total2 - 1, startIndex + numVisibleItems - 1));
   },
   initCache() {
@@ -31490,58 +36883,58 @@ var FixedSizeList = createList({
 });
 
 // node_modules/element-plus/es/components/virtual-list/src/components/dynamic-size-list.mjs
-var SCOPE4 = "ElDynamicSizeList";
+var SCOPE5 = "ElDynamicSizeList";
 var getItemFromCache = (props, index, listCache) => {
   const { itemSize: itemSize3 } = props;
   const { items, lastVisitedIndex } = listCache;
   if (index > lastVisitedIndex) {
-    let offset2 = 0;
+    let offset3 = 0;
     if (lastVisitedIndex >= 0) {
       const item = items[lastVisitedIndex];
-      offset2 = item.offset + item.size;
+      offset3 = item.offset + item.size;
     }
     for (let i = lastVisitedIndex + 1; i <= index; i++) {
       const size2 = itemSize3(i);
       items[i] = {
-        offset: offset2,
+        offset: offset3,
         size: size2
       };
-      offset2 += size2;
+      offset3 += size2;
     }
     listCache.lastVisitedIndex = index;
   }
   return items[index];
 };
-var findItem = (props, listCache, offset2) => {
+var findItem = (props, listCache, offset3) => {
   const { items, lastVisitedIndex } = listCache;
   const lastVisitedOffset = lastVisitedIndex > 0 ? items[lastVisitedIndex].offset : 0;
-  if (lastVisitedOffset >= offset2) {
-    return bs(props, listCache, 0, lastVisitedIndex, offset2);
+  if (lastVisitedOffset >= offset3) {
+    return bs(props, listCache, 0, lastVisitedIndex, offset3);
   }
-  return es(props, listCache, Math.max(0, lastVisitedIndex), offset2);
+  return es(props, listCache, Math.max(0, lastVisitedIndex), offset3);
 };
-var bs = (props, listCache, low, high, offset2) => {
+var bs = (props, listCache, low, high, offset3) => {
   while (low <= high) {
     const mid = low + Math.floor((high - low) / 2);
     const currentOffset = getItemFromCache(props, mid, listCache).offset;
-    if (currentOffset === offset2) {
+    if (currentOffset === offset3) {
       return mid;
-    } else if (currentOffset < offset2) {
+    } else if (currentOffset < offset3) {
       low = mid + 1;
-    } else if (currentOffset > offset2) {
+    } else if (currentOffset > offset3) {
       high = mid - 1;
     }
   }
   return Math.max(0, low - 1);
 };
-var es = (props, listCache, index, offset2) => {
+var es = (props, listCache, index, offset3) => {
   const { total: total2 } = props;
   let exponent = 1;
-  while (index < total2 && getItemFromCache(props, index, listCache).offset < offset2) {
+  while (index < total2 && getItemFromCache(props, index, listCache).offset < offset3) {
     index += exponent;
     exponent *= 2;
   }
-  return bs(props, listCache, Math.floor(index / 2), Math.min(index, total2 - 1), offset2);
+  return bs(props, listCache, Math.floor(index / 2), Math.min(index, total2 - 1), offset3);
 };
 var getEstimatedTotalSize = ({ total: total2 }, { items, estimatedItemSize: estimatedItemSize2, lastVisitedIndex }) => {
   let totalSizeOfMeasuredItems = 0;
@@ -31597,17 +36990,17 @@ var DynamicSizeList = createList({
       }
     }
   },
-  getStartIndexForOffset: (props, offset2, listCache) => findItem(props, listCache, offset2),
+  getStartIndexForOffset: (props, offset3, listCache) => findItem(props, listCache, offset3),
   getStopIndexForStartIndex: (props, startIndex, scrollOffset, listCache) => {
     const { height, total: total2, layout: layout2, width } = props;
     const size2 = isHorizontal(layout2) ? width : height;
     const item = getItemFromCache(props, startIndex, listCache);
     const maxOffset = scrollOffset + size2;
-    let offset2 = item.offset + item.size;
+    let offset3 = item.offset + item.size;
     let stopIndex = startIndex;
-    while (stopIndex < total2 - 1 && offset2 < maxOffset) {
+    while (stopIndex < total2 - 1 && offset3 < maxOffset) {
       stopIndex++;
-      offset2 += getItemFromCache(props, stopIndex, listCache).size;
+      offset3 += getItemFromCache(props, stopIndex, listCache).size;
     }
     return stopIndex;
   },
@@ -31631,7 +37024,7 @@ var DynamicSizeList = createList({
   validateProps: ({ itemSize: itemSize3 }) => {
     if (true) {
       if (typeof itemSize3 !== "function") {
-        throwError(SCOPE4, `
+        throwError(SCOPE5, `
           itemSize is required as function, but the given value was ${typeof itemSize3}
         `);
       }
@@ -31859,16 +37252,16 @@ var createGrid = ({
       };
       const onVerticalScroll = (distance, totalSteps) => {
         const height = unref(parsedHeight);
-        const offset2 = (estimatedTotalHeight.value - height) / totalSteps * distance;
+        const offset3 = (estimatedTotalHeight.value - height) / totalSteps * distance;
         scrollTo({
-          scrollTop: Math.min(estimatedTotalHeight.value - height, offset2)
+          scrollTop: Math.min(estimatedTotalHeight.value - height, offset3)
         });
       };
       const onHorizontalScroll = (distance, totalSteps) => {
         const width = unref(parsedWidth);
-        const offset2 = (estimatedTotalWidth.value - width) / totalSteps * distance;
+        const offset3 = (estimatedTotalWidth.value - width) / totalSteps * distance;
         scrollTo({
-          scrollLeft: Math.min(estimatedTotalWidth.value - width, offset2)
+          scrollLeft: Math.min(estimatedTotalWidth.value - width, offset3)
         });
       };
       const { onWheel } = useGridWheel({
@@ -32111,7 +37504,7 @@ var createGrid = ({
 };
 
 // node_modules/element-plus/es/components/virtual-list/src/components/fixed-size-grid.mjs
-var SCOPE5 = "ElFixedSizeGrid";
+var SCOPE6 = "ElFixedSizeGrid";
 var FixedSizeGrid = createGrid({
   name: "ElFixedSizeGrid",
   getColumnPosition: ({ columnWidth }, index) => [
@@ -32221,13 +37614,13 @@ var FixedSizeGrid = createGrid({
   validateProps: ({ columnWidth, rowHeight }) => {
     if (true) {
       if (!isNumber2(columnWidth)) {
-        throwError(SCOPE5, `
+        throwError(SCOPE6, `
           "columnWidth" must be passed as number,
             instead ${typeof columnWidth} was given.
         `);
       }
       if (!isNumber2(rowHeight)) {
-        throwError(SCOPE5, `
+        throwError(SCOPE6, `
           "columnWidth" must be passed as number,
             instead ${typeof rowHeight} was given.
         `);
@@ -32238,7 +37631,7 @@ var FixedSizeGrid = createGrid({
 
 // node_modules/element-plus/es/components/virtual-list/src/components/dynamic-size-grid.mjs
 var { max: max2, min: min2, floor: floor2 } = Math;
-var SCOPE6 = "ElDynamicSizeGrid";
+var SCOPE7 = "ElDynamicSizeGrid";
 var ACCESS_SIZER_KEY_MAP = {
   column: "columnWidth",
   row: "rowHeight"
@@ -32254,30 +37647,30 @@ var getItemFromCache2 = (props, index, gridCache, type4) => {
     gridCache[ACCESS_LAST_VISITED_KEY_MAP[type4]]
   ];
   if (index > lastVisited) {
-    let offset2 = 0;
+    let offset3 = 0;
     if (lastVisited >= 0) {
       const item = cachedItems[lastVisited];
-      offset2 = item.offset + item.size;
+      offset3 = item.offset + item.size;
     }
     for (let i = lastVisited + 1; i <= index; i++) {
       const size2 = sizer(i);
       cachedItems[i] = {
-        offset: offset2,
+        offset: offset3,
         size: size2
       };
-      offset2 += size2;
+      offset3 += size2;
     }
     gridCache[ACCESS_LAST_VISITED_KEY_MAP[type4]] = index;
   }
   return cachedItems[index];
 };
-var bs2 = (props, gridCache, low, high, offset2, type4) => {
+var bs2 = (props, gridCache, low, high, offset3, type4) => {
   while (low <= high) {
     const mid = low + floor2((high - low) / 2);
     const currentOffset = getItemFromCache2(props, mid, gridCache, type4).offset;
-    if (currentOffset === offset2) {
+    if (currentOffset === offset3) {
       return mid;
-    } else if (currentOffset < offset2) {
+    } else if (currentOffset < offset3) {
       low = mid + 1;
     } else {
       high = mid - 1;
@@ -32285,25 +37678,25 @@ var bs2 = (props, gridCache, low, high, offset2, type4) => {
   }
   return max2(0, low - 1);
 };
-var es2 = (props, gridCache, idx, offset2, type4) => {
+var es2 = (props, gridCache, idx, offset3, type4) => {
   const total2 = type4 === "column" ? props.totalColumn : props.totalRow;
   let exponent = 1;
-  while (idx < total2 && getItemFromCache2(props, idx, gridCache, type4).offset < offset2) {
+  while (idx < total2 && getItemFromCache2(props, idx, gridCache, type4).offset < offset3) {
     idx += exponent;
     exponent *= 2;
   }
-  return bs2(props, gridCache, floor2(idx / 2), min2(idx, total2 - 1), offset2, type4);
+  return bs2(props, gridCache, floor2(idx / 2), min2(idx, total2 - 1), offset3, type4);
 };
-var findItem2 = (props, gridCache, offset2, type4) => {
+var findItem2 = (props, gridCache, offset3, type4) => {
   const [cache2, lastVisitedIndex] = [
     gridCache[type4],
     gridCache[ACCESS_LAST_VISITED_KEY_MAP[type4]]
   ];
   const lastVisitedItemOffset = lastVisitedIndex > 0 ? cache2[lastVisitedIndex].offset : 0;
-  if (lastVisitedItemOffset >= offset2) {
-    return bs2(props, gridCache, 0, lastVisitedIndex, offset2, type4);
+  if (lastVisitedItemOffset >= offset3) {
+    return bs2(props, gridCache, 0, lastVisitedIndex, offset3, type4);
   }
-  return es2(props, gridCache, max2(0, lastVisitedIndex), offset2, type4);
+  return es2(props, gridCache, max2(0, lastVisitedIndex), offset3, type4);
 };
 var getEstimatedTotalHeight = ({ totalRow }, { estimatedRowHeight, lastVisitedRowIndex, row }) => {
   let sizeOfVisitedRows = 0;
@@ -32391,11 +37784,11 @@ var DynamicSizeGrid = createGrid({
   getColumnStopIndexForStartIndex: (props, startIndex, scrollLeft, cache2) => {
     const item = getItemFromCache2(props, startIndex, cache2, "column");
     const maxOffset = scrollLeft + props.width;
-    let offset2 = item.offset + item.size;
+    let offset3 = item.offset + item.size;
     let stopIndex = startIndex;
-    while (stopIndex < props.totalColumn - 1 && offset2 < maxOffset) {
+    while (stopIndex < props.totalColumn - 1 && offset3 < maxOffset) {
       stopIndex++;
-      offset2 += getItemFromCache2(props, startIndex, cache2, "column").size;
+      offset3 += getItemFromCache2(props, startIndex, cache2, "column").size;
     }
     return stopIndex;
   },
@@ -32406,11 +37799,11 @@ var DynamicSizeGrid = createGrid({
     const { totalRow, height } = props;
     const item = getItemFromCache2(props, startIndex, cache2, "row");
     const maxOffset = scrollTop + height;
-    let offset2 = item.size + item.offset;
+    let offset3 = item.size + item.offset;
     let stopIndex = startIndex;
-    while (stopIndex < totalRow - 1 && offset2 < maxOffset) {
+    while (stopIndex < totalRow - 1 && offset3 < maxOffset) {
       stopIndex++;
-      offset2 += getItemFromCache2(props, stopIndex, cache2, "row").size;
+      offset3 += getItemFromCache2(props, stopIndex, cache2, "row").size;
     }
     return stopIndex;
   },
@@ -32462,13 +37855,13 @@ var DynamicSizeGrid = createGrid({
   validateProps: ({ columnWidth, rowHeight }) => {
     if (true) {
       if (!isFunction(columnWidth)) {
-        throwError(SCOPE6, `
+        throwError(SCOPE7, `
           "columnWidth" must be passed as function,
             instead ${typeof columnWidth} was given.
         `);
       }
       if (!isFunction(rowHeight)) {
-        throwError(SCOPE6, `
+        throwError(SCOPE7, `
           "rowHeight" must be passed as function,
             instead ${typeof rowHeight} was given.
         `);
@@ -32648,11 +38041,13 @@ var SelectProps2 = buildProps({
     values: Ee,
     default: "bottom-start"
   },
+  fallbackPlacements: {
+    type: definePropType(Array),
+    default: ["bottom-start", "top-start", "right", "left"]
+  },
   tagType: { ...tagProps.type, default: "info" },
-  ariaLabel: {
-    type: String,
-    default: void 0
-  }
+  ...useEmptyValuesProps,
+  ...useAriaProps(["ariaLabel"])
 });
 var OptionProps = buildProps({
   data: Array,
@@ -32688,7 +38083,7 @@ var _sfc_main109 = defineComponent({
     };
   }
 });
-var _hoisted_154 = ["aria-selected"];
+var _hoisted_155 = ["aria-selected"];
 function _sfc_render25(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("li", {
     "aria-selected": _ctx.selected,
@@ -32710,7 +38105,7 @@ function _sfc_render25(_ctx, _cache, $props, $setup, $data, $options) {
     }, () => [
       createBaseVNode("span", null, toDisplayString(_ctx.getLabel(_ctx.item)), 1)
     ])
-  ], 46, _hoisted_154);
+  ], 46, _hoisted_155);
 }
 var OptionItem = _export_sfc(_sfc_main109, [["render", _sfc_render25], ["__file", "option-item.vue"]]);
 
@@ -32918,18 +38313,13 @@ var ElSelectMenu2 = defineComponent({
         multiple,
         scrollbarAlwaysOn
       } = select.props;
-      if (slots.loading || slots.empty) {
-        return createVNode("div", {
-          "class": ns.b("dropdown"),
-          "style": {
-            width: `${width}px`
-          }
-        }, [((_a2 = slots.loading) == null ? void 0 : _a2.call(slots)) || ((_b = slots.empty) == null ? void 0 : _b.call(slots))]);
-      }
       const List = unref(isSized) ? FixedSizeList : DynamicSizeList;
       return createVNode("div", {
-        "class": [ns.b("dropdown"), ns.is("multiple", multiple)]
-      }, [(_c = slots.header) == null ? void 0 : _c.call(slots), createVNode(List, mergeProps({
+        "class": [ns.b("dropdown"), ns.is("multiple", multiple)],
+        "style": {
+          width: `${width}px`
+        }
+      }, [(_a2 = slots.header) == null ? void 0 : _a2.call(slots), ((_b = slots.loading) == null ? void 0 : _b.call(slots)) || ((_c = slots.empty) == null ? void 0 : _c.call(slots)) || createVNode(List, mergeProps({
         "ref": listRef
       }, unref(listProps), {
         "className": ns.be("dropdown", "list"),
@@ -32955,8 +38345,8 @@ function useAllowCreate(props, states) {
     return props.allowCreate && props.filterable;
   });
   function hasExistingOption(query) {
-    const hasValue = (option) => getValue2(option) === query;
-    return props.options && props.options.some(hasValue) || states.createdOptions.some(hasValue);
+    const hasOption = (option) => getLabel(option) === query;
+    return props.options && props.options.some(hasOption) || states.createdOptions.some(hasOption);
   }
   function selectNewOption(option) {
     if (!enableAllowCreateMode.value) {
@@ -33032,7 +38422,8 @@ var useSelect2 = (props, emit) => {
   const { inputId } = useFormItemInputId(props, {
     formItemContext: elFormItem
   });
-  const { getLabel, getValue: getValue2, getDisabled, getOptions } = useProps(props);
+  const { aliasProps, getLabel, getValue: getValue2, getDisabled, getOptions } = useProps(props);
+  const { valueOnClear, isEmptyValue: isEmptyValue2 } = useEmptyValues(props);
   const states = reactive({
     inputValue: "",
     cachedOptions: [],
@@ -33048,7 +38439,6 @@ var useSelect2 = (props, emit) => {
     menuVisibleOnFocus: false,
     isBeforeHide: false
   });
-  const selectedIndex = ref(-1);
   const popperSize = ref(-1);
   const selectRef = ref(null);
   const selectionRef = ref(null);
@@ -33086,11 +38476,10 @@ var useSelect2 = (props, emit) => {
     return totalHeight > props.height ? props.height : totalHeight;
   });
   const hasModelValue = computed2(() => {
-    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : props.modelValue !== void 0 && props.modelValue !== null && props.modelValue !== "";
+    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : !isEmptyValue2(props.modelValue);
   });
   const showClearBtn = computed2(() => {
-    const criteria = props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
-    return criteria;
+    return props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
   });
   const iconComponent = computed2(() => props.remote && props.filterable ? "" : arrow_down_default);
   const iconReverse = computed2(() => iconComponent.value && nsSelect.is("reverse", expanded.value));
@@ -33145,6 +38534,13 @@ var useSelect2 = (props, emit) => {
     allOptions.value = filterOptions("");
     filteredOptions.value = filterOptions(states.inputValue);
   };
+  const allOptionsValueMap = computed2(() => {
+    const valueMap = /* @__PURE__ */ new Map();
+    allOptions.value.forEach((option, index) => {
+      valueMap.set(getValueKey(getValue2(option)), { option, index });
+    });
+    return valueMap;
+  });
   const filteredOptionsValueMap = computed2(() => {
     const valueMap = /* @__PURE__ */ new Map();
     filteredOptions.value.forEach((option, index) => {
@@ -33240,8 +38636,6 @@ var useSelect2 = (props, emit) => {
   const toggleMenu = () => {
     if (selectDisabled.value)
       return;
-    if (props.filterable && props.remote && isFunction(props.remoteMethod))
-      return;
     if (states.menuVisibleOnFocus) {
       states.menuVisibleOnFocus = false;
     } else {
@@ -33286,7 +38680,7 @@ var useSelect2 = (props, emit) => {
   const update = (val) => {
     emit(UPDATE_MODEL_EVENT, val);
     emitChange(val);
-    states.previousValue = String(val);
+    states.previousValue = props.multiple ? String(val) : val;
   };
   const getValueIndex = (arr = [], value) => {
     if (!isObject(value)) {
@@ -33326,7 +38720,7 @@ var useSelect2 = (props, emit) => {
     var _a2, _b;
     (_b = (_a2 = tagTooltipRef.value) == null ? void 0 : _a2.updatePopper) == null ? void 0 : _b.call(_a2);
   };
-  const onSelect = (option, idx) => {
+  const onSelect = (option) => {
     if (props.multiple) {
       let selectedOptions = props.modelValue.slice();
       const index = getValueIndex(selectedOptions, getValue2(option));
@@ -33350,7 +38744,6 @@ var useSelect2 = (props, emit) => {
         states.inputValue = "";
       }
     } else {
-      selectedIndex.value = idx;
       states.selectedLabel = getLabel(option);
       update(getValue2(option));
       expanded.value = false;
@@ -33416,7 +38809,7 @@ var useSelect2 = (props, emit) => {
     if (isArray(props.modelValue)) {
       emptyValue = [];
     } else {
-      emptyValue = void 0;
+      emptyValue = valueOnClear.value;
     }
     if (props.multiple) {
       states.cachedOptions = [];
@@ -33464,7 +38857,7 @@ var useSelect2 = (props, emit) => {
     if (!expanded.value) {
       return toggleMenu();
     } else if (~states.hoveringIndex && filteredOptions.value[states.hoveringIndex]) {
-      onSelect(filteredOptions.value[states.hoveringIndex], states.hoveringIndex);
+      onSelect(filteredOptions.value[states.hoveringIndex]);
     }
   };
   const onHoverOption = (idx) => {
@@ -33476,15 +38869,7 @@ var useSelect2 = (props, emit) => {
         return getValueKey(item) === getValueKey(props.modelValue);
       });
     } else {
-      if (props.modelValue.length > 0) {
-        states.hoveringIndex = Math.min(...props.modelValue.map((selected) => {
-          return filteredOptions.value.findIndex((item) => {
-            return getValue2(item) === selected;
-          });
-        }));
-      } else {
-        states.hoveringIndex = -1;
-      }
+      states.hoveringIndex = filteredOptions.value.findIndex((item) => props.modelValue.some((modelValue) => getValueKey(modelValue) === getValueKey(item)));
     }
   };
   const onInput = (event) => {
@@ -33503,6 +38888,7 @@ var useSelect2 = (props, emit) => {
     }
   };
   const handleMenuEnter = () => {
+    states.isBeforeHide = false;
     return nextTick(() => {
       if (~indexRef.value) {
         scrollToItem(states.hoveringIndex);
@@ -33514,13 +38900,13 @@ var useSelect2 = (props, emit) => {
   };
   const getOption = (value) => {
     const selectValue = getValueKey(value);
-    if (filteredOptionsValueMap.value.has(selectValue)) {
-      const { option } = filteredOptionsValueMap.value.get(selectValue);
+    if (allOptionsValueMap.value.has(selectValue)) {
+      const { option } = allOptionsValueMap.value.get(selectValue);
       return option;
     }
     return {
-      value,
-      label: value
+      [aliasProps.value.value]: value,
+      [aliasProps.value.label]: value
     };
   };
   const initStates = () => {
@@ -33567,7 +38953,7 @@ var useSelect2 = (props, emit) => {
   });
   watch(() => props.modelValue, (val, oldVal) => {
     var _a2;
-    if (!val || val.toString() !== states.previousValue) {
+    if (!val || props.multiple && val.toString() !== states.previousValue || !props.multiple && getValueKey(val) !== getValueKey(states.previousValue)) {
       initStates();
     }
     if (!isEqual_default(val, oldVal) && props.validateEvent) {
@@ -33582,7 +38968,8 @@ var useSelect2 = (props, emit) => {
       initStates();
     }
   }, {
-    deep: true
+    deep: true,
+    flush: "post"
   });
   watch(() => filteredOptions.value, () => {
     return menuRef.value && nextTick(menuRef.value.resetScrollTop);
@@ -33747,7 +39134,7 @@ var _sfc_main110 = defineComponent({
     };
   }
 });
-var _hoisted_155 = ["id", "autocomplete", "aria-expanded", "aria-label", "disabled", "readonly", "name"];
+var _hoisted_156 = ["id", "autocomplete", "aria-expanded", "aria-label", "disabled", "readonly", "name"];
 var _hoisted_235 = ["textContent"];
 function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_tag = resolveComponent("el-tag");
@@ -33760,7 +39147,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
     class: normalizeClass([_ctx.nsSelect.b(), _ctx.nsSelect.m(_ctx.selectSize)]),
     onMouseenter: _cache[14] || (_cache[14] = ($event) => _ctx.states.inputHovering = true),
     onMouseleave: _cache[15] || (_cache[15] = ($event) => _ctx.states.inputHovering = false),
-    onClick: _cache[16] || (_cache[16] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
+    onClick: _cache[16] || (_cache[16] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["prevent", "stop"]))
   }, [
     createVNode(_component_el_tooltip, {
       ref: "tooltipRef",
@@ -33770,7 +39157,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
       "gpu-acceleration": false,
       "stop-popper-mouse-event": false,
       "popper-options": _ctx.popperOptions,
-      "fallback-placements": ["bottom-start", "top-start", "right", "left"],
+      "fallback-placements": _ctx.fallbackPlacements,
       effect: _ctx.effect,
       placement: _ctx.placement,
       pure: "",
@@ -33930,7 +39317,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                   _cache[11] || (_cache[11] = withKeys(withModifiers((...args) => _ctx.handleDel && _ctx.handleDel(...args), ["stop"]), ["delete"]))
                 ],
                 onClick: _cache[12] || (_cache[12] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
-              }, null, 46, _hoisted_155), [
+              }, null, 46, _hoisted_156), [
                 [vModelText, _ctx.states.inputValue]
               ]),
               _ctx.filterable ? (openBlock(), createElementBlock("span", {
@@ -34046,7 +39433,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
         ]), 1032, ["data", "width", "hovering-index", "scrollbar-always-on"])
       ]),
       _: 3
-    }, 8, ["visible", "teleported", "popper-class", "popper-options", "effect", "placement", "transition", "persistent", "onBeforeShow"])
+    }, 8, ["visible", "teleported", "popper-class", "popper-options", "fallback-placements", "effect", "placement", "transition", "persistent", "onBeforeShow"])
   ], 34)), [
     [_directive_click_outside, _ctx.handleClickOutside, _ctx.popperRef]
   ]);
@@ -34083,7 +39470,7 @@ var skeletonProps = buildProps({
   }
 });
 
-// node_modules/element-plus/es/components/skeleton/src/skeleton-item.mjs
+// node_modules/element-plus/es/components/skeleton/src/skeleton-item2.mjs
 var skeletonItemProps = buildProps({
   variant: {
     type: String,
@@ -34102,7 +39489,7 @@ var skeletonItemProps = buildProps({
   }
 });
 
-// node_modules/element-plus/es/components/skeleton/src/skeleton-item2.mjs
+// node_modules/element-plus/es/components/skeleton/src/skeleton-item.mjs
 var __default__75 = defineComponent({
   name: "ElSkeletonItem"
 });
@@ -34253,7 +39640,8 @@ var sliderProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var isValidValue = (value) => isNumber2(value) || isArray(value) && value.every(isNumber2);
 var sliderEmits = {
@@ -34789,7 +40177,7 @@ var sliderButtonEmits = {
 };
 
 // node_modules/element-plus/es/components/slider/src/button2.mjs
-var _hoisted_156 = ["tabindex"];
+var _hoisted_157 = ["tabindex"];
 var __default__77 = defineComponent({
   name: "ElSliderButton"
 });
@@ -34870,7 +40258,7 @@ var _sfc_main113 = defineComponent({
           ]),
           _: 1
         }, 8, ["visible", "placement", "popper-class", "disabled"])
-      ], 46, _hoisted_156);
+      ], 46, _hoisted_157);
     };
   }
 });
@@ -34900,7 +40288,7 @@ var SliderMarker = defineComponent({
 });
 
 // node_modules/element-plus/es/components/slider/src/slider2.mjs
-var _hoisted_157 = ["id", "role", "aria-label", "aria-labelledby"];
+var _hoisted_158 = ["id", "role", "aria-label", "aria-labelledby"];
 var _hoisted_236 = { key: 1 };
 var __default__78 = defineComponent({
   name: "ElSlider"
@@ -34945,7 +40333,7 @@ var _sfc_main114 = defineComponent({
     const sliderWrapperSize = useFormSize();
     const sliderInputSize = computed2(() => props.inputSize || sliderWrapperSize.value);
     const groupLabel = computed2(() => {
-      return props.label || t("el.slider.defaultLabel", {
+      return props.label || props.ariaLabel || t("el.slider.defaultLabel", {
         min: props.min,
         max: props.max
       });
@@ -34995,6 +40383,13 @@ var _sfc_main114 = defineComponent({
       resetSize,
       updateDragging
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-slider",
+      ref: "https://element-plus.org/en-US/component/slider.html"
+    }, computed2(() => !!props.label));
     expose({
       onSliderClick
     });
@@ -35111,7 +40506,7 @@ var _sfc_main114 = defineComponent({
           "onUpdate:modelValue": unref(setFirstValue),
           onChange: unref(emitChange)
         }, null, 8, ["model-value", "class", "step", "disabled", "controls", "min", "max", "debounce", "size", "onUpdate:modelValue", "onChange"])) : createCommentVNode("v-if", true)
-      ], 42, _hoisted_157);
+      ], 42, _hoisted_158);
     };
   }
 });
@@ -35872,18 +41267,6 @@ var switchProps = buildProps({
     type: [Boolean, String, Number],
     default: false
   },
-  activeColor: {
-    type: String,
-    default: ""
-  },
-  inactiveColor: {
-    type: String,
-    default: ""
-  },
-  borderColor: {
-    type: String,
-    default: ""
-  },
   name: {
     type: String,
     default: ""
@@ -35899,14 +41282,11 @@ var switchProps = buildProps({
   tabindex: {
     type: [String, Number]
   },
-  value: {
-    type: [Boolean, String, Number],
-    default: false
-  },
   label: {
     type: String,
     default: void 0
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var switchEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isBoolean(val) || isString(val) || isNumber2(val),
@@ -35915,11 +41295,11 @@ var switchEmits = {
 };
 
 // node_modules/element-plus/es/components/switch/src/switch2.mjs
-var _hoisted_158 = ["onClick"];
+var _hoisted_159 = ["onClick"];
 var _hoisted_237 = ["id", "aria-checked", "aria-disabled", "aria-label", "name", "true-value", "false-value", "disabled", "tabindex", "onKeydown"];
-var _hoisted_315 = ["aria-hidden"];
-var _hoisted_49 = ["aria-hidden"];
-var _hoisted_56 = ["aria-hidden"];
+var _hoisted_316 = ["aria-hidden"];
+var _hoisted_410 = ["aria-hidden"];
+var _hoisted_57 = ["aria-hidden"];
 var COMPONENT_NAME17 = "ElSwitch";
 var __default__83 = defineComponent({
   name: COMPONENT_NAME17
@@ -35930,31 +41310,9 @@ var _sfc_main119 = defineComponent({
   emits: switchEmits,
   setup(__props, { expose, emit }) {
     const props = __props;
-    const vm = getCurrentInstance();
     const { formItem } = useFormItem();
     const switchSize = useFormSize();
     const ns = useNamespace("switch");
-    const useBatchDeprecated = (list) => {
-      list.forEach((param) => {
-        useDeprecated({
-          from: param[0],
-          replacement: param[1],
-          scope: COMPONENT_NAME17,
-          version: "2.3.0",
-          ref: "https://element-plus.org/en-US/component/switch.html#attributes",
-          type: "Attribute"
-        }, computed2(() => {
-          var _a2;
-          return !!((_a2 = vm.vnode.props) == null ? void 0 : _a2[param[2]]);
-        }));
-      });
-    };
-    useBatchDeprecated([
-      ['"value"', '"model-value" or "v-model"', "value"],
-      ['"active-color"', "CSS var `--el-switch-on-color`", "activeColor"],
-      ['"inactive-color"', "CSS var `--el-switch-off-color`", "inactiveColor"],
-      ['"border-color"', "CSS var `--el-switch-border-color`", "borderColor"]
-    ]);
     const { inputId } = useFormItemInputId(props, {
       formItemContext: formItem
     });
@@ -35984,11 +41342,8 @@ var _sfc_main119 = defineComponent({
     watch(() => props.modelValue, () => {
       isControlled.value = true;
     });
-    watch(() => props.value, () => {
-      isControlled.value = false;
-    });
     const actualValue = computed2(() => {
-      return isControlled.value ? props.modelValue : props.value;
+      return isControlled.value ? props.modelValue : false;
     });
     const checked = computed2(() => actualValue.value === props.activeValue);
     if (![props.activeValue, props.inactiveValue].includes(actualValue.value)) {
@@ -36040,13 +41395,6 @@ var _sfc_main119 = defineComponent({
         handleChange();
       }
     };
-    const styles = computed2(() => {
-      return ns.cssVarBlock({
-        ...props.activeColor ? { "on-color": props.activeColor } : null,
-        ...props.inactiveColor ? { "off-color": props.inactiveColor } : null,
-        ...props.borderColor ? { "border-color": props.borderColor } : null
-      });
-    });
     const focus = () => {
       var _a2, _b;
       (_b = (_a2 = input.value) == null ? void 0 : _a2.focus) == null ? void 0 : _b.call(_a2);
@@ -36054,6 +41402,13 @@ var _sfc_main119 = defineComponent({
     onMounted(() => {
       input.value.checked = checked.value;
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-switch",
+      ref: "https://element-plus.org/en-US/component/switch.html"
+    }, computed2(() => !!props.label));
     expose({
       focus,
       checked
@@ -36061,7 +41416,6 @@ var _sfc_main119 = defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(unref(switchKls)),
-        style: normalizeStyle(unref(styles)),
         onClick: withModifiers(switchValue, ["prevent"])
       }, [
         createBaseVNode("input", {
@@ -36073,7 +41427,7 @@ var _sfc_main119 = defineComponent({
           role: "switch",
           "aria-checked": unref(checked),
           "aria-disabled": unref(switchDisabled),
-          "aria-label": _ctx.label,
+          "aria-label": _ctx.label || _ctx.ariaLabel,
           name: _ctx.name,
           "true-value": _ctx.activeValue,
           "false-value": _ctx.inactiveValue,
@@ -36095,7 +41449,7 @@ var _sfc_main119 = defineComponent({
           !_ctx.inactiveIcon && _ctx.inactiveText ? (openBlock(), createElementBlock("span", {
             key: 1,
             "aria-hidden": unref(checked)
-          }, toDisplayString(_ctx.inactiveText), 9, _hoisted_315)) : createCommentVNode("v-if", true)
+          }, toDisplayString(_ctx.inactiveText), 9, _hoisted_316)) : createCommentVNode("v-if", true)
         ], 2)) : createCommentVNode("v-if", true),
         createBaseVNode("span", {
           ref_key: "core",
@@ -36119,7 +41473,7 @@ var _sfc_main119 = defineComponent({
               key: 1,
               class: normalizeClass(unref(ns).is("text")),
               "aria-hidden": !unref(checked)
-            }, toDisplayString(unref(checked) ? _ctx.activeText : _ctx.inactiveText), 11, _hoisted_49)) : createCommentVNode("v-if", true)
+            }, toDisplayString(unref(checked) ? _ctx.activeText : _ctx.inactiveText), 11, _hoisted_410)) : createCommentVNode("v-if", true)
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
             class: normalizeClass(unref(ns).e("action"))
@@ -36162,9 +41516,9 @@ var _sfc_main119 = defineComponent({
           !_ctx.activeIcon && _ctx.activeText ? (openBlock(), createElementBlock("span", {
             key: 1,
             "aria-hidden": !unref(checked)
-          }, toDisplayString(_ctx.activeText), 9, _hoisted_56)) : createCommentVNode("v-if", true)
+          }, toDisplayString(_ctx.activeText), 9, _hoisted_57)) : createCommentVNode("v-if", true)
         ], 2)) : createCommentVNode("v-if", true)
-      ], 14, _hoisted_158);
+      ], 10, _hoisted_159);
     };
   }
 });
@@ -36428,7 +41782,7 @@ function createTablePopper(props, popperContent, trigger, table) {
       removePopper == null ? void 0 : removePopper();
     }
   });
-  vm.appContext = table.appContext;
+  vm.appContext = { ...table.appContext, ...table };
   const container = document.createElement("div");
   render(vm, container);
   vm.component.exposed.onOpen();
@@ -36488,22 +41842,22 @@ var isFixedColumn = (index, fixed, store, realColumns) => {
     after
   } : {};
 };
-var getFixedColumnsClass = (namespace, index, fixed, store, realColumns, offset2 = 0) => {
+var getFixedColumnsClass = (namespace, index, fixed, store, realColumns, offset3 = 0) => {
   const classes = [];
   const { direction: direction2, start, after } = isFixedColumn(index, fixed, store, realColumns);
   if (direction2) {
     const isLeft = direction2 === "left";
     classes.push(`${namespace}-fixed-column--${direction2}`);
-    if (isLeft && after + offset2 === store.states.fixedLeafColumnsLength.value - 1) {
+    if (isLeft && after + offset3 === store.states.fixedLeafColumnsLength.value - 1) {
       classes.push("is-last-column");
-    } else if (!isLeft && start - offset2 === store.states.columns.value.length - store.states.rightFixedLeafColumnsLength.value) {
+    } else if (!isLeft && start - offset3 === store.states.columns.value.length - store.states.rightFixedLeafColumnsLength.value) {
       classes.push("is-first-column");
     }
   }
   return classes;
 };
-function getOffset2(offset2, column2) {
-  return offset2 + (column2.realWidth === null || Number.isNaN(column2.realWidth) ? Number(column2.width) : column2.realWidth);
+function getOffset2(offset3, column2) {
+  return offset3 + (column2.realWidth === null || Number.isNaN(column2.realWidth) ? Number(column2.width) : column2.realWidth);
 }
 var getFixedColumnOffset = (index, fixed, store, realColumns) => {
   const {
@@ -36955,8 +42309,8 @@ function useWatcher() {
   const clearSelection = () => {
     isAllSelected.value = false;
     const oldSelection = selection.value;
+    selection.value = [];
     if (oldSelection.length) {
-      selection.value = [];
       instance.emit("selection-change", []);
     }
   };
@@ -37016,7 +42370,7 @@ function useWatcher() {
     if (selectionChanged) {
       instance.emit("selection-change", selection.value ? selection.value.slice() : []);
     }
-    instance.emit("select-all", selection.value);
+    instance.emit("select-all", (selection.value || []).slice());
   };
   const updateSelectionByRowKey = () => {
     const selectedMap = getKeysMap(selection.value, rowKey2.value);
@@ -37871,9 +43225,9 @@ var _sfc_main120 = defineComponent({
     };
   }
 });
-var _hoisted_159 = { key: 0 };
+var _hoisted_160 = { key: 0 };
 var _hoisted_238 = ["disabled"];
-var _hoisted_316 = ["label", "onClick"];
+var _hoisted_317 = ["label", "onClick"];
 function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_checkbox = resolveComponent("el-checkbox");
   const _component_el_checkbox_group = resolveComponent("el-checkbox-group");
@@ -37897,7 +43251,7 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
     persistent: ""
   }, {
     content: withCtx(() => [
-      _ctx.multiple ? (openBlock(), createElementBlock("div", _hoisted_159, [
+      _ctx.multiple ? (openBlock(), createElementBlock("div", _hoisted_160, [
         createBaseVNode("div", {
           class: normalizeClass(_ctx.ns.e("content"))
         }, [
@@ -37914,13 +43268,13 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
                   (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.filters, (filter) => {
                     return openBlock(), createBlock(_component_el_checkbox, {
                       key: filter.value,
-                      label: filter.value
+                      value: filter.value
                     }, {
                       default: withCtx(() => [
                         createTextVNode(toDisplayString(filter.text), 1)
                       ]),
                       _: 2
-                    }, 1032, ["label"]);
+                    }, 1032, ["value"]);
                   }), 128))
                 ]),
                 _: 1
@@ -37962,7 +43316,7 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
             class: normalizeClass([_ctx.ns.e("list-item"), _ctx.ns.is("active", _ctx.isActive(filter))]),
             label: filter.value,
             onClick: ($event) => _ctx.handleSelect(filter.value)
-          }, toDisplayString(filter.text), 11, _hoisted_316);
+          }, toDisplayString(filter.text), 11, _hoisted_317);
         }), 128))
       ], 2))
     ]),
@@ -38584,6 +43938,16 @@ function useEvents(props) {
       bottom: paddingBottom
     };
   };
+  const toggleRowClassByCell = (rowSpan, event, toggle) => {
+    let node = event.target.parentNode;
+    while (rowSpan > 1) {
+      node = node == null ? void 0 : node.nextSibling;
+      if (!node || node.nodeName !== "TR")
+        break;
+      toggle(node, "hover-row hover-fixed-row");
+      rowSpan--;
+    }
+  };
   const handleCellMouseEnter = (event, row, tooltipOptions) => {
     var _a2;
     const table = parent;
@@ -38593,6 +43957,9 @@ function useEvents(props) {
       const column2 = getColumnByCell({
         columns: props.store.states.columns.value
       }, cell, namespace);
+      if (cell.rowSpan > 1) {
+        toggleRowClassByCell(cell.rowSpan, event, addClass);
+      }
       const hoverState = table.hoverState = { cell, column: column2, row };
       table == null ? void 0 : table.emit("cell-mouse-enter", hoverState.row, hoverState.column, hoverState.cell, event);
     }
@@ -38609,6 +43976,7 @@ function useEvents(props) {
     let rangeWidth = range3.getBoundingClientRect().width;
     let rangeHeight = range3.getBoundingClientRect().height;
     const offsetWidth = rangeWidth - Math.floor(rangeWidth);
+    const { width: cellChildWidth, height: cellChildHeight } = cellChild.getBoundingClientRect();
     if (offsetWidth < 1e-3) {
       rangeWidth = Math.floor(rangeWidth);
     }
@@ -38619,7 +43987,7 @@ function useEvents(props) {
     const { top, left: left2, right: right2, bottom } = getPadding(cellChild);
     const horizontalPadding = left2 + right2;
     const verticalPadding = top + bottom;
-    if (rangeWidth + horizontalPadding > cellChild.offsetWidth || rangeHeight + verticalPadding > cellChild.offsetHeight || cellChild.scrollWidth > cellChild.offsetWidth) {
+    if (rangeWidth + horizontalPadding > cellChildWidth || rangeHeight + verticalPadding > cellChildHeight || cellChild.scrollWidth > cellChildWidth) {
       createTablePopper(tooltipOptions, cell.innerText || cell.textContent, cell, table);
     }
   };
@@ -38627,6 +43995,9 @@ function useEvents(props) {
     const cell = getCell(event);
     if (!cell)
       return;
+    if (cell.rowSpan > 1) {
+      toggleRowClassByCell(cell.rowSpan, event, removeClass);
+    }
     const oldHoverState = parent == null ? void 0 : parent.hoverState;
     parent == null ? void 0 : parent.emit("cell-mouse-leave", oldHoverState == null ? void 0 : oldHoverState.row, oldHoverState == null ? void 0 : oldHoverState.column, oldHoverState == null ? void 0 : oldHoverState.cell, event);
   };
@@ -38692,8 +44063,8 @@ function useStyles(props) {
     ensurePosition(fixedStyle, "right");
     return Object.assign({}, cellStyles, fixedStyle);
   };
-  const getCellClass = (rowIndex, columnIndex, row, column2, offset2) => {
-    const fixedClasses = getFixedColumnsClass(ns.b(), columnIndex, props == null ? void 0 : props.fixed, props.store, void 0, offset2);
+  const getCellClass = (rowIndex, columnIndex, row, column2, offset3) => {
+    const fixedClasses = getFixedColumnsClass(ns.b(), columnIndex, props == null ? void 0 : props.fixed, props.store, void 0, offset3);
     const classes = [column2.id, column2.align, column2.className, ...fixedClasses];
     const cellClassName = parent == null ? void 0 : parent.props.cellClassName;
     if (typeof cellClassName === "string") {
@@ -38832,7 +44203,7 @@ function useRender(props) {
           }
         }
       }
-      const baseKey = `${$index},${cellIndex}`;
+      const baseKey = `${getKeyOfRow(row, $index)},${cellIndex}`;
       const patchKey = columnData.columnKey || columnData.rawColumnKey || "";
       const tdChildren = cellChildren(cellIndex, column2, data);
       const mergedTooltipOptions = column2.showOverflowTooltip && merge_default({
@@ -38989,15 +44360,49 @@ var TableBody = defineComponent({
     const ns = useNamespace("table");
     const { wrappedRowRender, tooltipContent, tooltipTrigger } = useRender(props);
     const { onColumnsChange, onScrollableChange } = useLayoutObserver(parent);
+    const hoveredCellList = [];
     watch(props.store.states.hoverRow, (newVal, oldVal) => {
+      var _a2;
+      const el = instance == null ? void 0 : instance.vnode.el;
+      const rows = Array.from((el == null ? void 0 : el.children) || []).filter((e) => e == null ? void 0 : e.classList.contains(`${ns.e("row")}`));
+      let rowNum = newVal;
+      const childNodes = (_a2 = rows[rowNum]) == null ? void 0 : _a2.childNodes;
+      if (childNodes == null ? void 0 : childNodes.length) {
+        let control = 0;
+        const indexes = Array.from(childNodes).reduce((acc, item, index) => {
+          var _a22, _b;
+          if (((_a22 = childNodes[index]) == null ? void 0 : _a22.colSpan) > 1) {
+            control = (_b = childNodes[index]) == null ? void 0 : _b.colSpan;
+          }
+          if (item.nodeName !== "TD" && control === 0) {
+            acc.push(index);
+          }
+          control > 0 && control--;
+          return acc;
+        }, []);
+        indexes.forEach((rowIndex) => {
+          var _a22;
+          rowNum = newVal;
+          while (rowNum > 0) {
+            const preChildNodes = (_a22 = rows[rowNum - 1]) == null ? void 0 : _a22.childNodes;
+            if (preChildNodes[rowIndex] && preChildNodes[rowIndex].nodeName === "TD" && preChildNodes[rowIndex].rowSpan > 1) {
+              addClass(preChildNodes[rowIndex], "hover-cell");
+              hoveredCellList.push(preChildNodes[rowIndex]);
+              break;
+            }
+            rowNum--;
+          }
+        });
+      } else {
+        hoveredCellList.forEach((item) => removeClass(item, "hover-cell"));
+        hoveredCellList.length = 0;
+      }
       if (!props.store.states.isComplex.value || !isClient)
         return;
       rAF(() => {
-        const el = instance == null ? void 0 : instance.vnode.el;
-        const rows = Array.from((el == null ? void 0 : el.children) || []).filter((e) => e == null ? void 0 : e.classList.contains(`${ns.e("row")}`));
         const oldRow = rows[oldVal];
         const newRow = rows[newVal];
-        if (oldRow) {
+        if (oldRow && !oldRow.classList.contains("hover-fixed-row")) {
           removeClass(oldRow, "hover-row");
         }
         if (newRow) {
@@ -39613,10 +45018,7 @@ var defaultProps3 = {
     type: String,
     default: "fixed"
   },
-  scrollbarAlwaysOn: {
-    type: Boolean,
-    default: false
-  },
+  scrollbarAlwaysOn: Boolean,
   flexible: Boolean,
   showOverflowTooltip: [Boolean, Object]
 };
@@ -39658,10 +45060,10 @@ var useScrollbar = () => {
       scrollbar.scrollTo(options, yCoord);
     }
   };
-  const setScrollPosition = (position, offset2) => {
+  const setScrollPosition = (position, offset3) => {
     const scrollbar = scrollBarRef.value;
-    if (scrollbar && isNumber2(offset2) && ["Top", "Left"].includes(position)) {
-      scrollbar[`setScroll${position}`](offset2);
+    if (scrollbar && isNumber2(offset3) && ["Top", "Left"].includes(position)) {
+      scrollbar[`setScroll${position}`](offset3);
     }
   };
   const setScrollTop = (top) => setScrollPosition("Top", top);
@@ -39815,7 +45217,7 @@ var _sfc_main121 = defineComponent({
     };
   }
 });
-var _hoisted_160 = ["data-prefix"];
+var _hoisted_161 = ["data-prefix"];
 var _hoisted_239 = {
   ref: "hiddenColumns",
   class: "hidden-columns"
@@ -40006,7 +45408,7 @@ function _sfc_render28(_ctx, _cache, $props, $setup, $data, $options) {
     }, null, 2), [
       [vShow, _ctx.resizeProxyVisible]
     ])
-  ], 46, _hoisted_160);
+  ], 46, _hoisted_161);
 }
 var Table = _export_sfc(_sfc_main121, [["render", _sfc_render28], ["__file", "table.vue"]]);
 
@@ -40589,7 +45991,8 @@ var ElTableColumn = defineComponent({
       columnIndex > -1 && owner.value.store.commit("insertColumn", columnConfig.value, isSubColumn.value ? parent2.columnConfig.value : null, updateColumnOrder);
     });
     onBeforeUnmount(() => {
-      owner.value.store.commit("removeColumn", columnConfig.value, isSubColumn.value ? parent.columnConfig.value : null, updateColumnOrder);
+      const columnIndex = columnConfig.value.getColumnIndex();
+      columnIndex > -1 && owner.value.store.commit("removeColumn", columnConfig.value, isSubColumn.value ? parent.columnConfig.value : null, updateColumnOrder);
     });
     instance.columnId = columnId.value;
     instance.columnConfig = columnConfig;
@@ -40829,11 +46232,17 @@ var useScrollbar2 = (props, {
 };
 
 // node_modules/element-plus/es/components/table-v2/src/composables/use-row.mjs
-var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
+var useRow = (props, {
+  mainTableRef,
+  leftTableRef,
+  rightTableRef,
+  tableInstance,
+  ns,
+  isScrolling
+}) => {
   const vm = getCurrentInstance();
   const { emit } = vm;
   const isResetting = shallowRef(false);
-  const hoveringRowKey = shallowRef(null);
   const expandedRowKeys = ref(props.defaultExpandedRowKeys || []);
   const lastRenderedRowIndex = ref(-1);
   const resetIndex = shallowRef(null);
@@ -40851,7 +46260,18 @@ var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
     }
   }
   function onRowHovered({ hovered, rowKey: rowKey2 }) {
-    hoveringRowKey.value = hovered ? rowKey2 : null;
+    if (isScrolling.value) {
+      return;
+    }
+    const tableRoot = tableInstance.vnode.el;
+    const rows = tableRoot.querySelectorAll(`[rowkey=${rowKey2}]`);
+    rows.forEach((row) => {
+      if (hovered) {
+        row.classList.add(ns.is("hovered"));
+      } else {
+        row.classList.remove(ns.is("hovered"));
+      }
+    });
   }
   function onRowExpanded({
     expanded,
@@ -40929,7 +46349,6 @@ var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
     }
   }
   return {
-    hoveringRowKey,
     expandedRowKeys,
     lastRenderedRowIndex,
     isDynamic,
@@ -41013,7 +46432,7 @@ var useStyles2 = (props, {
     const ret = width - vScrollbarSize;
     return fixed ? Math.max(Math.round(unref(columnsTotalWidth)), ret) : ret;
   });
-  const headerWidth = computed2(() => unref(bodyWidth) + (props.fixed ? props.vScrollbarSize : 0));
+  const headerWidth = computed2(() => unref(bodyWidth) + props.vScrollbarSize);
   const mainTableHeight = computed2(() => {
     const { height = 0, maxHeight = 0, footerHeight: footerHeight2, hScrollbarSize } = props;
     if (maxHeight > 0) {
@@ -41146,9 +46565,11 @@ function useTable(props) {
     rightTableRef,
     onMaybeEndReached
   });
+  const ns = useNamespace("table-v2");
+  const instance = getCurrentInstance();
+  const isScrolling = shallowRef(false);
   const {
     expandedRowKeys,
-    hoveringRowKey,
     lastRenderedRowIndex,
     isDynamic,
     isResetting,
@@ -41161,7 +46582,10 @@ function useTable(props) {
   } = useRow(props, {
     mainTableRef,
     leftTableRef,
-    rightTableRef
+    rightTableRef,
+    tableInstance: instance,
+    ns,
+    isScrolling
   });
   const { data, depthMap } = useData(props, {
     expandedRowKeys,
@@ -41187,7 +46611,6 @@ function useTable(props) {
     fixedColumnsOnLeft,
     fixedColumnsOnRight
   });
-  const isScrolling = shallowRef(false);
   const containerRef = ref();
   const showEmpty = computed2(() => {
     const noData = unref(data).length === 0;
@@ -41223,7 +46646,6 @@ function useTable(props) {
     isDynamic,
     isResetting,
     isScrolling,
-    hoveringRowKey,
     hasFixedColumns,
     columnsStyles,
     columnsTotalWidth,
@@ -41961,14 +47383,12 @@ var useTableGrid = (props) => {
   function scrollTo(leftOrOptions, top) {
     const header$ = unref(headerRef);
     const body$ = unref(bodyRef);
-    if (!header$ || !body$)
-      return;
     if (isObject(leftOrOptions)) {
-      header$.scrollToLeft(leftOrOptions.scrollLeft);
-      body$.scrollTo(leftOrOptions);
+      header$ == null ? void 0 : header$.scrollToLeft(leftOrOptions.scrollLeft);
+      body$ == null ? void 0 : body$.scrollTo(leftOrOptions);
     } else {
-      header$.scrollToLeft(leftOrOptions);
-      body$.scrollTo({
+      header$ == null ? void 0 : header$.scrollToLeft(leftOrOptions);
+      body$ == null ? void 0 : body$.scrollTo({
         scrollLeft: leftOrOptions,
         scrollTop: top
       });
@@ -42191,7 +47611,6 @@ var RowRenderer = (props, {
     expandedRowKeys,
     estimatedRowHeight,
     hasFixedColumns,
-    hoveringRowKey,
     rowData,
     rowIndex,
     style,
@@ -42221,7 +47640,6 @@ var RowRenderer = (props, {
   const kls = [ns.e("row"), rowKls, {
     [ns.e(`row-depth-${depth}`)]: canExpand && rowIndex >= 0,
     [ns.is("expanded")]: canExpand && expandedRowKeys.includes(_rowKey),
-    [ns.is("hovered")]: !isScrolling && _rowKey === hoveringRowKey,
     [ns.is("fixed")]: !depth && isFixedRow,
     [ns.is("customized")]: Boolean(slots.row)
   }];
@@ -42241,9 +47659,29 @@ var RowRenderer = (props, {
     rowEventHandlers,
     style
   };
+  const handlerMosueEnter = (e) => {
+    onRowHover == null ? void 0 : onRowHover({
+      hovered: true,
+      rowKey: _rowKey,
+      event: e,
+      rowData,
+      rowIndex
+    });
+  };
+  const handlerMouseLeave = (e) => {
+    onRowHover == null ? void 0 : onRowHover({
+      hovered: false,
+      rowKey: _rowKey,
+      event: e,
+      rowData,
+      rowIndex
+    });
+  };
   return createVNode(TableV2Row, mergeProps(_rowProps, {
-    "onRowHover": onRowHover,
-    "onRowExpand": onRowExpanded
+    "onRowExpand": onRowExpanded,
+    "onMouseenter": handlerMosueEnter,
+    "onMouseleave": handlerMouseLeave,
+    "rowkey": _rowKey
   }), _isSlot4(slots) ? slots : {
     default: () => [slots]
   });
@@ -42493,7 +47931,6 @@ var TableV2 = defineComponent({
       depthMap,
       expandedRowKeys,
       hasFixedColumns,
-      hoveringRowKey,
       mainTableRef,
       leftTableRef,
       rightTableRef,
@@ -42528,7 +47965,6 @@ var TableV2 = defineComponent({
     provide(TableV2InjectionKey, {
       ns,
       isResetting,
-      hoveringRowKey,
       isScrolling
     });
     return () => {
@@ -42636,7 +48072,6 @@ var TableV2 = defineComponent({
         expandedRowKeys: unref(expandedRowKeys),
         estimatedRowHeight,
         hasFixedColumns: unref(hasFixedColumns),
-        hoveringRowKey: unref(hoveringRowKey),
         rowProps: rowProps2,
         rowClass,
         rowKey: rowKey2,
@@ -42800,7 +48235,7 @@ var _sfc_main122 = defineComponent({
     const barRef = ref();
     const barStyle = ref();
     const getBarStyle = () => {
-      let offset2 = 0;
+      let offset3 = 0;
       let tabSize = 0;
       const sizeName = ["top", "bottom"].includes(rootTabs.props.tabPosition) ? "width" : "height";
       const sizeDir = sizeName === "width" ? "x" : "y";
@@ -42813,20 +48248,20 @@ var _sfc_main122 = defineComponent({
         if (!tab.active) {
           return true;
         }
-        offset2 = $el[`offset${capitalize2(position)}`];
+        offset3 = $el[`offset${capitalize2(position)}`];
         tabSize = $el[`client${capitalize2(sizeName)}`];
         const tabStyles = window.getComputedStyle($el);
         if (sizeName === "width") {
           if (props.tabs.length > 1) {
             tabSize -= Number.parseFloat(tabStyles.paddingLeft) + Number.parseFloat(tabStyles.paddingRight);
           }
-          offset2 += Number.parseFloat(tabStyles.paddingLeft);
+          offset3 += Number.parseFloat(tabStyles.paddingLeft);
         }
         return false;
       });
       return {
         [sizeName]: `${tabSize}px`,
-        transform: `translate${capitalize2(sizeDir)}(${offset2}px)`
+        transform: `translate${capitalize2(sizeDir)}(${offset3}px)`
       };
     };
     const update = () => barStyle.value = getBarStyle();
@@ -43118,9 +48553,6 @@ var tabsProps = buildProps({
     values: ["card", "border-card", ""],
     default: ""
   },
-  activeName: {
-    type: [String, Number]
-  },
   closable: Boolean,
   addable: Boolean,
   modelValue: {
@@ -43156,7 +48588,7 @@ var Tabs = defineComponent({
     slots,
     expose
   }) {
-    var _a2, _b;
+    var _a2;
     const ns = useNamespace("tabs");
     const {
       children: panes,
@@ -43164,9 +48596,9 @@ var Tabs = defineComponent({
       removeChild: unregisterPane
     } = useOrderedChildren(getCurrentInstance(), "ElTabPane");
     const nav$ = ref();
-    const currentName = ref((_b = (_a2 = props.modelValue) != null ? _a2 : props.activeName) != null ? _b : "0");
+    const currentName = ref((_a2 = props.modelValue) != null ? _a2 : "0");
     const setCurrentName = async (value, trigger = false) => {
-      var _a22, _b2, _c;
+      var _a22, _b, _c;
       if (currentName.value === value || isUndefined(value))
         return;
       try {
@@ -43177,7 +48609,7 @@ var Tabs = defineComponent({
             emit(UPDATE_MODEL_EVENT, value);
             emit("tabChange", value);
           }
-          (_c = (_b2 = nav$.value) == null ? void 0 : _b2.removeFocus) == null ? void 0 : _c.call(_b2);
+          (_c = (_b = nav$.value) == null ? void 0 : _b.removeFocus) == null ? void 0 : _c.call(_b);
         }
       } catch (e) {
       }
@@ -43199,15 +48631,6 @@ var Tabs = defineComponent({
       emit("edit", void 0, "add");
       emit("tabAdd");
     };
-    useDeprecated({
-      from: '"activeName"',
-      replacement: '"model-value" or "v-model"',
-      scope: "ElTabs",
-      version: "2.3.0",
-      ref: "https://element-plus.org/en-US/component/tabs.html#attributes",
-      type: "Attribute"
-    }, computed2(() => !!props.activeName));
-    watch(() => props.activeName, (modelValue) => setCurrentName(modelValue));
     watch(() => props.modelValue, (modelValue) => setCurrentName(modelValue));
     watch(currentName, async () => {
       var _a22;
@@ -43224,7 +48647,7 @@ var Tabs = defineComponent({
       currentName
     });
     return () => {
-      const addSlot = slots.addIcon;
+      const addSlot = slots["add-icon"];
       const newButton = props.editable || props.addable ? createVNode("span", {
         "class": ns.e("new-tab"),
         "tabindex": "0",
@@ -43233,7 +48656,7 @@ var Tabs = defineComponent({
           if (ev.code === EVENT_CODE.enter)
             handleTabAdd();
         }
-      }, [addSlot ? renderSlot(slots, "addIcon") : createVNode(ElIcon, {
+      }, [addSlot ? renderSlot(slots, "add-icon") : createVNode(ElIcon, {
         "class": ns.is("icon-plus")
       }, {
         default: () => [createVNode(plus_default, null, null)]
@@ -43278,7 +48701,7 @@ var tabPaneProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/tabs/src/tab-pane2.mjs
-var _hoisted_161 = ["id", "aria-hidden", "aria-labelledby"];
+var _hoisted_163 = ["id", "aria-hidden", "aria-labelledby"];
 var COMPONENT_NAME24 = "ElTabPane";
 var __default__85 = defineComponent({
   name: COMPONENT_NAME24
@@ -43335,7 +48758,7 @@ var _sfc_main123 = defineComponent({
         "aria-labelledby": `tab-${unref(paneName)}`
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 10, _hoisted_161)), [
+      ], 10, _hoisted_163)), [
         [vShow, unref(active)]
       ]) : createCommentVNode("v-if", true);
     };
@@ -43457,7 +48880,8 @@ var timeSelectProps = buildProps({
   clearIcon: {
     type: definePropType([String, Object]),
     default: () => circle_close_default
-  }
+  },
+  ...useEmptyValuesProps
 });
 
 // node_modules/element-plus/es/components/time-select/src/utils.mjs
@@ -43595,6 +49019,8 @@ var _sfc_main125 = defineComponent({
         placeholder: _ctx.placeholder,
         "default-first-option": "",
         filterable: _ctx.editable,
+        "empty-values": _ctx.emptyValues,
+        "value-on-clear": _ctx.valueOnClear,
         "onUpdate:modelValue": _cache[0] || (_cache[0] = (event) => _ctx.$emit("update:modelValue", event)),
         onChange: _cache[1] || (_cache[1] = (event) => _ctx.$emit("change", event)),
         onBlur: _cache[2] || (_cache[2] = (event) => _ctx.$emit("blur", event)),
@@ -43622,7 +49048,7 @@ var _sfc_main125 = defineComponent({
           }), 128))
         ]),
         _: 1
-      }, 8, ["model-value", "disabled", "clearable", "clear-icon", "size", "effect", "placeholder", "filterable"]);
+      }, 8, ["model-value", "disabled", "clearable", "clear-icon", "size", "effect", "placeholder", "filterable", "empty-values", "value-on-clear"]);
     };
   }
 });
@@ -43817,7 +49243,6 @@ var tooltipV2Placements = [
   "right"
 ];
 var tooltipV2ContentProps = buildProps({
-  ariaLabel: String,
   arrowPadding: {
     type: definePropType(Number),
     default: 5
@@ -43848,7 +49273,8 @@ var tooltipV2ContentProps = buildProps({
   showArrow: {
     type: Boolean,
     default: false
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 
 // node_modules/element-plus/es/components/tooltip-v2/src/root.mjs
@@ -44062,7 +49488,7 @@ var _sfc_main129 = defineComponent({
 var ElVisuallyHidden = _export_sfc(_sfc_main129, [["__file", "visual-hidden.vue"]]);
 
 // node_modules/element-plus/es/components/tooltip-v2/src/content2.mjs
-var _hoisted_163 = ["data-side"];
+var _hoisted_164 = ["data-side"];
 var __default__92 = defineComponent({
   name: "ElTooltipV2Content"
 });
@@ -44079,7 +49505,7 @@ var _sfc_main130 = defineComponent({
       placement,
       strategy,
       middleware: computed2(() => {
-        const middleware = [offset(props.offset)];
+        const middleware = [offset2(props.offset)];
         if (props.showArrow) {
           middleware.push(arrowMiddleware({
             arrowRef
@@ -44157,7 +49583,7 @@ var _sfc_main130 = defineComponent({
             style: normalizeStyle(unref(arrowStyle)),
             side: unref(side)
           })
-        ], 10, _hoisted_163)) : createCommentVNode("v-if", true)
+        ], 10, _hoisted_164)) : createCommentVNode("v-if", true)
       ], 4);
     };
   }
@@ -44689,7 +50115,7 @@ var _sfc_main133 = defineComponent({
                 return openBlock(), createBlock(unref(ElCheckbox), {
                   key: item[unref(propsAlias).key],
                   class: normalizeClass(unref(ns).be("panel", "item")),
-                  label: item[unref(propsAlias).key],
+                  value: item[unref(propsAlias).key],
                   disabled: item[unref(propsAlias).disabled],
                   "validate-event": false
                 }, {
@@ -44702,7 +50128,7 @@ var _sfc_main133 = defineComponent({
                     ];
                   }),
                   _: 2
-                }, 1032, ["class", "label", "disabled"]);
+                }, 1032, ["class", "value", "disabled"]);
               }), 128))
             ]),
             _: 1
@@ -44728,7 +50154,7 @@ var _sfc_main133 = defineComponent({
 var TransferPanel = _export_sfc(_sfc_main133, [["__file", "transfer-panel.vue"]]);
 
 // node_modules/element-plus/es/components/transfer/src/transfer2.mjs
-var _hoisted_164 = { key: 0 };
+var _hoisted_165 = { key: 0 };
 var _hoisted_240 = { key: 0 };
 var __default__96 = defineComponent({
   name: "ElTransfer"
@@ -44824,7 +50250,7 @@ var _sfc_main134 = defineComponent({
                 ]),
                 _: 1
               }),
-              !unref(isUndefined)(_ctx.buttonTexts[0]) ? (openBlock(), createElementBlock("span", _hoisted_164, toDisplayString(_ctx.buttonTexts[0]), 1)) : createCommentVNode("v-if", true)
+              !unref(isUndefined)(_ctx.buttonTexts[0]) ? (openBlock(), createElementBlock("span", _hoisted_165, toDisplayString(_ctx.buttonTexts[0]), 1)) : createCommentVNode("v-if", true)
             ]),
             _: 1
           }, 8, ["class", "disabled", "onClick"]),
@@ -45313,12 +50739,28 @@ var Node3 = class _Node {
           callback.call(this, children);
         }
       };
-      this.store.load(this, resolve);
+      const reject = () => {
+        this.loading = false;
+      };
+      this.store.load(this, resolve, reject);
     } else {
       if (callback) {
         callback.call(this);
       }
     }
+  }
+  eachNode(callback) {
+    const arr = [this];
+    while (arr.length) {
+      const node = arr.shift();
+      arr.unshift(...node.childNodes);
+      callback(node);
+    }
+  }
+  reInitChecked() {
+    if (this.store.checkStrictly)
+      return;
+    reInitChecked(this);
   }
 };
 
@@ -45414,7 +50856,7 @@ var TreeStore = class {
     }
   }
   append(data, parentData) {
-    const parentNode = parentData ? this.getNode(parentData) : this.root;
+    const parentNode = !isPropAbsent(parentData) ? this.getNode(parentData) : this.root;
     if (parentNode) {
       parentNode.insertChild({ data });
     }
@@ -45806,6 +51248,12 @@ function useDragNodeHandler({ props, ctx, el$, dropIndicator$, store }) {
       }
       if (dropType !== "none") {
         store.value.registerNode(draggingNodeCopy);
+        if (store.value.key) {
+          draggingNode.node.eachNode((node) => {
+            var _a2;
+            (_a2 = store.value.nodesMap[node.data[store.value.key]]) == null ? void 0 : _a2.setChecked(node.checked, !store.value.checkStrictly);
+          });
+        }
       }
       removeClass(dropNode.$el, ns.is("drop-inner"));
       ctx.emit("node-drag-end", draggingNode.node, dropNode.node, dropType, event);
@@ -45891,6 +51339,7 @@ var _sfc_main136 = defineComponent({
     watch(() => props.node.checked, (val) => {
       handleSelectChange(val, props.node.indeterminate);
     });
+    watch(() => props.node.childNodes.length, () => props.node.reInitChecked());
     watch(() => props.node.expanded, (val) => {
       nextTick(() => expanded.value = val);
       if (val) {
@@ -46018,7 +51467,7 @@ var _sfc_main136 = defineComponent({
     };
   }
 });
-var _hoisted_165 = ["aria-expanded", "aria-disabled", "aria-checked", "draggable", "data-key"];
+var _hoisted_166 = ["aria-expanded", "aria-disabled", "aria-checked", "draggable", "data-key"];
 var _hoisted_241 = ["aria-expanded"];
 function _sfc_render29(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
@@ -46121,7 +51570,7 @@ function _sfc_render29(_ctx, _cache, $props, $setup, $data, $options) {
       ]),
       _: 1
     })
-  ], 42, _hoisted_165)), [
+  ], 42, _hoisted_166)), [
     [vShow, _ctx.node.visible]
   ]);
 }
@@ -46538,10 +51987,19 @@ var ElTree = _Tree;
 
 // node_modules/element-plus/es/components/tree-select/src/select.mjs
 var useSelect3 = (props, { attrs, emit }, {
+  select,
   tree,
   key
 }) => {
   const ns = useNamespace("tree-select");
+  watch(() => props.data, () => {
+    if (props.filterable) {
+      nextTick(() => {
+        var _a2, _b;
+        (_b = tree.value) == null ? void 0 : _b.filter((_a2 = select.value) == null ? void 0 : _a2.states.inputValue);
+      });
+    }
+  }, { flush: "post" });
   const result = {
     ...pick_default(toRefs(props), Object.keys(ElSelect.props)),
     ...attrs,
@@ -46554,18 +52012,13 @@ var useSelect3 = (props, { attrs, emit }, {
       return classes.join(" ");
     }),
     filterMethod: (keyword = "") => {
-      if (props.filterMethod)
-        props.filterMethod(keyword);
-      nextTick(() => {
-        var _a2;
-        (_a2 = tree.value) == null ? void 0 : _a2.filter(keyword);
-      });
-    },
-    onVisibleChange: (visible) => {
       var _a2;
-      (_a2 = attrs.onVisibleChange) == null ? void 0 : _a2.call(attrs, visible);
-      if (props.filterable && visible) {
-        result.filterMethod();
+      if (props.filterMethod) {
+        props.filterMethod(keyword);
+      } else if (props.remoteMethod) {
+        props.remoteMethod(keyword);
+      } else {
+        (_a2 = tree.value) == null ? void 0 : _a2.filter(keyword);
       }
     }
   };
@@ -46682,9 +52135,6 @@ var useTree2 = (props, { attrs, slots, emit }, {
     }, (data) => getNodeValByProp("children", data));
     return options;
   });
-  const cacheOptionsMap = computed2(() => {
-    return cacheOptions.value.reduce((prev, next) => ({ ...prev, [next.value]: next }), {});
-  });
   return {
     ...pick_default(toRefs(props), Object.keys(_Tree.props)),
     ...attrs,
@@ -46711,7 +52161,7 @@ var useTree2 = (props, { attrs, slots, emit }, {
       return regexp4.test(getNodeValByProp("label", data) || "");
     },
     onNodeClick: (data, node, e) => {
-      var _a2, _b, _c;
+      var _a2, _b, _c, _d;
       (_a2 = attrs.onNodeClick) == null ? void 0 : _a2.call(attrs, data, node, e);
       if (props.showCheckbox && props.checkOnClickNode)
         return;
@@ -46723,19 +52173,23 @@ var useTree2 = (props, { attrs, slots, emit }, {
       } else if (props.expandOnClickNode) {
         e.proxy.handleExpandIconClick();
       }
+      (_d = select.value) == null ? void 0 : _d.focus();
     },
     onCheck: (data, params) => {
+      var _a2;
       if (!props.showCheckbox)
         return;
       const dataValue = getNodeValByProp("value", data);
+      const dataMap = {};
+      treeEach([tree.value.store.root], (node) => dataMap[node.key] = node, (node) => node.childNodes);
       const uncachedCheckedKeys = params.checkedKeys;
-      const cachedKeys = props.multiple ? toValidArray(props.modelValue).filter((item) => item in cacheOptionsMap.value && !tree.value.getNode(item) && !uncachedCheckedKeys.includes(item)) : [];
-      const checkedKeys = uncachedCheckedKeys.concat(cachedKeys);
+      const cachedKeys = props.multiple ? toValidArray(props.modelValue).filter((item) => !(item in dataMap) && !uncachedCheckedKeys.includes(item)) : [];
+      const checkedKeys = cachedKeys.concat(uncachedCheckedKeys);
       if (props.checkStrictly) {
         emit(UPDATE_MODEL_EVENT, props.multiple ? checkedKeys : checkedKeys.includes(dataValue) ? dataValue : void 0);
       } else {
         if (props.multiple) {
-          emit(UPDATE_MODEL_EVENT, tree.value.getCheckedKeys(true));
+          emit(UPDATE_MODEL_EVENT, cachedKeys.concat(tree.value.getCheckedKeys(true)));
         } else {
           const firstLeaf = treeFind([data], (data2) => !isValidArray(getNodeValByProp("children", data2)) && !getNodeValByProp("disabled", data2), (data2) => getNodeValByProp("children", data2));
           const firstLeafKey = firstLeaf ? getNodeValByProp("value", firstLeaf) : void 0;
@@ -46744,16 +52198,17 @@ var useTree2 = (props, { attrs, slots, emit }, {
         }
       }
       nextTick(() => {
-        var _a2;
+        var _a22;
         const checkedKeys2 = toValidArray(props.modelValue);
         tree.value.setCheckedKeys(checkedKeys2);
-        (_a2 = attrs.onCheck) == null ? void 0 : _a2.call(attrs, data, {
+        (_a22 = attrs.onCheck) == null ? void 0 : _a22.call(attrs, data, {
           checkedKeys: tree.value.getCheckedKeys(),
           checkedNodes: tree.value.getCheckedNodes(),
           halfCheckedKeys: tree.value.getHalfCheckedKeys(),
           halfCheckedNodes: tree.value.getHalfCheckedNodes()
         });
       });
+      (_a2 = select.value) == null ? void 0 : _a2.focus();
     },
     cacheOptions
   };
@@ -47155,7 +52610,9 @@ function useCheck2(props, tree) {
   function setCheckedKeys(keys2) {
     checkedKeys.value.clear();
     indeterminateKeys.value.clear();
-    _setCheckedKeys(keys2);
+    nextTick(() => {
+      _setCheckedKeys(keys2);
+    });
   }
   function setChecked(key, isChecked2) {
     if ((tree == null ? void 0 : tree.value) && props.showCheckbox) {
@@ -47528,7 +52985,7 @@ var ElNodeContent = defineComponent({
 });
 
 // node_modules/element-plus/es/components/tree-v2/src/tree-node.mjs
-var _hoisted_166 = ["aria-expanded", "aria-disabled", "aria-checked", "data-key", "onClick"];
+var _hoisted_167 = ["aria-expanded", "aria-disabled", "aria-checked", "data-key", "onClick"];
 var __default__97 = defineComponent({
   name: "ElTreeNode"
 });
@@ -47620,7 +53077,7 @@ var _sfc_main139 = defineComponent({
           }, null, 8, ["model-value", "indeterminate", "disabled"])) : createCommentVNode("v-if", true),
           createVNode(unref(ElNodeContent), { node: _ctx.node }, null, 8, ["node"])
         ], 6)
-      ], 42, _hoisted_166);
+      ], 42, _hoisted_167);
     };
   }
 });
@@ -47751,7 +53208,7 @@ var ElTreeV2 = withInstall(TreeV2);
 var uploadContextKey = Symbol("uploadContextKey");
 
 // node_modules/element-plus/es/components/upload/src/ajax.mjs
-var SCOPE7 = "ElUpload";
+var SCOPE8 = "ElUpload";
 var UploadAjaxError = class extends Error {
   constructor(message2, status, method4, url2) {
     super(message2);
@@ -47785,7 +53242,7 @@ function getBody(xhr) {
 }
 var ajaxUpload = (option) => {
   if (typeof XMLHttpRequest === "undefined")
-    throwError(SCOPE7, "XMLHttpRequest is undefined");
+    throwError(SCOPE8, "XMLHttpRequest is undefined");
   const xhr = new XMLHttpRequest();
   const action = option.action;
   if (xhr.upload) {
@@ -47929,6 +53386,9 @@ var uploadProps = buildProps({
   onExceed: {
     type: definePropType(Function),
     default: NOOP
+  },
+  crossorigin: {
+    type: definePropType(String)
   }
 });
 
@@ -47950,6 +53410,9 @@ var uploadListProps = buildProps({
     type: String,
     values: uploadListTypes,
     default: "text"
+  },
+  crossorigin: {
+    type: definePropType(String)
   }
 });
 var uploadListEmits = {
@@ -47957,12 +53420,12 @@ var uploadListEmits = {
 };
 
 // node_modules/element-plus/es/components/upload/src/upload-list2.mjs
-var _hoisted_167 = ["onKeydown"];
-var _hoisted_242 = ["src"];
-var _hoisted_317 = ["onClick"];
-var _hoisted_410 = ["title"];
-var _hoisted_57 = ["onClick"];
-var _hoisted_64 = ["onClick"];
+var _hoisted_168 = ["onKeydown"];
+var _hoisted_242 = ["src", "crossorigin"];
+var _hoisted_318 = ["onClick"];
+var _hoisted_411 = ["title"];
+var _hoisted_58 = ["onClick"];
+var _hoisted_65 = ["onClick"];
 var __default__99 = defineComponent({
   name: "ElUploadList"
 });
@@ -48012,6 +53475,7 @@ var _sfc_main141 = defineComponent({
                   key: 0,
                   class: normalizeClass(unref(nsUpload).be("list", "item-thumbnail")),
                   src: file.url,
+                  crossorigin: _ctx.crossorigin,
                   alt: ""
                 }, null, 10, _hoisted_242)) : createCommentVNode("v-if", true),
                 file.status === "uploading" || _ctx.listType !== "picture-card" ? (openBlock(), createElementBlock("div", {
@@ -48033,8 +53497,8 @@ var _sfc_main141 = defineComponent({
                     createBaseVNode("span", {
                       class: normalizeClass(unref(nsUpload).be("list", "item-file-name")),
                       title: file.name
-                    }, toDisplayString(file.name), 11, _hoisted_410)
-                  ], 10, _hoisted_317),
+                    }, toDisplayString(file.name), 11, _hoisted_411)
+                  ], 10, _hoisted_318),
                   file.status === "uploading" ? (openBlock(), createBlock(unref(ElProgress), {
                     key: 0,
                     type: _ctx.listType === "picture-card" ? "circle" : "line",
@@ -48097,7 +53561,7 @@ var _sfc_main141 = defineComponent({
                       ]),
                       _: 1
                     }, 8, ["class"])
-                  ], 10, _hoisted_57),
+                  ], 10, _hoisted_58),
                   !unref(disabled) ? (openBlock(), createElementBlock("span", {
                     key: 0,
                     class: normalizeClass(unref(nsUpload).be("list", "item-delete")),
@@ -48111,10 +53575,10 @@ var _sfc_main141 = defineComponent({
                       ]),
                       _: 1
                     }, 8, ["class"])
-                  ], 10, _hoisted_64)) : createCommentVNode("v-if", true)
+                  ], 10, _hoisted_65)) : createCommentVNode("v-if", true)
                 ], 2)) : createCommentVNode("v-if", true)
               ])
-            ], 42, _hoisted_167);
+            ], 42, _hoisted_168);
           }), 128)),
           renderSlot(_ctx.$slots, "append")
         ]),
@@ -48137,7 +53601,7 @@ var uploadDraggerEmits = {
 };
 
 // node_modules/element-plus/es/components/upload/src/upload-dragger2.mjs
-var _hoisted_168 = ["onDrop", "onDragover"];
+var _hoisted_169 = ["onDrop", "onDragover"];
 var COMPONENT_NAME25 = "ElUploadDrag";
 var __default__100 = defineComponent({
   name: COMPONENT_NAME25
@@ -48160,29 +53624,7 @@ var _sfc_main142 = defineComponent({
       dragover.value = false;
       e.stopPropagation();
       const files = Array.from(e.dataTransfer.files);
-      const accept = uploaderContext.accept.value;
-      if (!accept) {
-        emit("file", files);
-        return;
-      }
-      const filesFiltered = files.filter((file) => {
-        const { type: type4, name } = file;
-        const extension = name.includes(".") ? `.${name.split(".").pop()}` : "";
-        const baseType = type4.replace(/\/.*$/, "");
-        return accept.split(",").map((type22) => type22.trim()).filter((type22) => type22).some((acceptedType) => {
-          if (acceptedType.startsWith(".")) {
-            return extension === acceptedType;
-          }
-          if (/\/\*$/.test(acceptedType)) {
-            return baseType === acceptedType.replace(/\/\*$/, "");
-          }
-          if (/^[^/]+\/[^/]+$/.test(acceptedType)) {
-            return type4 === acceptedType;
-          }
-          return false;
-        });
-      });
-      emit("file", filesFiltered);
+      emit("file", files);
     };
     const onDragover = () => {
       if (!disabled.value)
@@ -48196,7 +53638,7 @@ var _sfc_main142 = defineComponent({
         onDragleave: _cache[0] || (_cache[0] = withModifiers(($event) => dragover.value = false, ["prevent"]))
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 42, _hoisted_168);
+      ], 42, _hoisted_169);
     };
   }
 });
@@ -48236,7 +53678,7 @@ var uploadContentProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/upload/src/upload-content2.mjs
-var _hoisted_169 = ["onKeydown"];
+var _hoisted_170 = ["onKeydown"];
 var _hoisted_243 = ["name", "multiple", "accept"];
 var __default__101 = defineComponent({
   name: "ElUploadContent",
@@ -48414,14 +53856,14 @@ var _sfc_main143 = defineComponent({
           onClick: _cache[0] || (_cache[0] = withModifiers(() => {
           }, ["stop"]))
         }, null, 42, _hoisted_243)
-      ], 42, _hoisted_169);
+      ], 42, _hoisted_170);
     };
   }
 });
 var UploadContent = _export_sfc(_sfc_main143, [["__file", "upload-content.vue"]]);
 
 // node_modules/element-plus/es/components/upload/src/use-handlers.mjs
-var SCOPE8 = "ElUpload";
+var SCOPE9 = "ElUpload";
 var revokeFileObjectURL = (file) => {
   var _a2;
   if ((_a2 = file.url) == null ? void 0 : _a2.startsWith("blob:")) {
@@ -48480,7 +53922,7 @@ var useHandlers = (props, uploadRef) => {
       try {
         uploadFile.url = URL.createObjectURL(file);
       } catch (err) {
-        debugWarn(SCOPE8, err.message);
+        debugWarn(SCOPE9, err.message);
         props.onError(err, uploadFile, uploadFiles.value);
       }
     }
@@ -48490,7 +53932,7 @@ var useHandlers = (props, uploadRef) => {
   const handleRemove = async (file) => {
     const uploadFile = file instanceof File ? getFile(file) : file;
     if (!uploadFile)
-      throwError(SCOPE8, "file to be removed not found");
+      throwError(SCOPE9, "file to be removed not found");
     const doRemove = (file2) => {
       abort(file2);
       const fileList = uploadFiles.value;
@@ -48601,6 +54043,7 @@ var _sfc_main144 = defineComponent({
           disabled: unref(disabled),
           "list-type": _ctx.listType,
           files: unref(uploadFiles),
+          crossorigin: _ctx.crossorigin,
           "handle-preview": _ctx.onPreview,
           onRemove: unref(handleRemove)
         }, createSlots({
@@ -48624,7 +54067,7 @@ var _sfc_main144 = defineComponent({
               renderSlot(_ctx.$slots, "file", { file })
             ])
           } : void 0
-        ]), 1032, ["disabled", "list-type", "files", "handle-preview", "onRemove"])) : createCommentVNode("v-if", true),
+        ]), 1032, ["disabled", "list-type", "files", "crossorigin", "handle-preview", "onRemove"])) : createCommentVNode("v-if", true),
         !unref(isPictureCard) || unref(isPictureCard) && !_ctx.showFileList ? (openBlock(), createBlock(UploadContent, mergeProps({
           key: 1,
           ref_key: "uploadRef",
@@ -48643,6 +54086,7 @@ var _sfc_main144 = defineComponent({
           disabled: unref(disabled),
           "list-type": _ctx.listType,
           files: unref(uploadFiles),
+          crossorigin: _ctx.crossorigin,
           "handle-preview": _ctx.onPreview,
           onRemove: unref(handleRemove)
         }, createSlots({ _: 2 }, [
@@ -48652,7 +54096,7 @@ var _sfc_main144 = defineComponent({
               renderSlot(_ctx.$slots, "file", { file })
             ])
           } : void 0
-        ]), 1032, ["disabled", "list-type", "files", "handle-preview", "onRemove"])) : createCommentVNode("v-if", true)
+        ]), 1032, ["disabled", "list-type", "files", "crossorigin", "handle-preview", "onRemove"])) : createCommentVNode("v-if", true)
       ]);
     };
   }
@@ -49121,48 +54565,6 @@ function isInViewPort(element) {
   const { top, right: right2, bottom, left: left2 } = element.getBoundingClientRect();
   return top >= 0 && left2 >= 0 && right2 <= viewWidth && bottom <= viewHeight;
 }
-var isSameProps = (a2, b2) => {
-  if (Object.keys(a2).length !== Object.keys(b2).length)
-    return false;
-  for (const key in a2) {
-    if (a2[key] !== b2[key]) {
-      return false;
-    }
-  }
-  return true;
-};
-function isSameSteps(a2, b2) {
-  if (a2.length !== b2.length)
-    return false;
-  for (const [index] of a2.entries()) {
-    if (isSameProps(a2[index], b2[index])) {
-      return false;
-    }
-  }
-  return true;
-}
-var getNormalizedProps2 = (node, booleanKeys) => {
-  var _a2;
-  if (!isVNode(node)) {
-    return {};
-  }
-  const raw = node.props || {};
-  const type4 = ((_a2 = node.type) == null ? void 0 : _a2.props) || {};
-  const props = {};
-  Object.keys(type4).forEach((key) => {
-    if (hasOwn(type4[key], "default")) {
-      props[key] = type4[key].default;
-    }
-  });
-  Object.keys(raw).forEach((key) => {
-    const cameKey = camelize(key);
-    props[cameKey] = raw[key];
-    if (booleanKeys.includes(cameKey) && props[cameKey] === "") {
-      props[cameKey] = true;
-    }
-  });
-  return props;
-};
 var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, offset$1, zIndex2, showArrow) => {
   const x2 = ref();
   const y = ref();
@@ -49176,7 +54578,7 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
   };
   const middleware = computed2(() => {
     const _middleware = [
-      offset(unref(offset$1)),
+      offset2(unref(offset$1)),
       flip2(),
       shift2(),
       overflowMiddleware()
@@ -49235,7 +54637,11 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
   });
   let cleanup;
   onMounted(() => {
-    cleanup = autoUpdate(unref(referenceRef), unref(contentRef), update);
+    const referenceEl = unref(referenceRef);
+    const contentEl = unref(contentRef);
+    if (referenceEl && contentEl) {
+      cleanup = autoUpdate(referenceEl, contentEl, update);
+    }
     watchEffect(() => {
       update();
     });
@@ -49253,7 +54659,7 @@ var overflowMiddleware = () => {
   return {
     name: "overflow",
     async fn(state) {
-      const overflow = await detectOverflow(state);
+      const overflow = await detectOverflow2(state);
       let overWidth = 0;
       if (overflow.left > 0)
         overWidth = overflow.left;
@@ -49270,7 +54676,7 @@ var overflowMiddleware = () => {
 };
 
 // node_modules/element-plus/es/components/tour/src/mask2.mjs
-var _hoisted_170 = { style: {
+var _hoisted_171 = { style: {
   width: "100%",
   height: "100%"
 } };
@@ -49331,7 +54737,7 @@ var _sfc_main146 = defineComponent({
           pointerEvents: _ctx.pos && _ctx.targetAreaClickable ? "none" : "auto"
         }
       }, _ctx.$attrs), [
-        (openBlock(), createElementBlock("svg", _hoisted_170, [
+        (openBlock(), createElementBlock("svg", _hoisted_171, [
           createBaseVNode("path", {
             class: normalizeClass(unref(ns).e("hollow")),
             style: normalizeStyle(unref(pathStyle)),
@@ -49390,7 +54796,7 @@ var tourContentEmits = {
 };
 
 // node_modules/element-plus/es/components/tour/src/content2.mjs
-var _hoisted_171 = ["data-side"];
+var _hoisted_173 = ["data-side"];
 var __default__105 = defineComponent({
   name: "ElTourContent"
 });
@@ -49415,6 +54821,11 @@ var _sfc_main147 = defineComponent({
     const onCloseRequested = () => {
       emit("close");
     };
+    const onFocusoutPrevented = (event) => {
+      if (event.detail.focusReason === "pointer") {
+        event.preventDefault();
+      }
+    };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         ref_key: "contentRef",
@@ -49429,7 +54840,8 @@ var _sfc_main147 = defineComponent({
           trapped: "",
           "focus-start-el": "container",
           "focus-trap-el": contentRef.value || void 0,
-          onReleaseRequested: onCloseRequested
+          onReleaseRequested: onCloseRequested,
+          onFocusoutPrevented
         }, {
           default: withCtx(() => [
             renderSlot(_ctx.$slots, "default")
@@ -49443,7 +54855,7 @@ var _sfc_main147 = defineComponent({
           style: normalizeStyle(unref(arrowStyle)),
           class: normalizeClass(unref(ns).e("arrow"))
         }, null, 6)) : createCommentVNode("v-if", true)
-      ], 14, _hoisted_171);
+      ], 14, _hoisted_173);
     };
   }
 });
@@ -49458,14 +54870,14 @@ var ElTourSteps = defineComponent({
       default: 0
     }
   },
-  emits: ["update-steps"],
+  emits: ["update-total"],
   setup(props, { slots, emit }) {
-    let cachedSteps = [];
+    let cacheTotal = 0;
     return () => {
       var _a2, _b;
       const children = (_a2 = slots.default) == null ? void 0 : _a2.call(slots);
-      const filteredSteps = [];
       const result = [];
+      let total2 = 0;
       function filterSteps(children2) {
         if (!isArray(children2))
           return;
@@ -49473,18 +54885,17 @@ var ElTourSteps = defineComponent({
           var _a22;
           const name = (_a22 = (item == null ? void 0 : item.type) || {}) == null ? void 0 : _a22.name;
           if (name === "ElTourStep") {
-            const booleanKeys = ["showArrow", "mask", "scrollIntoViewOptions"];
-            filteredSteps.push(getNormalizedProps2(item, booleanKeys));
             result.push(item);
+            total2 += 1;
           }
         });
       }
       if (children.length) {
         filterSteps(flattedChildren((_b = children[0]) == null ? void 0 : _b.children));
       }
-      if (!isSameSteps(filteredSteps, cachedSteps)) {
-        cachedSteps = filteredSteps;
-        emit("update-steps", filteredSteps);
+      if (cacheTotal !== total2) {
+        cacheTotal = total2;
+        emit("update-total", total2);
       }
       if (result.length) {
         return result[props.current];
@@ -49571,39 +54982,44 @@ var _sfc_main148 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("tour");
-    const steps = ref([]);
+    const total2 = ref(0);
+    const currentStep = ref();
     const current = useVModel(props, "current", emit, {
       passive: true
     });
-    const total2 = computed2(() => steps.value.length);
-    const currentStep = computed2(() => steps.value[current.value] || {});
-    const currentTarget = computed2(() => currentStep.value.target);
+    const currentTarget = computed2(() => {
+      var _a2;
+      return (_a2 = currentStep.value) == null ? void 0 : _a2.target;
+    });
     const kls = computed2(() => [
       ns.b(),
       mergedType.value === "primary" ? ns.m("primary") : ""
     ]);
-    const mergedPlacement = computed2(() => currentStep.value.placement || props.placement);
-    const mergedContentStyle = computed2(() => {
+    const mergedPlacement = computed2(() => {
       var _a2;
-      return (_a2 = currentStep.value.contentStyle) != null ? _a2 : props.contentStyle;
+      return ((_a2 = currentStep.value) == null ? void 0 : _a2.placement) || props.placement;
+    });
+    const mergedContentStyle = computed2(() => {
+      var _a2, _b;
+      return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.contentStyle) != null ? _b : props.contentStyle;
     });
     const mergedMask = computed2(() => {
-      var _a2;
-      return (_a2 = currentStep.value.mask) != null ? _a2 : props.mask;
+      var _a2, _b;
+      return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.mask) != null ? _b : props.mask;
     });
     const mergedShowMask = computed2(() => !!mergedMask.value && props.modelValue);
     const mergedMaskStyle = computed2(() => isBoolean(mergedMask.value) ? void 0 : mergedMask.value);
     const mergedShowArrow = computed2(() => {
-      var _a2;
-      return !!currentTarget.value && ((_a2 = currentStep.value.showArrow) != null ? _a2 : props.showArrow);
+      var _a2, _b;
+      return !!currentTarget.value && ((_b = (_a2 = currentStep.value) == null ? void 0 : _a2.showArrow) != null ? _b : props.showArrow);
     });
     const mergedScrollIntoViewOptions = computed2(() => {
-      var _a2;
-      return (_a2 = currentStep.value.scrollIntoViewOptions) != null ? _a2 : props.scrollIntoViewOptions;
+      var _a2, _b;
+      return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.scrollIntoViewOptions) != null ? _b : props.scrollIntoViewOptions;
     });
     const mergedType = computed2(() => {
-      var _a2;
-      return (_a2 = currentStep.value.type) != null ? _a2 : props.type;
+      var _a2, _b;
+      return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.type) != null ? _b : props.type;
     });
     const { nextZIndex } = useZIndex();
     const nowZIndex = nextZIndex();
@@ -49617,17 +55033,18 @@ var _sfc_main148 = defineComponent({
         current.value = 0;
       }
     });
-    const onUpdateSteps = (v2) => {
-      steps.value = v2;
-    };
     const onEscClose = () => {
       if (props.closeOnPressEscape) {
         emit("update:modelValue", false);
         emit("close", current.value);
       }
     };
+    const onUpdateTotal = (val) => {
+      total2.value = val;
+    };
     const slots = useSlots();
     provide(tourKey, {
+      currentStep,
       current,
       total: total2,
       showClose: toRef(props, "showClose"),
@@ -49673,7 +55090,7 @@ var _sfc_main148 = defineComponent({
               default: withCtx(() => [
                 createVNode(unref(ElTourSteps), {
                   current: unref(current),
-                  onUpdateSteps
+                  onUpdateTotal
                 }, {
                   default: withCtx(() => [
                     renderSlot(_ctx.$slots, "default")
@@ -49689,7 +55106,7 @@ var _sfc_main148 = defineComponent({
         false ? renderSlot(_ctx.$slots, "indicators", {
           key: 0,
           current: unref(current) + 1,
-          total: unref(total2)
+          total: total2.value
         }) : createCommentVNode("v-if", true)
       ], 64);
     };
@@ -49706,18 +55123,19 @@ var tourStepProps = buildProps({
   description: String,
   showClose: {
     type: Boolean,
-    default: true
+    default: void 0
   },
   closeIcon: {
     type: iconPropType
   },
   showArrow: {
     type: Boolean,
-    default: true
+    default: void 0
   },
   placement: tourContentProps.placement,
   mask: {
-    type: definePropType([Boolean, Object])
+    type: definePropType([Boolean, Object]),
+    default: void 0
   },
   contentStyle: {
     type: definePropType([Object])
@@ -49729,7 +55147,8 @@ var tourStepProps = buildProps({
     type: definePropType(Object)
   },
   scrollIntoViewOptions: {
-    type: definePropType([Boolean, Object])
+    type: definePropType([Boolean, Object]),
+    default: void 0
   },
   type: {
     type: definePropType(String)
@@ -49752,6 +55171,7 @@ var _sfc_main149 = defineComponent({
     const { Close } = CloseComponents;
     const { t } = useLocale();
     const {
+      currentStep,
       current,
       total: total2,
       showClose,
@@ -49764,6 +55184,11 @@ var _sfc_main149 = defineComponent({
       onFinish: tourOnFinish,
       onChange
     } = inject(tourKey);
+    watch(props, (val) => {
+      currentStep.value = val;
+    }, {
+      immediate: true
+    });
     const mergedShowClose = computed2(() => {
       var _a2;
       return (_a2 = props.showClose) != null ? _a2 : showClose.value;
@@ -49772,6 +55197,11 @@ var _sfc_main149 = defineComponent({
       var _a2, _b;
       return (_b = (_a2 = props.closeIcon) != null ? _a2 : closeIcon.value) != null ? _b : Close;
     });
+    const filterButtonProps = (btnProps) => {
+      if (!btnProps)
+        return;
+      return omit_default(btnProps, ["children", "onClick"]);
+    };
     const onPrev = () => {
       var _a2, _b;
       current.value -= 1;
@@ -49820,7 +55250,7 @@ var _sfc_main149 = defineComponent({
           }, 8, ["class"])
         ], 2)) : createCommentVNode("v-if", true),
         createBaseVNode("header", {
-          class: normalizeClass(unref(ns).e("header"))
+          class: normalizeClass([unref(ns).e("header"), { "show-close": unref(showClose) }])
         }, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             createBaseVNode("span", {
@@ -49860,7 +55290,7 @@ var _sfc_main149 = defineComponent({
               key: 0,
               size: "small",
               type: unref(mergedType)
-            }, _ctx.prevButtonProps, { onClick: onPrev }), {
+            }, filterButtonProps(_ctx.prevButtonProps), { onClick: onPrev }), {
               default: withCtx(() => {
                 var _a2, _b;
                 return [
@@ -49873,11 +55303,11 @@ var _sfc_main149 = defineComponent({
               key: 1,
               size: "small",
               type: unref(mergedType) === "primary" ? "default" : "primary"
-            }, _ctx.nextButtonProps, { onClick: onNext }), {
+            }, filterButtonProps(_ctx.nextButtonProps), { onClick: onNext }), {
               default: withCtx(() => {
                 var _a2, _b;
                 return [
-                  createTextVNode(toDisplayString(((_b = (_a2 = _ctx.nextButtonProps) == null ? void 0 : _a2.children) != null ? _b : unref(current) === unref(total2) - 1) ? unref(t)("el.tour.finish") : unref(t)("el.tour.next")), 1)
+                  createTextVNode(toDisplayString((_b = (_a2 = _ctx.nextButtonProps) == null ? void 0 : _a2.children) != null ? _b : unref(current) === unref(total2) - 1 ? unref(t)("el.tour.finish") : unref(t)("el.tour.next")), 1)
                 ];
               }),
               _: 1
@@ -49895,6 +55325,505 @@ var ElTour = withInstall(Tour, {
   TourStep
 });
 var ElTourStep = withNoopInstall(TourStep);
+
+// node_modules/element-plus/es/components/anchor/src/anchor.mjs
+var anchorProps = buildProps({
+  container: {
+    type: definePropType([
+      String,
+      Object
+    ])
+  },
+  offset: {
+    type: Number,
+    default: 0
+  },
+  bound: {
+    type: Number,
+    default: 15
+  },
+  duration: {
+    type: Number,
+    default: 300
+  },
+  marker: {
+    type: Boolean,
+    default: true
+  },
+  type: {
+    type: definePropType(String),
+    default: "default"
+  },
+  direction: {
+    type: definePropType(String),
+    default: "vertical"
+  }
+});
+var anchorEmits = {
+  change: (href) => isString(href),
+  click: (e, href) => e instanceof MouseEvent && (isString(href) || isUndefined(href))
+};
+
+// node_modules/element-plus/es/components/anchor/src/constants.mjs
+var anchorKey = Symbol("anchor");
+
+// node_modules/element-plus/es/components/anchor/src/anchor2.mjs
+var __default__108 = defineComponent({
+  name: "ElAnchor"
+});
+var _sfc_main150 = defineComponent({
+  ...__default__108,
+  props: anchorProps,
+  emits: anchorEmits,
+  setup(__props, { expose, emit }) {
+    const props = __props;
+    const currentAnchor = ref("");
+    const anchorRef = ref(null);
+    const markerRef = ref(null);
+    const containerEl = ref();
+    const links = {};
+    let isScrolling = false;
+    let currentScrollTop = 0;
+    const ns = useNamespace("anchor");
+    const cls = computed2(() => [
+      ns.b(),
+      props.type === "underline" ? ns.m("underline") : "",
+      ns.m(props.direction)
+    ]);
+    const addLink = (state) => {
+      links[state.href] = state.el;
+    };
+    const removeLink = (href) => {
+      delete links[href];
+    };
+    const setCurrentAnchor = (href) => {
+      const activeHref = currentAnchor.value;
+      if (activeHref !== href) {
+        currentAnchor.value = href;
+        emit("change", href);
+      }
+    };
+    let clearAnimate = null;
+    const scrollToAnchor = (href) => {
+      if (!containerEl.value)
+        return;
+      const target2 = getElement(href);
+      if (!target2)
+        return;
+      if (clearAnimate)
+        clearAnimate();
+      isScrolling = true;
+      const scrollEle = getScrollElement(target2, containerEl.value);
+      const distance = getOffsetTopDistance(target2, scrollEle);
+      const max3 = scrollEle.scrollHeight - scrollEle.clientHeight;
+      const to = Math.min(distance - props.offset, max3);
+      clearAnimate = animateScrollTo(containerEl.value, currentScrollTop, to, props.duration, () => {
+        setTimeout(() => {
+          isScrolling = false;
+        }, 20);
+      });
+    };
+    const scrollTo = (href) => {
+      if (href) {
+        setCurrentAnchor(href);
+        scrollToAnchor(href);
+      }
+    };
+    const handleClick = (e, href) => {
+      emit("click", e, href);
+      scrollTo(href);
+    };
+    const handleScroll2 = throttleByRaf(() => {
+      if (containerEl.value) {
+        currentScrollTop = getScrollTop(containerEl.value);
+      }
+      const currentHref = getCurrentHref();
+      if (isScrolling || isUndefined(currentHref))
+        return;
+      setCurrentAnchor(currentHref);
+    });
+    const getCurrentHref = () => {
+      if (!containerEl.value)
+        return;
+      const scrollTop = getScrollTop(containerEl.value);
+      const anchorTopList = [];
+      for (const href of Object.keys(links)) {
+        const target2 = getElement(href);
+        if (!target2)
+          continue;
+        const scrollEle = getScrollElement(target2, containerEl.value);
+        const distance = getOffsetTopDistance(target2, scrollEle);
+        anchorTopList.push({
+          top: distance - props.offset - props.bound,
+          href
+        });
+      }
+      anchorTopList.sort((prev, next) => prev.top - next.top);
+      for (let i = 0; i < anchorTopList.length; i++) {
+        const item = anchorTopList[i];
+        const next = anchorTopList[i + 1];
+        if (i === 0 && scrollTop === 0) {
+          return "";
+        }
+        if (item.top <= scrollTop && (!next || next.top > scrollTop)) {
+          return item.href;
+        }
+      }
+    };
+    const getContainer = () => {
+      const el = getElement(props.container);
+      if (!el || isWindow(el)) {
+        containerEl.value = window;
+      } else {
+        containerEl.value = el;
+      }
+    };
+    useEventListener(containerEl, "scroll", handleScroll2);
+    const markerStyle = computed2(() => {
+      if (!anchorRef.value || !markerRef.value || !currentAnchor.value)
+        return {};
+      const currentLinkEl = links[currentAnchor.value];
+      if (!currentLinkEl)
+        return {};
+      const anchorRect = anchorRef.value.getBoundingClientRect();
+      const markerRect = markerRef.value.getBoundingClientRect();
+      const linkRect = currentLinkEl.getBoundingClientRect();
+      if (props.direction === "horizontal") {
+        const left2 = linkRect.left - anchorRect.left;
+        return {
+          left: `${left2}px`,
+          width: `${linkRect.width}px`,
+          opacity: 1
+        };
+      } else {
+        const top = linkRect.top - anchorRect.top + (linkRect.height - markerRect.height) / 2;
+        return {
+          top: `${top}px`,
+          opacity: 1
+        };
+      }
+    });
+    onMounted(() => {
+      getContainer();
+      const hash = decodeURIComponent(window.location.hash);
+      const target2 = getElement(hash);
+      if (target2) {
+        scrollTo(hash);
+      } else {
+        handleScroll2();
+      }
+    });
+    watch(() => props.container, () => {
+      getContainer();
+    });
+    provide(anchorKey, {
+      ns,
+      direction: props.direction,
+      currentAnchor,
+      addLink,
+      removeLink,
+      handleClick
+    });
+    expose({
+      scrollTo
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        ref_key: "anchorRef",
+        ref: anchorRef,
+        class: normalizeClass(unref(cls))
+      }, [
+        _ctx.marker ? (openBlock(), createElementBlock("div", {
+          key: 0,
+          ref_key: "markerRef",
+          ref: markerRef,
+          class: normalizeClass(unref(ns).e("marker")),
+          style: normalizeStyle(unref(markerStyle))
+        }, null, 6)) : createCommentVNode("v-if", true),
+        createBaseVNode("div", {
+          class: normalizeClass(unref(ns).e("list"))
+        }, [
+          renderSlot(_ctx.$slots, "default")
+        ], 2)
+      ], 2);
+    };
+  }
+});
+var Anchor = _export_sfc(_sfc_main150, [["__file", "anchor.vue"]]);
+
+// node_modules/element-plus/es/components/anchor/src/anchor-link.mjs
+var anchorLinkProps = buildProps({
+  title: String,
+  href: String
+});
+
+// node_modules/element-plus/es/components/anchor/src/anchor-link2.mjs
+var _hoisted_174 = ["href"];
+var __default__109 = defineComponent({
+  name: "ElAnchorLink"
+});
+var _sfc_main151 = defineComponent({
+  ...__default__109,
+  props: anchorLinkProps,
+  setup(__props) {
+    const props = __props;
+    const linkRef = ref(null);
+    const {
+      ns,
+      direction: direction2,
+      currentAnchor,
+      addLink,
+      removeLink,
+      handleClick: contextHandleClick
+    } = inject(anchorKey);
+    const cls = computed2(() => [
+      ns.e("link"),
+      ns.is("active", currentAnchor.value === props.href)
+    ]);
+    const handleClick = (e) => {
+      contextHandleClick(e, props.href);
+    };
+    watch(() => props.href, (val, oldVal) => {
+      nextTick(() => {
+        if (oldVal)
+          removeLink(oldVal);
+        if (val) {
+          addLink({
+            href: val,
+            el: linkRef.value
+          });
+        }
+      });
+    });
+    onMounted(() => {
+      const { href } = props;
+      if (href) {
+        addLink({
+          href,
+          el: linkRef.value
+        });
+      }
+    });
+    onBeforeUnmount(() => {
+      const { href } = props;
+      if (href) {
+        removeLink(href);
+      }
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(unref(ns).e("item"))
+      }, [
+        createBaseVNode("a", {
+          ref_key: "linkRef",
+          ref: linkRef,
+          class: normalizeClass(unref(cls)),
+          href: _ctx.href,
+          onClick: handleClick
+        }, [
+          renderSlot(_ctx.$slots, "default", {}, () => [
+            createTextVNode(toDisplayString(_ctx.title), 1)
+          ])
+        ], 10, _hoisted_174),
+        _ctx.$slots["sub-link"] && unref(direction2) === "vertical" ? (openBlock(), createElementBlock("div", {
+          key: 0,
+          class: normalizeClass(unref(ns).e("list"))
+        }, [
+          renderSlot(_ctx.$slots, "sub-link")
+        ], 2)) : createCommentVNode("v-if", true)
+      ], 2);
+    };
+  }
+});
+var AnchorLink = _export_sfc(_sfc_main151, [["__file", "anchor-link.vue"]]);
+
+// node_modules/element-plus/es/components/anchor/index.mjs
+var ElAnchor = withInstall(Anchor, {
+  AnchorLink
+});
+var ElAnchorLink = withNoopInstall(AnchorLink);
+
+// node_modules/element-plus/es/components/segmented/src/segmented.mjs
+var segmentedProps = buildProps({
+  options: {
+    type: definePropType(Array),
+    default: () => []
+  },
+  modelValue: {
+    type: [String, Number, Boolean],
+    default: void 0
+  },
+  block: Boolean,
+  size: useSizeProp,
+  disabled: Boolean,
+  validateEvent: {
+    type: Boolean,
+    default: true
+  },
+  id: String,
+  name: String,
+  ...useAriaProps(["ariaLabel"])
+});
+var segmentedEmits = {
+  [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNumber2(val),
+  [CHANGE_EVENT]: (val) => isString(val) || isNumber2(val)
+};
+
+// node_modules/element-plus/es/components/segmented/src/segmented2.mjs
+var _hoisted_175 = ["id", "aria-label", "aria-labelledby"];
+var _hoisted_245 = ["name", "disabled", "checked", "onChange"];
+var __default__110 = defineComponent({
+  name: "ElSegmented"
+});
+var _sfc_main152 = defineComponent({
+  ...__default__110,
+  props: segmentedProps,
+  emits: segmentedEmits,
+  setup(__props, { emit }) {
+    const props = __props;
+    const ns = useNamespace("segmented");
+    const segmentedId = useId();
+    const segmentedSize = useFormSize();
+    const _disabled = useFormDisabled();
+    const { formItem } = useFormItem();
+    const { inputId, isLabeledByFormItem } = useFormItemInputId(props, {
+      formItemContext: formItem
+    });
+    const segmentedRef = ref(null);
+    const activeElement = useActiveElement();
+    const state = reactive({
+      isInit: false,
+      width: 0,
+      translateX: 0,
+      disabled: false,
+      focusVisible: false
+    });
+    const handleChange = (item) => {
+      const value = getValue2(item);
+      emit(UPDATE_MODEL_EVENT, value);
+      emit(CHANGE_EVENT, value);
+    };
+    const getValue2 = (item) => {
+      return isObject(item) ? item.value : item;
+    };
+    const getLabel = (item) => {
+      return isObject(item) ? item.label : item;
+    };
+    const getDisabled = (item) => {
+      return !!(_disabled.value || (isObject(item) ? item.disabled : false));
+    };
+    const getSelected = (item) => {
+      return props.modelValue === getValue2(item);
+    };
+    const getOption = (value) => {
+      return props.options.find((item) => getValue2(item) === value);
+    };
+    const getItemCls = (item) => {
+      return [
+        ns.e("item"),
+        ns.is("selected", getSelected(item)),
+        ns.is("disabled", getDisabled(item))
+      ];
+    };
+    const updateSelect = () => {
+      if (!segmentedRef.value)
+        return;
+      const selectedItem = segmentedRef.value.querySelector(".is-selected");
+      const selectedItemInput = segmentedRef.value.querySelector(".is-selected input");
+      if (!selectedItem || !selectedItemInput) {
+        state.width = 0;
+        state.translateX = 0;
+        state.disabled = false;
+        state.focusVisible = false;
+        return;
+      }
+      const rect = selectedItem.getBoundingClientRect();
+      state.isInit = true;
+      state.width = rect.width;
+      state.translateX = selectedItem.offsetLeft;
+      state.disabled = getDisabled(getOption(props.modelValue));
+      try {
+        state.focusVisible = selectedItemInput.matches(":focus-visible");
+      } catch (e) {
+      }
+    };
+    const segmentedCls = computed2(() => [
+      ns.b(),
+      ns.m(segmentedSize.value),
+      ns.is("block", props.block)
+    ]);
+    const selectedStyle = computed2(() => ({
+      width: `${state.width}px`,
+      transform: `translateX(${state.translateX}px)`,
+      display: state.isInit ? "block" : "none"
+    }));
+    const selectedCls = computed2(() => [
+      ns.e("item-selected"),
+      ns.is("disabled", state.disabled),
+      ns.is("focus-visible", state.focusVisible)
+    ]);
+    const name = computed2(() => {
+      return props.name || segmentedId.value;
+    });
+    useResizeObserver(segmentedRef, updateSelect);
+    watch(activeElement, updateSelect);
+    watch(() => props.modelValue, () => {
+      var _a2;
+      updateSelect();
+      if (props.validateEvent) {
+        (_a2 = formItem == null ? void 0 : formItem.validate) == null ? void 0 : _a2.call(formItem, "change").catch((err) => debugWarn(err));
+      }
+    }, {
+      flush: "post"
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        id: unref(inputId),
+        ref_key: "segmentedRef",
+        ref: segmentedRef,
+        class: normalizeClass(unref(segmentedCls)),
+        role: "radiogroup",
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.ariaLabel || "segmented" : void 0,
+        "aria-labelledby": unref(isLabeledByFormItem) ? unref(formItem).labelId : void 0
+      }, [
+        createBaseVNode("div", {
+          class: normalizeClass(unref(ns).e("group"))
+        }, [
+          createBaseVNode("div", {
+            style: normalizeStyle(unref(selectedStyle)),
+            class: normalizeClass(unref(selectedCls))
+          }, null, 6),
+          (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.options, (item, index) => {
+            return openBlock(), createElementBlock("label", {
+              key: index,
+              class: normalizeClass(getItemCls(item))
+            }, [
+              createBaseVNode("input", {
+                class: normalizeClass(unref(ns).e("item-input")),
+                type: "radio",
+                name: unref(name),
+                disabled: getDisabled(item),
+                checked: getSelected(item),
+                onChange: ($event) => handleChange(item)
+              }, null, 42, _hoisted_245),
+              createBaseVNode("div", {
+                class: normalizeClass(unref(ns).e("item-label"))
+              }, [
+                renderSlot(_ctx.$slots, "default", { item }, () => [
+                  createTextVNode(toDisplayString(getLabel(item)), 1)
+                ])
+              ], 2)
+            ], 2);
+          }), 128))
+        ], 2)
+      ], 10, _hoisted_175);
+    };
+  }
+});
+var Segmented = _export_sfc(_sfc_main152, [["__file", "segmented.vue"]]);
+
+// node_modules/element-plus/es/components/segmented/index.mjs
+var ElSegmented = withInstall(Segmented);
 
 // node_modules/element-plus/es/component.mjs
 var Components = [
@@ -49998,11 +55927,14 @@ var Components = [
   ElUpload,
   ElWatermark,
   ElTour,
-  ElTourStep
+  ElTourStep,
+  ElAnchor,
+  ElAnchorLink,
+  ElSegmented
 ];
 
 // node_modules/element-plus/es/components/infinite-scroll/src/index.mjs
-var SCOPE9 = "ElInfiniteScroll";
+var SCOPE10 = "ElInfiniteScroll";
 var CHECK_INTERVAL = 50;
 var DEFAULT_DELAY = 200;
 var DEFAULT_DISTANCE = 0;
@@ -50037,18 +55969,18 @@ var getScrollOptions = (el, instance) => {
   }, {});
 };
 var destroyObserver = (el) => {
-  const { observer } = el[SCOPE9];
+  const { observer } = el[SCOPE10];
   if (observer) {
     observer.disconnect();
-    delete el[SCOPE9].observer;
+    delete el[SCOPE10].observer;
   }
 };
 var handleScroll = (el, cb) => {
-  const { container, containerEl, instance, observer, lastScrollTop } = el[SCOPE9];
+  const { container, containerEl, instance, observer, lastScrollTop } = el[SCOPE10];
   const { disabled, distance } = getScrollOptions(el, instance);
   const { clientHeight, scrollHeight, scrollTop } = containerEl;
   const delta = scrollTop - lastScrollTop;
-  el[SCOPE9].lastScrollTop = scrollTop;
+  el[SCOPE10].lastScrollTop = scrollTop;
   if (observer || disabled || delta < 0)
     return;
   let shouldTrigger = false;
@@ -50064,7 +55996,7 @@ var handleScroll = (el, cb) => {
   }
 };
 function checkFull(el, cb) {
-  const { containerEl, instance } = el[SCOPE9];
+  const { containerEl, instance } = el[SCOPE10];
   const { disabled } = getScrollOptions(el, instance);
   if (disabled || containerEl.clientHeight === 0)
     return;
@@ -50078,7 +56010,7 @@ var InfiniteScroll = {
   async mounted(el, binding) {
     const { instance, value: cb } = binding;
     if (!isFunction(cb)) {
-      throwError(SCOPE9, "'v-infinite-scroll' binding value must be a function");
+      throwError(SCOPE10, "'v-infinite-scroll' binding value must be a function");
     }
     await nextTick();
     const { delay, immediate } = getScrollOptions(el, instance);
@@ -50087,7 +56019,7 @@ var InfiniteScroll = {
     const onScroll = throttle_default(handleScroll.bind(null, el, cb), delay);
     if (!container)
       return;
-    el[SCOPE9] = {
+    el[SCOPE10] = {
       instance,
       container,
       containerEl,
@@ -50098,22 +56030,24 @@ var InfiniteScroll = {
     };
     if (immediate) {
       const observer = new MutationObserver(throttle_default(checkFull.bind(null, el, cb), CHECK_INTERVAL));
-      el[SCOPE9].observer = observer;
+      el[SCOPE10].observer = observer;
       observer.observe(el, { childList: true, subtree: true });
       checkFull(el, cb);
     }
     container.addEventListener("scroll", onScroll);
   },
   unmounted(el) {
-    const { container, onScroll } = el[SCOPE9];
+    if (!el[SCOPE10])
+      return;
+    const { container, onScroll } = el[SCOPE10];
     container == null ? void 0 : container.removeEventListener("scroll", onScroll);
     destroyObserver(el);
   },
   async updated(el) {
-    if (!el[SCOPE9]) {
+    if (!el[SCOPE10]) {
       await nextTick();
     } else {
-      const { containerEl, cb, observer } = el[SCOPE9];
+      const { containerEl, cb, observer } = el[SCOPE10];
       if (containerEl.clientHeight && observer) {
         checkFull(el, cb);
       }
@@ -50425,6 +56359,7 @@ var messageDefaults = mutable({
   onClose: void 0,
   showClose: false,
   type: "info",
+  plain: false,
   offset: 16,
   zIndex: 0,
   grouping: false,
@@ -50466,7 +56401,7 @@ var messageProps = buildProps({
   },
   onClose: {
     type: definePropType(Function),
-    required: false
+    default: messageDefaults.onClose
   },
   showClose: {
     type: Boolean,
@@ -50476,6 +56411,10 @@ var messageProps = buildProps({
     type: String,
     values: messageTypes,
     default: messageDefaults.type
+  },
+  plain: {
+    type: Boolean,
+    default: messageDefaults.plain
   },
   offset: {
     type: Number,
@@ -50515,19 +56454,19 @@ var getLastOffset = (id) => {
     return 0;
   return prev.vm.exposed.bottom.value;
 };
-var getOffsetOrSpace = (id, offset2) => {
+var getOffsetOrSpace = (id, offset3) => {
   const idx = instances.findIndex((instance) => instance.id === id);
-  return idx > 0 ? 20 : offset2;
+  return idx > 0 ? 16 : offset3;
 };
 
 // node_modules/element-plus/es/components/message/src/message2.mjs
-var _hoisted_173 = ["id"];
-var _hoisted_245 = ["innerHTML"];
-var __default__108 = defineComponent({
+var _hoisted_176 = ["id"];
+var _hoisted_246 = ["innerHTML"];
+var __default__111 = defineComponent({
   name: "ElMessage"
 });
-var _sfc_main150 = defineComponent({
-  ...__default__108,
+var _sfc_main153 = defineComponent({
+  ...__default__111,
   props: messageProps,
   emits: messageEmits,
   setup(__props, { expose }) {
@@ -50546,10 +56485,10 @@ var _sfc_main150 = defineComponent({
     });
     const iconComponent = computed2(() => props.icon || TypeComponentsMap[props.type] || "");
     const lastOffset = computed2(() => getLastOffset(props.id));
-    const offset2 = computed2(() => getOffsetOrSpace(props.id, props.offset) + lastOffset.value);
-    const bottom = computed2(() => height.value + offset2.value);
+    const offset3 = computed2(() => getOffsetOrSpace(props.id, props.offset) + lastOffset.value);
+    const bottom = computed2(() => height.value + offset3.value);
     const customStyle = computed2(() => ({
-      top: `${offset2.value}px`,
+      top: `${offset3.value}px`,
       zIndex: currentZIndex.value
     }));
     function startTimer() {
@@ -50605,6 +56544,7 @@ var _sfc_main150 = defineComponent({
               { [unref(ns).m(_ctx.type)]: _ctx.type },
               unref(ns).is("center", _ctx.center),
               unref(ns).is("closable", _ctx.showClose),
+              unref(ns).is("plain", _ctx.plain),
               _ctx.customClass
             ]),
             style: normalizeStyle(unref(customStyle)),
@@ -50636,7 +56576,7 @@ var _sfc_main150 = defineComponent({
                 createBaseVNode("p", {
                   class: normalizeClass(unref(ns).e("content")),
                   innerHTML: _ctx.message
-                }, null, 10, _hoisted_245)
+                }, null, 10, _hoisted_246)
               ], 2112))
             ]),
             _ctx.showClose ? (openBlock(), createBlock(unref(ElIcon), {
@@ -50649,7 +56589,7 @@ var _sfc_main150 = defineComponent({
               ]),
               _: 1
             }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
-          ], 46, _hoisted_173), [
+          ], 46, _hoisted_176), [
             [vShow, visible.value]
           ])
         ]),
@@ -50658,7 +56598,7 @@ var _sfc_main150 = defineComponent({
     };
   }
 });
-var MessageConstructor = _export_sfc(_sfc_main150, [["__file", "message.vue"]]);
+var MessageConstructor = _export_sfc(_sfc_main153, [["__file", "message.vue"]]);
 
 // node_modules/element-plus/es/components/message/src/method.mjs
 var seed = 1;
@@ -50766,7 +56706,7 @@ message._context = null;
 var ElMessage = withInstallFunction(message, "$message");
 
 // node_modules/element-plus/es/components/message-box/src/index.mjs
-var _sfc_main151 = defineComponent({
+var _sfc_main154 = defineComponent({
   name: "ElMessageBox",
   directives: {
     TrapFocus
@@ -50811,6 +56751,7 @@ var _sfc_main151 = defineComponent({
     },
     center: Boolean,
     draggable: Boolean,
+    overflow: Boolean,
     roundButton: {
       default: false,
       type: Boolean
@@ -50921,7 +56862,8 @@ var _sfc_main151 = defineComponent({
       }
     });
     const draggable2 = computed2(() => props.draggable);
-    useDraggable(rootRef, headerRef, draggable2);
+    const overflow = computed2(() => props.overflow);
+    useDraggable(rootRef, headerRef, draggable2, overflow);
     onMounted(async () => {
       await nextTick();
       if (props.closeOnHashChange) {
@@ -51035,9 +56977,9 @@ var _sfc_main151 = defineComponent({
     };
   }
 });
-var _hoisted_174 = ["aria-label", "aria-describedby"];
-var _hoisted_246 = ["aria-label"];
-var _hoisted_318 = ["id"];
+var _hoisted_177 = ["aria-label", "aria-describedby"];
+var _hoisted_247 = ["aria-label"];
+var _hoisted_319 = ["id"];
 function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
   const _component_close = resolveComponent("close");
@@ -51091,7 +57033,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
                   _ctx.title !== null && _ctx.title !== void 0 ? (openBlock(), createElementBlock("div", {
                     key: 0,
                     ref: "headerRef",
-                    class: normalizeClass(_ctx.ns.e("header"))
+                    class: normalizeClass([_ctx.ns.e("header"), { "show-close": _ctx.showClose }])
                   }, [
                     createBaseVNode("div", {
                       class: normalizeClass(_ctx.ns.e("title"))
@@ -51123,7 +57065,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
                         ]),
                         _: 1
                       }, 8, ["class"])
-                    ], 42, _hoisted_246)) : createCommentVNode("v-if", true)
+                    ], 42, _hoisted_247)) : createCommentVNode("v-if", true)
                   ], 2)) : createCommentVNode("v-if", true),
                   createBaseVNode("div", {
                     id: _ctx.contentId,
@@ -51185,7 +57127,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
                     ], 2), [
                       [vShow, _ctx.showInput]
                     ])
-                  ], 10, _hoisted_318),
+                  ], 10, _hoisted_319),
                   createBaseVNode("div", {
                     class: normalizeClass(_ctx.ns.e("btns"))
                   }, [
@@ -51226,7 +57168,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
               ]),
               _: 3
             }, 8, ["trapped", "focus-trap-el", "focus-start-el", "onReleaseRequested"])
-          ], 42, _hoisted_174)
+          ], 42, _hoisted_177)
         ]),
         _: 3
       }, 8, ["z-index", "overlay-class", "mask"]), [
@@ -51236,7 +57178,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
     _: 3
   });
 }
-var MessageBoxConstructor = _export_sfc(_sfc_main151, [["render", _sfc_render31], ["__file", "index.vue"]]);
+var MessageBoxConstructor = _export_sfc(_sfc_main154, [["render", _sfc_render31], ["__file", "index.vue"]]);
 
 // node_modules/element-plus/es/components/message-box/src/messageBox.mjs
 var messageInstance = /* @__PURE__ */ new Map();
@@ -51446,15 +57388,15 @@ var notificationEmits = {
 };
 
 // node_modules/element-plus/es/components/notification/src/notification2.mjs
-var _hoisted_175 = ["id"];
-var _hoisted_247 = ["textContent"];
-var _hoisted_319 = { key: 0 };
-var _hoisted_411 = ["innerHTML"];
-var __default__109 = defineComponent({
+var _hoisted_178 = ["id"];
+var _hoisted_248 = ["textContent"];
+var _hoisted_320 = { key: 0 };
+var _hoisted_412 = ["innerHTML"];
+var __default__112 = defineComponent({
   name: "ElNotification"
 });
-var _sfc_main152 = defineComponent({
-  ...__default__109,
+var _sfc_main155 = defineComponent({
+  ...__default__112,
   props: notificationProps,
   emits: notificationEmits,
   setup(__props, { expose }) {
@@ -51550,15 +57492,15 @@ var _sfc_main152 = defineComponent({
               createBaseVNode("h2", {
                 class: normalizeClass(unref(ns).e("title")),
                 textContent: toDisplayString(_ctx.title)
-              }, null, 10, _hoisted_247),
+              }, null, 10, _hoisted_248),
               withDirectives(createBaseVNode("div", {
                 class: normalizeClass(unref(ns).e("content")),
                 style: normalizeStyle(!!_ctx.title ? void 0 : { margin: 0 })
               }, [
                 renderSlot(_ctx.$slots, "default", {}, () => [
-                  !_ctx.dangerouslyUseHTMLString ? (openBlock(), createElementBlock("p", _hoisted_319, toDisplayString(_ctx.message), 1)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+                  !_ctx.dangerouslyUseHTMLString ? (openBlock(), createElementBlock("p", _hoisted_320, toDisplayString(_ctx.message), 1)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                     createCommentVNode(" Caution here, message could've been compromised, never use user's input as message "),
-                    createBaseVNode("p", { innerHTML: _ctx.message }, null, 8, _hoisted_411)
+                    createBaseVNode("p", { innerHTML: _ctx.message }, null, 8, _hoisted_412)
                   ], 2112))
                 ])
               ], 6), [
@@ -51575,7 +57517,7 @@ var _sfc_main152 = defineComponent({
                 _: 1
               }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
             ], 2)
-          ], 46, _hoisted_175), [
+          ], 46, _hoisted_178), [
             [vShow, visible.value]
           ])
         ]),
@@ -51584,7 +57526,7 @@ var _sfc_main152 = defineComponent({
     };
   }
 });
-var NotificationConstructor = _export_sfc(_sfc_main152, [["__file", "notification.vue"]]);
+var NotificationConstructor = _export_sfc(_sfc_main155, [["__file", "notification.vue"]]);
 
 // node_modules/element-plus/es/components/notification/src/notify.mjs
 var notifications = {
@@ -51722,9 +57664,11 @@ export {
   ClickOutside,
   CommonPicker,
   CommonProps,
+  DEFAULT_EMPTY_VALUES,
   DEFAULT_FORMATS_DATE,
   DEFAULT_FORMATS_DATEPICKER,
   DEFAULT_FORMATS_TIME,
+  DEFAULT_VALUE_ON_CLEAR,
   COLLECTION_INJECTION_KEY2 as DROPDOWN_COLLECTION_INJECTION_KEY,
   COLLECTION_ITEM_INJECTION_KEY2 as DROPDOWN_COLLECTION_ITEM_INJECTION_KEY,
   DROPDOWN_INJECTION_KEY,
@@ -51735,6 +57679,8 @@ export {
   Effect,
   ElAffix,
   ElAlert,
+  ElAnchor,
+  ElAnchorLink,
   ElAside,
   ElAutoResizer,
   ElAutocomplete,
@@ -51816,6 +57762,7 @@ export {
   ElResult,
   ElRow,
   ElScrollbar,
+  ElSegmented,
   ElSelect,
   ElSelectV2,
   ElSkeleton,
@@ -51867,6 +57814,7 @@ export {
   ROOT_PICKER_INJECTION_KEY,
   RowAlign,
   RowJustify,
+  SCOPE3 as SCOPE,
   SIZE_INJECTION_KEY,
   TOOLTIP_INJECTION_KEY,
   TableV2,
@@ -51878,11 +57826,15 @@ export {
   TrapFocus,
   UPDATE_MODEL_EVENT,
   WEEK_DAYS,
+  ZINDEX_INJECTION_KEY,
   affixEmits,
   affixProps,
   alertEffects,
   alertEmits,
   alertProps,
+  anchorEmits,
+  anchorProps,
+  ariaProps,
   arrowMiddleware,
   autoResizerProps,
   autocompleteEmits,
@@ -51941,6 +57893,7 @@ export {
   installer as default,
   defaultInitialZIndex,
   defaultNamespace,
+  descriptionItemProps,
   descriptionProps,
   dialogEmits,
   dialogInjectionKey,
@@ -51961,6 +57914,7 @@ export {
   formItemContextKey,
   formItemProps,
   formItemValidateStates,
+  formMetaProps,
   formProps,
   formatter,
   genFileId,
@@ -52031,6 +57985,8 @@ export {
   scrollbarContextKey,
   scrollbarEmits,
   scrollbarProps,
+  segmentedEmits,
+  segmentedProps,
   selectGroupKey,
   selectKey,
   selectV2InjectionKey,
@@ -52039,6 +57995,7 @@ export {
   sliderContextKey,
   sliderEmits,
   sliderProps,
+  spaceItemProps,
   spaceProps,
   statisticProps,
   stepProps,
@@ -52064,8 +58021,14 @@ export {
   timeUnits,
   timelineItemProps,
   tooltipEmits,
+  tourContentEmits,
+  tourContentProps,
   tourEmits,
+  tourPlacements,
   tourProps,
+  tourStepEmits,
+  tourStepProps,
+  tourStrategies,
   transferCheckedChangeFn,
   transferEmits,
   transferProps,
@@ -52079,6 +58042,7 @@ export {
   uploadListProps,
   uploadListTypes,
   uploadProps,
+  useAriaProps,
   useAttrs2 as useAttrs,
   useCascaderConfig,
   useCursor,
@@ -52089,6 +58053,8 @@ export {
   useDialog,
   useDisabled,
   useDraggable,
+  useEmptyValues,
+  useEmptyValuesProps,
   useEscapeKeydown,
   useFloating,
   useFloatingProps,
@@ -52154,6 +58120,9 @@ export {
   zIndexContextKey
 };
 /*! Bundled license information:
+
+@element-plus/icons-vue/dist/index.js:
+  (*! Element Plus Icons Vue v2.3.1 *)
 
 normalize-wheel-es/dist/index.mjs:
   (**

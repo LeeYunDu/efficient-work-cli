@@ -16,6 +16,8 @@ import {
   isVNode,
   mergeProps,
   nextTick,
+  normalizeClass,
+  normalizeStyle,
   onActivated,
   onBeforeUnmount,
   onBeforeUpdate,
@@ -27,14 +29,15 @@ import {
   reactive,
   ref,
   resolveDirective,
+  stringifyStyle,
   unref,
   vShow,
   watch,
   watchEffect,
   withDirectives,
   withKeys
-} from "./chunk-UTXOFFT5.js";
-import "./chunk-GFT2G5UO.js";
+} from "./chunk-HL5V7ANH.js";
+import "./chunk-BQWMX7FD.js";
 
 // node_modules/vant/es/utils/basic.mjs
 function noop() {
@@ -2500,131 +2503,6 @@ var useSyncPropRef = (getProp, setProp) => {
   return propRef;
 };
 
-// node_modules/vant/node_modules/@vue/shared/dist/shared.esm-bundler.js
-function makeMap(str, expectsLowerCase) {
-  const set = new Set(str.split(","));
-  return expectsLowerCase ? (val) => set.has(val.toLowerCase()) : (val) => set.has(val);
-}
-var EMPTY_OBJ = true ? Object.freeze({}) : {};
-var EMPTY_ARR = true ? Object.freeze([]) : [];
-var isArray = Array.isArray;
-var isString = (val) => typeof val === "string";
-var isObject2 = (val) => val !== null && typeof val === "object";
-var isReservedProp = makeMap(
-  // the leading comma is intentional so empty string "" is also included
-  ",key,ref,ref_for,ref_key,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted"
-);
-var isBuiltInDirective = makeMap(
-  "bind,cloak,else-if,else,for,html,if,model,on,once,pre,show,slot,text,memo"
-);
-var cacheStringFunction = (fn2) => {
-  const cache = /* @__PURE__ */ Object.create(null);
-  return (str) => {
-    const hit = cache[str];
-    return hit || (cache[str] = fn2(str));
-  };
-};
-var camelizeRE2 = /-(\w)/g;
-var camelize2 = cacheStringFunction((str) => {
-  return str.replace(camelizeRE2, (_, c) => c ? c.toUpperCase() : "");
-});
-var hyphenateRE = /\B([A-Z])/g;
-var hyphenate = cacheStringFunction(
-  (str) => str.replace(hyphenateRE, "-$1").toLowerCase()
-);
-var capitalize = cacheStringFunction((str) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-});
-var toHandlerKey = cacheStringFunction((str) => {
-  const s = str ? `on${capitalize(str)}` : ``;
-  return s;
-});
-var GLOBALS_ALLOWED = "Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,BigInt,console,Error";
-var isGloballyAllowed = makeMap(GLOBALS_ALLOWED);
-function normalizeStyle(value) {
-  if (isArray(value)) {
-    const res = {};
-    for (let i = 0; i < value.length; i++) {
-      const item = value[i];
-      const normalized = isString(item) ? parseStringStyle(item) : normalizeStyle(item);
-      if (normalized) {
-        for (const key in normalized) {
-          res[key] = normalized[key];
-        }
-      }
-    }
-    return res;
-  } else if (isString(value) || isObject2(value)) {
-    return value;
-  }
-}
-var listDelimiterRE = /;(?![^(]*\))/g;
-var propertyDelimiterRE = /:([^]+)/;
-var styleCommentRE = /\/\*[^]*?\*\//g;
-function parseStringStyle(cssText) {
-  const ret = {};
-  cssText.replace(styleCommentRE, "").split(listDelimiterRE).forEach((item) => {
-    if (item) {
-      const tmp = item.split(propertyDelimiterRE);
-      tmp.length > 1 && (ret[tmp[0].trim()] = tmp[1].trim());
-    }
-  });
-  return ret;
-}
-function stringifyStyle(styles) {
-  let ret = "";
-  if (!styles || isString(styles)) {
-    return ret;
-  }
-  for (const key in styles) {
-    const value = styles[key];
-    const normalizedKey = key.startsWith(`--`) ? key : hyphenate(key);
-    if (isString(value) || typeof value === "number") {
-      ret += `${normalizedKey}:${value};`;
-    }
-  }
-  return ret;
-}
-function normalizeClass(value) {
-  let res = "";
-  if (isString(value)) {
-    res = value;
-  } else if (isArray(value)) {
-    for (let i = 0; i < value.length; i++) {
-      const normalized = normalizeClass(value[i]);
-      if (normalized) {
-        res += normalized + " ";
-      }
-    }
-  } else if (isObject2(value)) {
-    for (const name112 in value) {
-      if (value[name112]) {
-        res += name112 + " ";
-      }
-    }
-  }
-  return res.trim();
-}
-var HTML_TAGS = "html,body,base,head,link,meta,style,title,address,article,aside,footer,header,hgroup,h1,h2,h3,h4,h5,h6,nav,section,div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,ruby,s,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,embed,object,param,source,canvas,script,noscript,del,ins,caption,col,colgroup,table,thead,tbody,td,th,tr,button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,output,progress,select,textarea,details,dialog,menu,summary,template,blockquote,iframe,tfoot";
-var SVG_TAGS = "svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,text,textPath,title,tspan,unknown,use,view";
-var MATH_TAGS = "annotation,annotation-xml,maction,maligngroup,malignmark,math,menclose,merror,mfenced,mfrac,mfraction,mglyph,mi,mlabeledtr,mlongdiv,mmultiscripts,mn,mo,mover,mpadded,mphantom,mprescripts,mroot,mrow,ms,mscarries,mscarry,msgroup,msline,mspace,msqrt,msrow,mstack,mstyle,msub,msubsup,msup,mtable,mtd,mtext,mtr,munder,munderover,none,semantics";
-var VOID_TAGS = "area,base,br,col,embed,hr,img,input,link,meta,param,source,track,wbr";
-var isHTMLTag = makeMap(HTML_TAGS);
-var isSVGTag = makeMap(SVG_TAGS);
-var isMathMLTag = makeMap(MATH_TAGS);
-var isVoidTag = makeMap(VOID_TAGS);
-var specialBooleanAttrs = `itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly`;
-var isSpecialBooleanAttr = makeMap(specialBooleanAttrs);
-var isBooleanAttr = makeMap(
-  specialBooleanAttrs + `,async,autofocus,autoplay,controls,default,defer,disabled,hidden,inert,loop,open,required,reversed,scoped,seamless,checked,muted,multiple,selected`
-);
-var isKnownHtmlAttr = makeMap(
-  `accept,accept-charset,accesskey,action,align,allow,alt,async,autocapitalize,autocomplete,autofocus,autoplay,background,bgcolor,border,buffered,capture,challenge,charset,checked,cite,class,code,codebase,color,cols,colspan,content,contenteditable,contextmenu,controls,coords,crossorigin,csp,data,datetime,decoding,default,defer,dir,dirname,disabled,download,draggable,dropzone,enctype,enterkeyhint,for,form,formaction,formenctype,formmethod,formnovalidate,formtarget,headers,height,hidden,high,href,hreflang,http-equiv,icon,id,importance,inert,integrity,ismap,itemprop,keytype,kind,label,lang,language,loading,list,loop,low,manifest,max,maxlength,minlength,media,min,multiple,muted,name,novalidate,open,optimum,pattern,ping,placeholder,poster,preload,radiogroup,readonly,referrerpolicy,rel,required,reversed,rows,rowspan,sandbox,scope,scoped,selected,shape,size,sizes,slot,span,spellcheck,src,srcdoc,srclang,srcset,start,step,style,summary,tabindex,target,title,translate,type,usemap,value,width,wrap`
-);
-var isKnownSvgAttr = makeMap(
-  `xmlns,accent-height,accumulate,additive,alignment-baseline,alphabetic,amplitude,arabic-form,ascent,attributeName,attributeType,azimuth,baseFrequency,baseline-shift,baseProfile,bbox,begin,bias,by,calcMode,cap-height,class,clip,clipPathUnits,clip-path,clip-rule,color,color-interpolation,color-interpolation-filters,color-profile,color-rendering,contentScriptType,contentStyleType,crossorigin,cursor,cx,cy,d,decelerate,descent,diffuseConstant,direction,display,divisor,dominant-baseline,dur,dx,dy,edgeMode,elevation,enable-background,end,exponent,fill,fill-opacity,fill-rule,filter,filterRes,filterUnits,flood-color,flood-opacity,font-family,font-size,font-size-adjust,font-stretch,font-style,font-variant,font-weight,format,from,fr,fx,fy,g1,g2,glyph-name,glyph-orientation-horizontal,glyph-orientation-vertical,glyphRef,gradientTransform,gradientUnits,hanging,height,href,hreflang,horiz-adv-x,horiz-origin-x,id,ideographic,image-rendering,in,in2,intercept,k,k1,k2,k3,k4,kernelMatrix,kernelUnitLength,kerning,keyPoints,keySplines,keyTimes,lang,lengthAdjust,letter-spacing,lighting-color,limitingConeAngle,local,marker-end,marker-mid,marker-start,markerHeight,markerUnits,markerWidth,mask,maskContentUnits,maskUnits,mathematical,max,media,method,min,mode,name,numOctaves,offset,opacity,operator,order,orient,orientation,origin,overflow,overline-position,overline-thickness,panose-1,paint-order,path,pathLength,patternContentUnits,patternTransform,patternUnits,ping,pointer-events,points,pointsAtX,pointsAtY,pointsAtZ,preserveAlpha,preserveAspectRatio,primitiveUnits,r,radius,referrerPolicy,refX,refY,rel,rendering-intent,repeatCount,repeatDur,requiredExtensions,requiredFeatures,restart,result,rotate,rx,ry,scale,seed,shape-rendering,slope,spacing,specularConstant,specularExponent,speed,spreadMethod,startOffset,stdDeviation,stemh,stemv,stitchTiles,stop-color,stop-opacity,strikethrough-position,strikethrough-thickness,string,stroke,stroke-dasharray,stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,stroke-opacity,stroke-width,style,surfaceScale,systemLanguage,tabindex,tableValues,target,targetX,targetY,text-anchor,text-decoration,text-rendering,textLength,to,transform,transform-origin,type,u1,u2,underline-position,underline-thickness,unicode,unicode-bidi,unicode-range,units-per-em,v-alphabetic,v-hanging,v-ideographic,v-mathematical,values,vector-effect,version,vert-adv-y,vert-origin-x,vert-origin-y,viewBox,viewTarget,visibility,width,widths,word-spacing,writing-mode,x,x-height,x1,x2,xChannelSelector,xlink:actuate,xlink:arcrole,xlink:href,xlink:role,xlink:show,xlink:title,xlink:type,xmlns:xlink,xml:base,xml:lang,xml:space,y,y1,y2,yChannelSelector,z,zoomAndPan`
-);
-
 // node_modules/vant/es/tabs/utils.mjs
 function scrollLeftTo(scroller, to, duration) {
   let rafId;
@@ -3952,7 +3830,8 @@ var PICKER_GROUP_KEY = Symbol(name22);
 var pickerGroupProps = extend({
   tabs: makeArrayProp(),
   activeTab: makeNumericProp(0),
-  nextStepText: String
+  nextStepText: String,
+  showToolbar: truthProp
 }, pickerToolbarProps);
 var stdin_default23 = defineComponent({
   name: name22,
@@ -3991,13 +3870,13 @@ var stdin_default23 = defineComponent({
       const confirmButtonText = showNextButton() ? props2.nextStepText : props2.confirmButtonText;
       return createVNode("div", {
         "class": bem21()
-      }, [createVNode(stdin_default16, {
+      }, [props2.showToolbar ? createVNode(stdin_default16, {
         "title": props2.title,
         "cancelButtonText": props2.cancelButtonText,
         "confirmButtonText": confirmButtonText,
         "onConfirm": onConfirm,
         "onCancel": onCancel
-      }, pick(slots, pickerToolbarSlots)), createVNode(Tabs, {
+      }, pick(slots, pickerToolbarSlots)) : null, createVNode(Tabs, {
         "active": activeTab.value,
         "onUpdate:active": ($event) => activeTab.value = $event,
         "class": bem21("tabs"),
@@ -6910,8 +6789,22 @@ function getDayByOffset(date, offset2) {
   cloned.setDate(cloned.getDate() + offset2);
   return cloned;
 }
+function getMonthByOffset(date, offset2) {
+  const cloned = cloneDate(date);
+  cloned.setMonth(cloned.getMonth() + offset2);
+  return cloned;
+}
+function getYearByOffset(date, offset2) {
+  const cloned = cloneDate(date);
+  cloned.setFullYear(cloned.getFullYear() + offset2);
+  return cloned;
+}
 var getPrevDay = (date) => getDayByOffset(date, -1);
 var getNextDay = (date) => getDayByOffset(date, 1);
+var getPrevMonth = (date) => getMonthByOffset(date, -1);
+var getNextMonth = (date) => getMonthByOffset(date, 1);
+var getPrevYear = (date) => getYearByOffset(date, -1);
+var getNextYear = (date) => getYearByOffset(date, 1);
 var getToday = () => {
   const today = /* @__PURE__ */ new Date();
   today.setHours(0, 0, 0, 0);
@@ -7097,8 +6990,8 @@ var calendarMonthProps = {
   date: makeRequiredProp(Date),
   type: String,
   color: String,
-  minDate: makeRequiredProp(Date),
-  maxDate: makeRequiredProp(Date),
+  minDate: Date,
+  maxDate: Date,
   showMark: Boolean,
   rowHeight: numericProp,
   formatter: Function,
@@ -7124,7 +7017,9 @@ var stdin_default42 = defineComponent({
     const title = computed(() => formatMonthTitle(props2.date));
     const rowHeight = computed(() => addUnit(props2.rowHeight));
     const offset2 = computed(() => {
-      const realDay = props2.date.getDay();
+      const date = props2.date.getDate();
+      const day = props2.date.getDay();
+      const realDay = (day - date % 7 + 8) % 7;
       if (props2.firstDayOfWeek) {
         return (realDay + 7 - props2.firstDayOfWeek) % 7;
       }
@@ -7184,7 +7079,7 @@ var stdin_default42 = defineComponent({
         maxDate,
         currentDate
       } = props2;
-      if (compareDay(day, minDate) < 0 || compareDay(day, maxDate) > 0) {
+      if (minDate && compareDay(day, minDate) < 0 || maxDate && compareDay(day, maxDate) > 0) {
         return "disabled";
       }
       if (currentDate === null) {
@@ -7299,17 +7194,36 @@ var stdin_default43 = defineComponent({
   name: name41,
   props: {
     date: Date,
+    minDate: Date,
+    maxDate: Date,
     title: String,
     subtitle: String,
     showTitle: Boolean,
     showSubtitle: Boolean,
-    firstDayOfWeek: Number
+    firstDayOfWeek: Number,
+    switchMode: makeStringProp("none")
   },
-  emits: ["clickSubtitle"],
+  emits: ["clickSubtitle", "panelChange"],
   setup(props2, {
     slots,
     emit
   }) {
+    const prevMonthDisabled = computed(() => {
+      const prevMonth = getPrevMonth(props2.date);
+      return props2.minDate && prevMonth < props2.minDate;
+    });
+    const prevYearDisabled = computed(() => {
+      const prevYear = getPrevYear(props2.date);
+      return props2.minDate && prevYear < props2.minDate;
+    });
+    const nextMonthDisabled = computed(() => {
+      const nextMonth = getNextMonth(props2.date);
+      return props2.maxDate && nextMonth > props2.maxDate;
+    });
+    const nextYearDisabled = computed(() => {
+      const nextYear = getNextYear(props2.date);
+      return props2.maxDate && nextYear > props2.maxDate;
+    });
     const renderTitle = () => {
       if (props2.showTitle) {
         const text = props2.title || t5("title");
@@ -7320,16 +7234,60 @@ var stdin_default43 = defineComponent({
       }
     };
     const onClickSubtitle = (event) => emit("clickSubtitle", event);
+    const onPanelChange = (date) => emit("panelChange", date);
+    const renderAction = (isNext) => {
+      const showYearAction = props2.switchMode === "year-month";
+      const monthSlot = slots[isNext ? "next-month" : "prev-month"];
+      const yearSlot = slots[isNext ? "next-year" : "prev-year"];
+      const monthDisabled = isNext ? nextMonthDisabled.value : prevMonthDisabled.value;
+      const yearDisabled = isNext ? nextYearDisabled.value : prevYearDisabled.value;
+      const monthIconName = isNext ? "arrow" : "arrow-left";
+      const yearIconName = isNext ? "arrow-double-right" : "arrow-double-left";
+      const onMonthChange = () => onPanelChange((isNext ? getNextMonth : getPrevMonth)(props2.date));
+      const onYearChange = () => onPanelChange((isNext ? getNextYear : getPrevYear)(props2.date));
+      const MonthAction = createVNode("view", {
+        "class": bem37("header-action", {
+          disabled: monthDisabled
+        }),
+        "onClick": monthDisabled ? void 0 : onMonthChange
+      }, [monthSlot ? monthSlot({
+        disabled: monthDisabled
+      }) : createVNode(Icon, {
+        "class": {
+          [HAPTICS_FEEDBACK]: !monthDisabled
+        },
+        "name": monthIconName
+      }, null)]);
+      const YearAction = showYearAction && createVNode("view", {
+        "class": bem37("header-action", {
+          disabled: yearDisabled
+        }),
+        "onClick": yearDisabled ? void 0 : onYearChange
+      }, [yearSlot ? yearSlot({
+        disabled: yearDisabled
+      }) : createVNode(Icon, {
+        "class": {
+          [HAPTICS_FEEDBACK]: !yearDisabled
+        },
+        "name": yearIconName
+      }, null)]);
+      return isNext ? [MonthAction, YearAction] : [YearAction, MonthAction];
+    };
     const renderSubtitle = () => {
       if (props2.showSubtitle) {
         const title = slots.subtitle ? slots.subtitle({
           date: props2.date,
           text: props2.subtitle
         }) : props2.subtitle;
+        const canSwitch = props2.switchMode !== "none";
         return createVNode("div", {
-          "class": bem37("header-subtitle"),
+          "class": bem37("header-subtitle", {
+            "with-swicth": canSwitch
+          }),
           "onClick": onClickSubtitle
-        }, [title]);
+        }, [canSwitch ? [renderAction(), createVNode("div", {
+          "class": bem37("header-subtitle-text")
+        }, [title]), renderAction(true)] : title]);
       }
     };
     const renderWeekDays = () => {
@@ -7354,6 +7312,7 @@ var stdin_default43 = defineComponent({
 var calendarProps = {
   show: Boolean,
   type: makeStringProp("single"),
+  switchMode: makeStringProp("none"),
   title: String,
   color: String,
   round: truthProp,
@@ -7381,16 +7340,11 @@ var calendarProps = {
   safeAreaInsetBottom: truthProp,
   minDate: {
     type: Date,
-    validator: isDate,
-    default: getToday
+    validator: isDate
   },
   maxDate: {
     type: Date,
-    validator: isDate,
-    default: () => {
-      const now = getToday();
-      return new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
-    }
+    validator: isDate
   },
   firstDayOfWeek: {
     type: numericProp,
@@ -7401,25 +7355,36 @@ var calendarProps = {
 var stdin_default44 = defineComponent({
   name: name38,
   props: calendarProps,
-  emits: ["select", "confirm", "unselect", "monthShow", "overRange", "update:show", "clickSubtitle", "clickDisabledDate"],
+  emits: ["select", "confirm", "unselect", "monthShow", "overRange", "update:show", "clickSubtitle", "clickDisabledDate", "panelChange"],
   setup(props2, {
     emit,
     slots
   }) {
-    const limitDateRange = (date, minDate = props2.minDate, maxDate = props2.maxDate) => {
-      if (compareDay(date, minDate) === -1) {
-        return minDate;
+    const canSwitch = computed(() => props2.switchMode !== "none");
+    const minDate = computed(() => {
+      if (!props2.minDate && !canSwitch.value) {
+        return getToday();
       }
-      if (compareDay(date, maxDate) === 1) {
-        return maxDate;
+      return props2.minDate;
+    });
+    const maxDate = computed(() => {
+      if (!props2.maxDate && !canSwitch.value) {
+        return getMonthByOffset(getToday(), 6);
+      }
+      return props2.maxDate;
+    });
+    const limitDateRange = (date, min = minDate.value, max = maxDate.value) => {
+      if (min && compareDay(date, min) === -1) {
+        return min;
+      }
+      if (max && compareDay(date, max) === 1) {
+        return max;
       }
       return date;
     };
     const getInitialDate = (defaultDate = props2.defaultDate) => {
       const {
         type,
-        minDate,
-        maxDate,
         allowSameDay
       } = props2;
       if (defaultDate === null) {
@@ -7430,8 +7395,10 @@ var stdin_default44 = defineComponent({
         if (!Array.isArray(defaultDate)) {
           defaultDate = [];
         }
-        const start2 = limitDateRange(defaultDate[0] || now, minDate, allowSameDay ? maxDate : getPrevDay(maxDate));
-        const end2 = limitDateRange(defaultDate[1] || now, allowSameDay ? minDate : getNextDay(minDate));
+        const min = minDate.value;
+        const max = maxDate.value;
+        const start2 = limitDateRange(defaultDate[0] || now, min, max ? allowSameDay ? max : getPrevDay(max) : void 0);
+        const end2 = limitDateRange(defaultDate[1] || (allowSameDay ? now : getNextDay(now)), min ? allowSameDay ? min : getNextDay(min) : void 0);
         return [start2, end2];
       }
       if (type === "multiple") {
@@ -7445,23 +7412,28 @@ var stdin_default44 = defineComponent({
       }
       return limitDateRange(defaultDate);
     };
+    const getInitialPanelDate = () => {
+      const date = Array.isArray(currentDate.value) ? currentDate.value[0] : currentDate.value;
+      return date ? date : limitDateRange(getToday());
+    };
     let bodyHeight;
     const bodyRef = ref();
-    const subtitle = ref({
-      textFn: () => "",
-      date: void 0
-    });
     const currentDate = ref(getInitialDate());
+    const currentPanelDate = ref(getInitialPanelDate());
+    const currentMonthRef = ref();
     const [monthRefs, setMonthRefs] = useRefs();
     const dayOffset = computed(() => props2.firstDayOfWeek ? +props2.firstDayOfWeek % 7 : 0);
     const months = computed(() => {
       const months2 = [];
-      const cursor = new Date(props2.minDate);
+      if (!minDate.value || !maxDate.value) {
+        return months2;
+      }
+      const cursor = new Date(minDate.value);
       cursor.setDate(1);
       do {
         months2.push(new Date(cursor));
         cursor.setMonth(cursor.getMonth() + 1);
-      } while (compareMonth(cursor, props2.maxDate) !== 1);
+      } while (compareMonth(cursor, maxDate.value) !== 1);
       return months2;
     });
     const buttonDisabled = computed(() => {
@@ -7511,25 +7483,26 @@ var stdin_default44 = defineComponent({
         monthRefs.value[index].setVisible(visible);
       });
       if (currentMonth) {
-        subtitle.value = {
-          textFn: currentMonth.getTitle,
-          date: currentMonth.date
-        };
+        currentMonthRef.value = currentMonth;
       }
     };
     const scrollToDate = (targetDate) => {
-      raf(() => {
-        months.value.some((month, index) => {
-          if (compareMonth(month, targetDate) === 0) {
-            if (bodyRef.value) {
-              monthRefs.value[index].scrollToDate(bodyRef.value, targetDate);
+      if (canSwitch.value) {
+        currentPanelDate.value = targetDate;
+      } else {
+        raf(() => {
+          months.value.some((month, index) => {
+            if (compareMonth(month, targetDate) === 0) {
+              if (bodyRef.value) {
+                monthRefs.value[index].scrollToDate(bodyRef.value, targetDate);
+              }
+              return true;
             }
-            return true;
-          }
-          return false;
+            return false;
+          });
+          onScroll();
         });
-        onScroll();
-      });
+      }
     };
     const scrollToCurrentDate = () => {
       if (props2.poppable && !props2.show) {
@@ -7540,7 +7513,7 @@ var stdin_default44 = defineComponent({
         if (isDate(targetDate)) {
           scrollToDate(targetDate);
         }
-      } else {
+      } else if (!canSwitch.value) {
         raf(onScroll);
       }
     };
@@ -7548,9 +7521,11 @@ var stdin_default44 = defineComponent({
       if (props2.poppable && !props2.show) {
         return;
       }
-      raf(() => {
-        bodyHeight = Math.floor(useRect(bodyRef).height);
-      });
+      if (!canSwitch.value) {
+        raf(() => {
+          bodyHeight = Math.floor(useRect(bodyRef).height);
+        });
+      }
       scrollToCurrentDate();
     };
     const reset = (date = getInitialDate()) => {
@@ -7571,6 +7546,12 @@ var stdin_default44 = defineComponent({
         return false;
       }
       return true;
+    };
+    const onPanelChange = (date) => {
+      currentPanelDate.value = date;
+      emit("panelChange", {
+        date
+      });
     };
     const onConfirm = () => {
       var _a;
@@ -7663,12 +7644,15 @@ var stdin_default44 = defineComponent({
     const renderMonth = (date, index) => {
       const showMonthTitle = index !== 0 || !props2.showSubtitle;
       return createVNode(stdin_default42, mergeProps({
-        "ref": setMonthRefs(index),
+        "ref": canSwitch.value ? currentMonthRef : setMonthRefs(index),
         "date": date,
         "currentDate": currentDate.value,
         "showMonthTitle": showMonthTitle,
-        "firstDayOfWeek": dayOffset.value
-      }, pick(props2, ["type", "color", "minDate", "maxDate", "showMark", "formatter", "rowHeight", "lazyRender", "showSubtitle", "allowSameDay"]), {
+        "firstDayOfWeek": dayOffset.value,
+        "lazyRender": canSwitch.value ? false : props2.lazyRender,
+        "maxDate": maxDate.value,
+        "minDate": minDate.value
+      }, pick(props2, ["type", "color", "showMark", "formatter", "rowHeight", "showSubtitle", "allowSameDay"]), {
         "onClick": onClickDay,
         "onClickDisabledDate": (item) => emit("clickDisabledDate", item)
       }), pick(slots, ["top-info", "bottom-info", "month-title"]));
@@ -7703,25 +7687,29 @@ var stdin_default44 = defineComponent({
       }]
     }, [renderFooterButton()]);
     const renderCalendar = () => {
-      const subTitle = subtitle.value.textFn();
+      var _a, _b;
       return createVNode("div", {
         "class": bem37()
       }, [createVNode(stdin_default43, {
-        "date": subtitle.value.date,
+        "date": (_a = currentMonthRef.value) == null ? void 0 : _a.date,
+        "maxDate": maxDate.value,
+        "minDate": minDate.value,
         "title": props2.title,
-        "subtitle": subTitle,
+        "subtitle": (_b = currentMonthRef.value) == null ? void 0 : _b.getTitle(),
         "showTitle": props2.showTitle,
         "showSubtitle": props2.showSubtitle,
+        "switchMode": props2.switchMode,
         "firstDayOfWeek": dayOffset.value,
-        "onClickSubtitle": (event) => emit("clickSubtitle", event)
-      }, pick(slots, ["title", "subtitle"])), createVNode("div", {
+        "onClickSubtitle": (event) => emit("clickSubtitle", event),
+        "onPanelChange": onPanelChange
+      }, pick(slots, ["title", "subtitle", "prev-month", "prev-year", "next-month", "next-year"])), createVNode("div", {
         "ref": bodyRef,
         "class": bem37("body"),
-        "onScroll": onScroll
-      }, [months.value.map(renderMonth)]), renderFooter()]);
+        "onScroll": canSwitch.value ? void 0 : onScroll
+      }, [canSwitch.value ? renderMonth(currentPanelDate.value, 0) : months.value.map(renderMonth)]), renderFooter()]);
     };
     watch(() => props2.show, init);
-    watch(() => [props2.type, props2.minDate, props2.maxDate], () => reset(getInitialDate(currentDate.value)));
+    watch(() => [props2.type, props2.minDate, props2.maxDate, props2.switchMode], () => reset(getInitialDate(currentDate.value)));
     watch(() => props2.defaultDate, (value = null) => {
       currentDate.value = value;
       scrollToCurrentDate();
@@ -10699,8 +10687,14 @@ var stdin_default68 = defineComponent({
       const {
         activeColor
       } = parent.props;
+      const {
+        disabled
+      } = option;
       const active = option.value === props2.modelValue;
       const onClick = () => {
+        if (disabled) {
+          return;
+        }
         state.showPopup = false;
         if (option.value !== props2.modelValue) {
           emit("update:modelValue", option.value);
@@ -10711,7 +10705,7 @@ var stdin_default68 = defineComponent({
         if (active) {
           return createVNode(Icon, {
             "class": bem60("icon"),
-            "color": activeColor,
+            "color": disabled ? void 0 : activeColor,
             "name": "success"
           }, null);
         }
@@ -10722,13 +10716,14 @@ var stdin_default68 = defineComponent({
         "icon": option.icon,
         "title": option.text,
         "class": bem60("option", {
-          active
+          active,
+          disabled
         }),
         "style": {
           color: active ? activeColor : ""
         },
         "tabindex": active ? 0 : -1,
-        "clickable": true,
+        "clickable": !disabled,
         "onClick": onClick
       }, {
         value: renderIcon
@@ -11363,6 +11358,13 @@ var stdin_default73 = defineComponent({
         return chunks2;
       }, []);
       const lastChunk = chunks[chunks.length - 1];
+      if (!lastChunk) {
+        chunks.push({
+          start: 0,
+          end: sourceString.length,
+          highlight: false
+        });
+      }
       if (lastChunk && lastChunk.end < sourceString.length) {
         chunks.push({
           start: lastChunk.end,
@@ -11602,6 +11604,8 @@ var stdin_default74 = defineComponent({
     const checkClose = (event) => {
       var _a;
       const swipeItemEl = (_a = swipeItem.value) == null ? void 0 : _a.$el;
+      if (!swipeItemEl)
+        return;
       const imageEl = swipeItemEl.firstElementChild;
       const isClickOverlay = event.target === swipeItemEl;
       const isClickImage = imageEl == null ? void 0 : imageEl.contains(event.target);
@@ -12079,7 +12083,11 @@ var stdin_default76 = defineComponent({
         const match = getMatchAnchor(selectActiveIndex);
         if (match) {
           const rect = match.getRect(scrollParent.value, scrollParentRect);
-          active = getActiveAnchor(rect.top, rects);
+          if (props2.sticky && props2.stickyOffsetTop) {
+            active = getActiveAnchor(rect.top - props2.stickyOffsetTop, rects);
+          } else {
+            active = getActiveAnchor(rect.top, rects);
+          }
         }
       } else {
         active = getActiveAnchor(scrollTop, rects);
@@ -12152,7 +12160,11 @@ var stdin_default76 = defineComponent({
           return;
         }
         if (props2.sticky && props2.stickyOffsetTop) {
-          setRootScrollTop(getRootScrollTop() - props2.stickyOffsetTop);
+          if (getRootScrollTop() === offsetHeight - scrollParentRect.height) {
+            setRootScrollTop(getRootScrollTop());
+          } else {
+            setRootScrollTop(getRootScrollTop() - props2.stickyOffsetTop);
+          }
         }
         emit("select", match.index);
       }
@@ -13667,8 +13679,8 @@ var MISSING_DEPENDENCY_ERROR = 'Popper: modifier "%s" requires "%s", but "%s" mo
 var VALID_PROPERTIES = ["name", "enabled", "phase", "fn", "effect", "requires", "options"];
 function validateModifiers(modifiers) {
   modifiers.forEach(function(modifier) {
-    [].concat(Object.keys(modifier), VALID_PROPERTIES).filter(function(value, index, self2) {
-      return self2.indexOf(value) === index;
+    [].concat(Object.keys(modifier), VALID_PROPERTIES).filter(function(value, index, self) {
+      return self.indexOf(value) === index;
     }).forEach(function(key) {
       switch (key) {
         case "name":
@@ -18857,7 +18869,7 @@ var Lazyload = {
 };
 
 // node_modules/vant/es/index.mjs
-var version = "4.8.10";
+var version = "4.9.0";
 function install(app) {
   const components = [
     ActionBar,
@@ -19197,13 +19209,4 @@ export {
   version,
   watermarkProps
 };
-/*! Bundled license information:
-
-@vue/shared/dist/shared.esm-bundler.js:
-  (**
-  * @vue/shared v3.4.21
-  * (c) 2018-present Yuxi (Evan) You and Vue contributors
-  * @license MIT
-  **)
-*/
 //# sourceMappingURL=vant.js.map
