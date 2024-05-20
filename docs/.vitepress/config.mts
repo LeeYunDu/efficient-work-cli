@@ -143,9 +143,9 @@ export default defineConfig({
         ]
       },
       {
-        text: 'AST',
+        text: 'CSS',
         items: [
-          { text: '解析 Vue文件', link: '/src/components/Ast/vue/readme' },
+          { text: 'CSS', link: '/src/components/CSS/readme' },
         ]
       }
     ],
