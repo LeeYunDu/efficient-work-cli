@@ -1,7 +1,8 @@
-import { MenuMode } from '@/typings/data'
+import { MenuMode } from '../typings/model'
+import { get } from 'lodash-es'
 
 export function getOptionForField (field: MenuMode, cb = fieldOption => {}): any {
-  const { fieldConf = {} } = JSON.parse(field.options || '{}')
+  const { fieldConf = {} } = JSON.parse(get(field, '_options', field.options || '{}'))
   let fieldOption = {}
 
   try {

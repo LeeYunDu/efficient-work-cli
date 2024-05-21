@@ -27,7 +27,7 @@
 export const componentTypeOptions = [
   {
     label: '输入字段', options: [
-      { label: '文本', value: 'input-text', attr: { componentType: 6, type: 'text' } },
+      { label: '文本', value: 'input', attr: { componentType: 7, type: 'text' } },
       { label: '单行输入框', value: 'input', attr: { componentType: 7 } },
       { label: '多行文本', value: 'input-textarea', attr: { componentType: 7, type: 'textarea' } },
       { label: '密码', value: 'input-password', attr: { componentType: 7, type: 'password' } },

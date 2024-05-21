@@ -20,7 +20,15 @@ export default () => {
         },
       })
     },
-
+    markdown: {
+      //...
+      rehypePlugins: [
+        'ehype-prism',
+      ],
+    },
+    components: [
+      'vue-prism-editor',
+    ],
     resolve: {
       alias: [
         { find: /^~/, replacement: '' },

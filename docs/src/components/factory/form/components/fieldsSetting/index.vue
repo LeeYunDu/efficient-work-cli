@@ -1,7 +1,7 @@
 <template>
   <div class="setting-page">
     <el-button-group>
-      <el-button type="primary" @click="showFieldsJSON('export')">编辑字段</el-button>
+      <el-button type="primary" @click="showFieldsJSON('export')">配置面板</el-button>
       <el-button type="primary" @click="updateOrderNum">一键刷新排序</el-button>
       <el-button type="primary" @click="deleteAllFields">一键清空</el-button>
     </el-button-group>
@@ -18,9 +18,9 @@
             <el-tag>{{ fields.key }}</el-tag>
           </div>
           <div class="button-group">
-            <el-popover placement="right" :visible="fields._visible" :width="400" trigger="click">
+            <el-popover placement="right" :visible="fields._show" :width="400" trigger="click">
               <template #reference>
-                <div class="button-item" @click="fields._visible = true">快速编辑</div>
+                <div class="button-item" @click="fields._show = true">快速编辑</div>
               </template>
               <el-form label-width="100">
                 <template v-for="(item,index) in quickEditFields" :key="index">
@@ -28,8 +28,8 @@
                 </template>
               </el-form>
               <div class="flex f-jcfe" style="text-align: right;">
-                <el-button type="text" @click="fields._visible = false;onFieldsUpdate(fields)">确定</el-button>
-                <el-button type="text" @click="fields._visible = false">取消</el-button>
+                <el-button type="text" @click="fields._show = false;onFieldsUpdate(fields)">确定</el-button>
+                <el-button type="text" @click="fields._show = false">取消</el-button>
               </div>
             </el-popover>
             <div class="button-item" @click="onBtnClick('copy',fields,index)">复制</div>
@@ -177,7 +177,7 @@ function showFieldsJSON (actionType:string){
  * @param updateField
  */
 function onFieldsUpdate (updateField:MenuMode){
-  let cloneComponentOption:ComponentOption = cloneDeep(props.componentOption)
+  let cloneComponentOption:ComponentOption = props.componentOption
   let labels = cloneComponentOption.options.component.labels
   let index = labels.findIndex((item:MenuMode)=>{
     return item.id==updateField.id
@@ -187,7 +187,7 @@ function onFieldsUpdate (updateField:MenuMode){
 }
 
 function onFieldsPanelUpdate (updateFields:MenuMode[]){
-  let cloneComponentOption:ComponentOption = cloneDeep(props.componentOption)
+  let cloneComponentOption:ComponentOption = props.componentOption
   cloneComponentOption.options.component.labels = updateFields
   emits('update',cloneComponentOption)
 
@@ -209,7 +209,7 @@ function onAddFields (fields:MenuMode,index:number){
 
 // 一键更新字段排序，步长为4
 function updateOrderNum (){
-  let deepComponentOption = cloneDeep(props.componentOption)
+  let deepComponentOption = props.componentOption
   let options:FormComponentOptions = deepComponentOption.options as FormComponentOptions
   let labels = options.component.labels
   labels.map((fields,index)=>{
@@ -220,7 +220,7 @@ function updateOrderNum (){
 
 // 删除字段，可从历史字段中找回
 function deleteFields (index:number){
-  let deepComponentOption = cloneDeep(props.componentOption)
+  let deepComponentOption = props.componentOption
   let options:FormComponentOptions = deepComponentOption.options as FormComponentOptions
   let labels = options.component.labels
   labels.splice(index,1)
@@ -239,7 +239,7 @@ function deleteAllFields (){
     }
   )
     .then(() => {
-      let deepComponentOption = cloneDeep(props.componentOption)
+      let deepComponentOption = props.componentOption
       let options:FormComponentOptions = deepComponentOption.options as FormComponentOptions
       options.component.labels = []
       emits('update',deepComponentOption)

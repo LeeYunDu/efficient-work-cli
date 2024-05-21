@@ -7,8 +7,6 @@
     @open="init"
   >
     <el-button type="primary" @click="init">init</el-button>
-
-
     <div class="button-box">
       <el-radio-group v-model="state.model" @change="onTransformClick">
         <template v-for="(item,index) in editModelType" :key="index">
@@ -25,7 +23,9 @@
       :highlight="highlighter"
       line-numbers
     />
-    <div id="json-edit-container"></div>
+    <template v-if="state.model=='json'">
+      <div  id="json-edit-container"></div>
+    </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
@@ -40,10 +40,8 @@ import { Ast } from '../../utils/ast'
 import { parse } from 'acorn'
 import escodegen from 'escodegen'
 import ConfigOpt from '../../config'
-
-// import Prism Editor
-// import { PrismEditor } from 'vue-prism-editor' 
-// import 'vue-prism-editor/dist/prismeditor.min.css' 
+import { PrismEditor } from 'vue-prism-editor' 
+import 'vue-prism-editor/dist/prismeditor.min.css' 
 // import the styles somewhere
 
 // import highlighting library (you can use any library you want just return html string)
@@ -84,94 +82,11 @@ const show = computed({
 
 let useData = computed(()=>{
   return props.fields
-  return [
-    {
-      'sid': 48076,
-      'id': 48076,
-      'name': '项目名称',
-      'key': 'y0',
-      'menuType': 5,
-      'menuModule': '',
-      'hidden': 1,
-      'parentId': '',
-      'orderNum': 1,
-      'path': '#',
-      'link': '#',
-      'component': '#',
-      'componentConfigId': '',
-      'pageLoadType': 1,
-      'pageType': 1,
-      'componentType': 7,
-      'icon': '',
-      'projectId': '',
-      'options': '{"hiddenSide":0,"hiddenHeader":0,"fieldConf":{"open":1,"transform":[{}],"props":[{"type":"props","option":{"disabled":false,"show":false,"isDetail":false,"clearable":false,"rule":[],"componentType":"input","fieldName":"项目名称","key":"y0","sort":1,"formItem":{"labelWidth":80,"labelPosition":"left","required":false},"gridItem":{"span":12},"extra":{},"type":""}}]},"btnConf":{"open":0}}',
-      'picture': '',
-      'remark': '',
-      'creater': '',
-      'delete': 0,
-      'source': 'page-view',
-      'label': '项目名称',
-      'type': 'input',
-      testFunction:function test (){
-        try {
-          let temp = ''
-          let node = null
-          ast.find(`function ${fnName}() {}`).each((item: any, index: any) => {
-            node = item
-          })
-          return node
-        } catch (error) {
-          return null
-        }
-      },
-      testFunction2:value=>{
-        try {
-          let temp = ''
-          let node = null
-          ast.find(`function ${fnName}() {}`).each((item: any, index: any) => {
-            node = item
-          })
-          return node
-        } catch (error) {
-          return null
-        }
-        // this is test
-      }
-    },
-    {
-      'sid': 48076,
-      'id': 48076,
-      'name': '项目名称',
-      'key': 'y0',
-      'menuType': 5,
-      'menuModule': '',
-      'hidden': 1,
-      'parentId': '',
-      'orderNum': 1,
-      'path': '#',
-      'link': '#',
-      'component': '#',
-      'componentConfigId': '',
-      'pageLoadType': 1,
-      'pageType': 1,
-      'componentType': 7,
-      'icon': '',
-      'projectId': '',
-      'options': '{"hiddenSide":0,"hiddenHeader":0,"fieldConf":{"open":1,"transform":[{}],"props":[{"type":"props","option":{"disabled":false,"show":false,"isDetail":false,"clearable":false,"rule":[],"componentType":"input","fieldName":"项目名称","key":"y0","sort":1,"formItem":{"labelWidth":80,"labelPosition":"left","required":false},"gridItem":{"span":12},"extra":{},"type":""}}]},"btnConf":{"open":0}}',
-      'picture': '',
-      'remark': '',
-      'creater': '',
-      'delete': 0,
-      'source': 'page-view',
-      'label': '项目名称',
-      'type': 'input'
-    }
-  ]
 })
 let editorInstance = ref<any>(null)
 
 const dialogTitle = computed(()=>{
-  return `配置面板22`
+  return `配置面板`
 })
 
 
@@ -187,32 +102,27 @@ const tip = computed(()=>{
 })
 
 
-function initJSONModel (){
-  if(!editorInstance.value){
-    const container = document.getElementById('json-edit-container')
+function initJSONModel (data){
+  const container = document.getElementById('json-edit-container')
     const options = {
       mode:'code'
     }
     const editor = new JSONEditor(container, options)
     editorInstance.value = editor
-
-  }
-
-
+    editorInstance.value.set(data)
 }
 function init (){
-
-
   if(props.modelType == 'import'){
     editorCode.value = getASTResult([])
   }else{
-
     state.model = 'simplification'
     onTransformClick(state.model)
   }
   // editorInstance.value.set(props.componentOptions)
 }
 
+
+// 展示的类型
 function onTransformClick (type:string){
   switch(type){
     case 'simplification':
@@ -237,6 +147,7 @@ function onTransformSimplification (type){
     let result:{
       [key:string]:any
     } = {}
+    
     SimplificationKey.forEach(key=>{
       if(key == 'props'){
         result.props = getOptionForField(currentField,option=>{
@@ -276,8 +187,7 @@ function onTransformSimplification (type){
   if(type=='simplification'){
     editorCode.value = getASTResult(resultGroup)
   }else{
-    initJSONModel()
-    editorInstance.value.set(resultGroup)
+    initJSONModel(resultGroup)
   }
 }
 // 详细JSON模式
@@ -286,40 +196,37 @@ function onTransformDetail (){
   // editorInstance.value.set(cloneDeep(props.fields))
 }
 function onSave (){
-  const configAst = new Ast(editorCode.value, {}, true)
-  let  resultArray:any[] = []
-  console.log(configAst.ast,'dd')
-
-  let node = configAst.ast?.attr('program.body')[0].expression.elements
-
-  node.forEach(nodeItem=>{
-
-    let resultItem = configAst.getObjectExpressionNodeValue(nodeItem)
-
-    console.log(resultItem)
-
-    resultArray.push(resultItem)
-  })
-
-
-  // let formFieldsNode = configAst.getVariableNode('formFields')
-
-  // configAst.ast?.find(`const formFields = $_$`).each(item=>{
-  //   let value = get(item,'match[0][0].value')
-
-  //   console.log(value,'value')
-
-  //   handleResult = JSON.parse(replaceSingleQuotesWithDoubleQuotes(value))
-  // })
-  console.log(resultArray,'resultArray')
-  return
-
+  // if(state.model == 'json'){
+  //   emits('save',editorInstance.value.get())
+  //   show.value = false
+  //   return 
+  // }
+  let labels:any[] = []
+  switch (state.model) {
+    case 'json':
+      labels = editorInstance.value.get().map(field=>{
+        return createFields(field)
+      })
+      break;
+    case 'detail':
+    case 'simplification':
+      const configAst = new Ast(editorCode.value, {}, true)
+      let  resultArray:any[] = []
+      let node = configAst.ast?.attr('program.body')[0].expression.elements
+      node.forEach(nodeItem=>{
+        let resultItem = configAst.getObjectExpressionNodeValue(nodeItem)
+        resultArray.push(resultItem)
+      })
+      labels = resultArray.map(field=>{
+        return createFields(field)
+      })
+      break
+    default:
+      break;
+  }
+  
+  emits('save',labels)
   show.value = false
-
-  let lables = resultArray.map(field=>{
-    return createFields(field)
-  })
-  emits('save',lables)
 }
 
 function replaceSingleQuotesWithDoubleQuotes (str) {
@@ -356,7 +263,6 @@ function getASTResult (fields){
   // 这里做了美化JSON格式的操作
   const acornAst = parse(configAst.ast.generate(), { sourceType: 'module' })
   let result = escodegen.generate(acornAst, { format: { indent: { style: '  ' } } })
-  // console.log(result,'result')
   let beautifyResultAst = new Ast(result, {}, true)
   let node = beautifyResultAst.ast?.attr('program.body')[0].expression.elements
   node.forEach(nodeItem=>{
@@ -366,10 +272,7 @@ function getASTResult (fields){
     findNode.map(filterNode=>{
       filterNode.value = beautifyResultAst.generateNode(eval(`(${filterNode.value.value})`))
     })
-
-
     // findNode.value = beautifyResultAst.generateNode(eval(findNode.value.value))
-
   })
   return beautifyResultAst.ast.generate()
 
@@ -407,12 +310,8 @@ let order = 1
 function createFields (field):MenuMode{
 
   let componentType = get(componentTypeNumber,field.type,'99')
-  let type = get(field,'props.type','')
   let id = Math.floor(Math.random() * 100001)
-  let initOption:any = {}
-  if(type){
-    initOption.type=type
-  }
+  let initOption:any = field.props
   if(get(field,'options')){
     initOption.options = get(field,'options',[])
   }

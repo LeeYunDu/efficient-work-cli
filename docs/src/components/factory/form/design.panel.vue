@@ -60,8 +60,8 @@ import { ComponentOption, VisualMenus,MenuMode,FieldItem, FormMode } from './typ
 import { PropType, computed, ref, Component, provide,watch, shallowRef } from 'vue'
 import FormSetting from './components/formSetting/index.vue'
 import FieldSetting from './components/fieldsSetting/index.vue'
-// import BtnsSetting from './components/btnsSetting/index.vue'
-// import componentSetting from './components/componentSetting/index.vue'
+import BtnsSetting from './components/btnsSetting/index.vue'
+import componentSetting from './components/componentSetting/index.vue'
 import { cloneDeep } from 'lodash-es'
 import ConfigOpt from './config'
 import UiForm from './libUi/form/src/form.vue'
@@ -204,7 +204,9 @@ function onViewUpdate (componentOption:ComponentOption){
  * @param options
  */
 function onUpdate (componentOption = props.componentOption){
-  let deepComponentOption = cloneDeep(componentOption)
+  console.log(1,'onUpdate');
+  
+  let deepComponentOption = componentOption
   let { menuFieldGroup,viewFieldGroup } = fieldIdGroup.value
   let options = deepComponentOption.options
 
@@ -219,7 +221,7 @@ function onUpdate (componentOption = props.componentOption){
 
   // 为了对应上组件ui-form 所需字段结构,字段需要做处理。 处理方式参考useModule
   labels.map((field:any)=>{
-    let { fieldConf={} } = JSON.parse(field.options)
+    let { fieldConf={} } = JSON.parse(get(field,'_options',field.options))
     try {
       // 如果menu字段没有开启高级配置,则不会有props字段,则初始化一个
       if(!fieldConf.props){
@@ -228,7 +230,7 @@ function onUpdate (componentOption = props.componentOption){
       let option:any = fieldConf.props.filter(item=>{
         return item.type==='props'
       })[0]||{}
-      field.label = option.fieldName||field.name
+      field.label = option.fieldName||field.name||field.label
       field.type= Config.dictData.FieldUIMapper[`e${ field.componentType }`]||'input'
     } catch (error) {
       console.log(`${field.name}更新出错`)
@@ -249,13 +251,13 @@ function onUpdate (componentOption = props.componentOption){
 * 将labels 的props 处理一下,这处没用到 useModel 转化字段
 */
 function setPreviewConfig (deepComponentOption:ComponentOption){
-  let component = cloneDeep(deepComponentOption.options.component)
+  let component = deepComponentOption.options.component
   let labels = component.labels
   // // 计算属性 - 模块字段初始化的话会出现 labels = undefined的情况
   if(labels){
     component.labels = labels.map((field:FormMode,index:number)=>{
       field.props = {}
-      let options = JSON.parse(field.options).fieldConf
+      let options = JSON.parse(get(field,'_options',field.options)).fieldConf
       try {
         // 兼容menu字段,只有开启了高级配置后才有props字段
         if(options.props){
@@ -274,18 +276,17 @@ function setPreviewConfig (deepComponentOption:ComponentOption){
        * 处理1、针对多选框,还需要text字段来显示文字、children props 设置
        * 处理2、 下拉选项的键值对取值都需要对应 dynamicConfig 设置
        */
-      field['_options'] = cloneDeep(field.options)
-      field.options = field.props.options||[]
-      if(['select','cascader','tree','checkbox-group','radio-group'].includes(field.props.componentType)){
+      field['_options'] = cloneDeep(get(field,'_options',field.options))
+      if(['select','cascader','tree','checkbox-group','radio-group'].includes(field.type)){
+        field.options = field.props.options||[]
         try {
           conversionOption(field.props.options,field)
         } catch (error) {
         }
-
+      }else{
+        delete field.options
+        // field.options = null
       }
-
-
-
       return field
     })
   }
