@@ -204,8 +204,6 @@ function onViewUpdate (componentOption:ComponentOption){
  * @param options
  */
 function onUpdate (componentOption = props.componentOption){
-  console.log(1,'onUpdate');
-  
   let deepComponentOption = componentOption
   let { menuFieldGroup,viewFieldGroup } = fieldIdGroup.value
   let options = deepComponentOption.options

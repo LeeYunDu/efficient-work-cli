@@ -33,7 +33,7 @@
 
 <script lang="ts" setup>
 import { MenuMode, } from '../../../typings/model'
-import { cloneDeep, flatten, throttle } from 'lodash-es'
+import { cloneDeep, flatten, get, throttle } from 'lodash-es'
 import {  computed, onUnmounted, PropType, reactive, ref, shallowRef } from 'vue'
 import commonOption from './componentOption/common.option.vue'
 import inputSetting from './componentOption/input.setting.vue'
@@ -97,8 +97,8 @@ const componentOptionsSetting = computed(()=>{
 let updateThrottle =  throttle(updateOption,1500)
 
 function updateOption (option:any){
-  let fields:MenuMode = cloneDeep(props.fields)
-  let options = JSON.parse(fields.options||'{}')
+  let fields:MenuMode = props.fields
+  let options = JSON.parse(get(fields,'_options','{}'))
   let fieldConf = options.fieldConf
 
   if(!fieldConf.props){
@@ -117,10 +117,11 @@ function updateOption (option:any){
   }else{
     fieldConf.props[index].option.type = ''
   }
-
+  
+  
   fields.name = fieldConf.props[index].option.fieldName
   fields.key = fieldConf.props[index].option.key
-  fields.options = JSON.stringify(options)
+  fields._options = JSON.stringify(options)
   fields.componentType = attr.componentType
   propsFields.value = fields
   emits('update',fields)
