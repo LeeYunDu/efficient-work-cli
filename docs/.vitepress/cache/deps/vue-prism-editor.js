@@ -2,7 +2,7 @@ import {
   defineComponent,
   h
 } from "./chunk-HL5V7ANH.js";
-import "./chunk-BQWMX7FD.js";
+import "./chunk-7RP6IU3L.js";
 
 // node_modules/vue-prism-editor/dist/prismeditor.esm.js
 function _extends() {

@@ -4,12 +4,11 @@
     destroy-on-close
     :title="dialogTitle"
     width="80%"
-    @open="init"
   >
     <div class="button-box">
       <el-button-group>
         <el-button type="primary" @click="onTransformClick('simplification')">精简组件模式</el-button>
-        <el-button type="warning" @click="onTransformClick('detail')">详细模式</el-button>
+        <!-- <el-button type="warning" @click="onTransformClick('detail')">详细模式</el-button> -->
         <el-button type="success" @click="onSave">保存</el-button>
       </el-button-group>
       <div class="tip">{{ tip }}</div>
@@ -19,8 +18,8 @@
 </template>
 <script lang="ts" setup>
 import { computed, onMounted,PropType,reactive,ref } from 'vue'
-import JSONEditor from 'jsoneditor'
-import 'jsoneditor/dist/jsoneditor.css'
+// import JSONEditor from 'jsoneditor'
+// import 'jsoneditor/dist/jsoneditor.css'
 import { cloneDeep, get } from 'lodash-es'
 import { getOptionForField } from '../../utils/index'
 import { MenuMode } from '../../typings/model'

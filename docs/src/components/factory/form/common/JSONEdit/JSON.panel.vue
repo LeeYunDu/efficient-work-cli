@@ -19,7 +19,7 @@
     <prism-editor
       v-if="['detail','simplification'].includes(state.model)"
       v-model="editorCode"
-      class="my-editor  mb-4"
+      class="my-editor"
       :highlight="highlighter"
       line-numbers
     />
@@ -27,8 +27,9 @@
       <div  id="json-edit-container"></div>
     </template>
   </el-dialog>
+  
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup> 
 import { computed, onMounted,PropType,reactive,ref } from 'vue'
 import JSONEditor from 'jsoneditor'
 import 'jsoneditor/dist/jsoneditor.css'
@@ -237,7 +238,7 @@ function replaceSingleQuotesWithDoubleQuotes (str) {
 function getASTResult (fields){
 
   // 这里的JSON.stringify(fields)是为了防止字段中有函数
-  // 因为escodegen不支持函数
+  // 因为 escodegen 不支持函数
   // 所以这里需要先转成字符串再转成AST
   let configAst = new Ast(`
     ${JSON.stringify(fields)}
@@ -274,7 +275,7 @@ function getASTResult (fields){
     })
     // findNode.value = beautifyResultAst.generateNode(eval(findNode.value.value))
   })
-  return beautifyResultAst.ast.generate()
+  return configAst.ast.generate()
 
 
   return configAst.ast.generate()

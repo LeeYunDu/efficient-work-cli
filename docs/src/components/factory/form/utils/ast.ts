@@ -1,6 +1,10 @@
 import $ from 'gogocode'
 import _ from 'lodash'
-import { ASTNode } from '../typings/ast.type'
+interface IAstNode {
+  type: string
+  attr: () => void
+}
+
 
 
 export class Ast {
@@ -113,7 +117,7 @@ export class Ast {
    * @param {*} value
    */
   editObjectField (objectName: any, key: any, value: any, ast = this.ast) {
-    const node = this.getVariableNode(objectName, ast) as ASTNode
+    const node = this.getVariableNode(objectName, ast) as IAstNode
     const nodeType = this.getNodeType(node)
     let fieldNode
     if (node) {
@@ -167,7 +171,7 @@ export class Ast {
    * @param {*} value
    */
   editVariableNode (variable: any, value: any, ast = this.ast) {
-    const node = this.getVariableNode(variable, ast) as ASTNode
+    const node = this.getVariableNode(variable, ast) as IAstNode
     const nodeType = this.getNodeType(node)
     if (node) {
       if (nodeType === 'CallExpression') {
@@ -186,7 +190,7 @@ export class Ast {
    * @param {string||number} variable
    * @returns {} 返回值 node:'变量节点',value:'变量值',name:'变量名称'
    */
-  getVariableNode (variable: string, ast = this.ast): ASTNode | null {
+  getVariableNode (variable: string, ast = this.ast): IAstNode | null {
     try {
       /**
        * 遍历node节点,找到抽象语法树中的声明变量
@@ -214,8 +218,8 @@ export class Ast {
 
 
   // 获取变量的值
-  getNodeValue (nodeOrVariable: string | ASTNode, ast = this.ast): any {
-    let useNode: ASTNode | null
+  getNodeValue (nodeOrVariable: string | IAstNode, ast = this.ast): any {
+    let useNode: IAstNode | null
     if (_.isString(nodeOrVariable)) {
       useNode = this.getVariableNode(nodeOrVariable, ast)
     } else {
@@ -223,7 +227,7 @@ export class Ast {
     }
     if (!useNode) return null
 
-    const nodeValueType = this.getNodeType((useNode as ASTNode))
+    const nodeValueType = this.getNodeType((useNode as IAstNode))
     let value: any = ''
     // 这里写的类型并不全面，遇到再补充
     switch (nodeValueType) {
@@ -386,7 +390,7 @@ export class Ast {
     ast.find(`const ${variableName} = $_$1`).remove()
   }
 
-  getNodeType (node: ASTNode) {
+  getNodeType (node: IAstNode) {
     if (node) {
       try {
         return node.attr('declarations')[0].init.type

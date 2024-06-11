@@ -20,12 +20,7 @@ export default () => {
         },
       })
     },
-    markdown: {
-      //...
-      rehypePlugins: [
-        'ehype-prism',
-      ],
-    },
+
     components: [
       'vue-prism-editor',
     ],

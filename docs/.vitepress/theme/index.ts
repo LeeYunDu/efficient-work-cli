@@ -64,11 +64,7 @@ import 'vant/lib/index.css'
 export default {
   ...DefaultTheme,
   enhanceApp ({ app }) {
-
     app.component('demo-preview', NaiveUIContainer)
-
-
-
     app.component(ElConfigProvider.name, ElConfigProvider)
     app.component(ElButton.name, ElButton)
     app.component(ElInput.name, ElInput)
