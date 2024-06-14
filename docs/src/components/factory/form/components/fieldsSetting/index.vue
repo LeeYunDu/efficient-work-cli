@@ -1,6 +1,23 @@
 <template>
   <div class="setting-page">
     <el-button-group>
+      <el-popover placement="right" :visible="showImport" :width="400" trigger="click">
+        <template #reference>
+          <el-button type="primary" @click="showImport = true">导入模块配置</el-button>
+        </template>
+        <el-form label-width="100">
+          <template v-for="(item,index) in importModuleFields" :key="index">
+            <el-form-item :label="item.label" required="true"> 
+               <el-input v-model="importForm[item.key]" />   
+              </el-form-item>
+          </template>
+        </el-form>
+        <div class="flex f-jcfe" style="text-align: right;">
+          <el-button type="text" @click="onImportModule()">确定</el-button>
+          <el-button type="text" @click="showImport = false">取消</el-button>
+        </div>
+      </el-popover>
+      
       <el-button type="primary" @click="showFieldsJSON('export')">配置面板</el-button>
       <el-button type="primary" @click="updateOrderNum">一键刷新排序</el-button>
       <el-button type="primary" @click="deleteAllFields">一键清空</el-button>
@@ -53,16 +70,16 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, reactive ,watch } from 'vue'
+import { PropType, reactive ,ref,watch } from 'vue'
 import fieldOptionPanel from './components/fields.option.panel.vue'
 import JSONEdit from '../../common/JSONEdit/index.vue'
 import JSONPanel from '../../common/JSONEdit/JSON.panel.vue'
 import { cloneDeep } from 'lodash-es'
-import { ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { FormComponentOptions,ComponentOption,MenuMode } from '../../typings/model'
 
 import { Ast } from '../../utils/ast'
-import { quickEditFields } from './config/index'
+import { quickEditFields ,importModuleFields} from './config/index'
 
 
 let props = defineProps({
@@ -153,6 +170,39 @@ function onBtnClick (type:string,fields:MenuMode,index:number){
   }
 }
 
+let showImport = ref(false)
+let importForm = ref({
+  projectId:'345',
+  menuId:'48311'
+})
+async function onImportModule(){
+  if(importForm.value.projectId == ''){
+    ElMessage.warning('请输入项目id')
+    return
+  }
+  if(importForm.value.menuId == ''){
+    ElMessage.warning('请输入模块id')
+    return
+  }
+  const nodeApi = 'http://172.16.208.12:16050/node-szzt'
+  const result = await fetch(`${nodeApi}/menu/query`, {
+    method: 'post',
+    headers: { 'Content-Type': 'application/json' },
+    body:JSON.stringify({"allMenus":true,"page":1,"pageSize":3000,projectId: importForm.value.projectId})
+  })
+
+  const { data } = await result.json()
+  let list = data.list
+  let menus = list.filter(item=>{
+    return item.parentId == importForm.value.menuId
+  })
+  
+  let cloneComponentOption:ComponentOption = props.componentOption
+  cloneComponentOption.options.component.labels = menus
+  emits('update',cloneComponentOption)
+  
+}
+
 function showFieldsJSON (actionType:string){
   state.modelType = actionType
   state.showJSONPanel = true
@@ -190,9 +240,6 @@ function onFieldsPanelUpdate (updateFields:MenuMode[]){
   let cloneComponentOption:ComponentOption = props.componentOption
   cloneComponentOption.options.component.labels = updateFields
   emits('update',cloneComponentOption)
-
-
-
 }
 
 /**

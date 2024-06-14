@@ -22,7 +22,7 @@
       <div class="right">
         <el-tabs v-model="activeTab">
           <el-tab-pane ref="fieldRef" label="字段属性" name="field" />
-          <el-tab-pane ref="btnsRef" label="按钮配置" name="btns" />
+          <!-- <el-tab-pane ref="btnsRef" label="按钮配置" name="btns" /> -->
           <el-tab-pane ref="formRef" label="表单属性" name="form" />
           <template v-if="activeTab==='form'">
             <FormSetting

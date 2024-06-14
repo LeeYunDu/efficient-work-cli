@@ -120,3 +120,9 @@ export const quickEditFields = [
   { label: '字段key', key: 'key' },
   { label: '排序', key: 'orderNum' },
 ]
+
+
+export const importModuleFields = [
+  { label: '项目id', key: 'projectId' },
+  { label: '模块id', key: 'menuId' },
+]

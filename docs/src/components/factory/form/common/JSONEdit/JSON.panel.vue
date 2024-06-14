@@ -6,7 +6,6 @@
     width="80%"
     @open="init"
   >
-    <el-button type="primary" @click="init">init</el-button>
     <div class="button-box">
       <el-radio-group v-model="state.model" @change="onTransformClick">
         <template v-for="(item,index) in editModelType" :key="index">
@@ -275,7 +274,7 @@ function getASTResult (fields){
     })
     // findNode.value = beautifyResultAst.generateNode(eval(findNode.value.value))
   })
-  return configAst.ast.generate()
+  return beautifyResultAst.ast.generate()
 
 
   return configAst.ast.generate()

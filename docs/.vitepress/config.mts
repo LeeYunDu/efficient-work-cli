@@ -151,8 +151,8 @@ export default defineConfig({
       {
         text: 'Factory',
         items: [
-          { text: 'form', link: '/src/components/factory/form/readme' },
-          { text: 'JSON Edit', link: '/src/components/factory/JSONEdit/readme' },
+          // { text: 'form', link: '/src/components/factory/form/readme' },
+          // { text: 'JSON Edit', link: '/src/components/factory/JSONEdit/readme' },
         ]
       }
     ],
