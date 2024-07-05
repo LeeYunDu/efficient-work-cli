@@ -65,7 +65,12 @@
     <!-- 单字段 -->
     <JSONEdit v-model="state.showJSON" :component-options="state.activeField" @save="onFieldsUpdate" />
     <!-- 字段集合 -->
-    <JSONPanel v-model="state.showJSONPanel" :model-type="state.modelType" :fields="state.viewFields" @save="onFieldsPanelUpdate" />
+    <JSONPanel 
+      v-model="state.showJSONPanel" 
+      :model-type="state.modelType" 
+      :fields="state.viewFields" 
+      @save="onFieldsPanelUpdate" 
+    />
   </div>
 </template>
 

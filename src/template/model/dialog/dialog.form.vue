@@ -98,6 +98,32 @@ const formFields: FormMode[] = [
     },
   },
   {
+    label: '问题说明', key: 'title', type: 'input',
+    props: {
+      gridItem: { span: 24 },
+      formItem: { required: true },
+      clearable: true,
+      type:'textarea',
+      rows:5,
+      maxlength: 500,
+      'show-word-limit': true,
+      placeholder: '请描述您的问题，我们将及时处理',
+    },
+  },
+  {
+    'label': '级联选择器',
+    'key': 'y7',
+    'type': 'cascader',
+    'props': {
+      'formItem': { 'required': true },
+      'gridItem': {},
+      'clearable': true,
+      'placeholder': '请选择级联选择器'
+    },
+    'options': []
+  },
+
+  {
     label: '选择器', key: 'y1', type: 'select', options: get(dictData, 'dict_14.list', []), props: {
       gridItem: { span: 12 },
       clearable: true,

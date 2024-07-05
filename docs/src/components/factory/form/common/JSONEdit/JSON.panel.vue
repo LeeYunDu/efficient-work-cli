@@ -6,6 +6,7 @@
     width="80%"
     @open="init"
   >
+    <el-button type="primary" @click="init">init</el-button>
     <div class="button-box">
       <el-radio-group v-model="state.model" @change="onTransformClick">
         <template v-for="(item,index) in editModelType" :key="index">
@@ -18,7 +19,7 @@
     <prism-editor
       v-if="['detail','simplification'].includes(state.model)"
       v-model="editorCode"
-      class="my-editor"
+      class="my-editor  mb-4"
       :highlight="highlighter"
       line-numbers
     />
@@ -26,12 +27,11 @@
       <div  id="json-edit-container"></div>
     </template>
   </el-dialog>
-  
 </template>
-<script lang="ts" setup> 
+<script lang="ts" setup>
 import { computed, onMounted,PropType,reactive,ref } from 'vue'
-import JSONEditor from 'jsoneditor'
-import 'jsoneditor/dist/jsoneditor.css'
+// import JSONEditor from 'jsoneditor'
+// import 'jsoneditor/dist/jsoneditor.css'
 import { cloneDeep, forEach, get,isFunction, result } from 'lodash-es'
 import { getOptionForField } from '../../utils/index'
 import { MenuMode } from '../../typings/model'
@@ -187,7 +187,7 @@ function onTransformSimplification (type){
   if(type=='simplification'){
     editorCode.value = getASTResult(resultGroup)
   }else{
-    initJSONModel(resultGroup)
+    // initJSONModel(resultGroup)
   }
 }
 // 详细JSON模式
@@ -237,7 +237,7 @@ function replaceSingleQuotesWithDoubleQuotes (str) {
 function getASTResult (fields){
 
   // 这里的JSON.stringify(fields)是为了防止字段中有函数
-  // 因为 escodegen 不支持函数
+  // 因为escodegen不支持函数
   // 所以这里需要先转成字符串再转成AST
   let configAst = new Ast(`
     ${JSON.stringify(fields)}

@@ -1,7 +1,7 @@
 import {
   __commonJS,
   __require
-} from "./chunk-7RP6IU3L.js";
+} from "./chunk-BQWMX7FD.js";
 
 // node_modules/gogocode/umd/gogocode.js
 var require_gogocode = __commonJS({

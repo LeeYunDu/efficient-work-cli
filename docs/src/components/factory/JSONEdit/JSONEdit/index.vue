@@ -7,7 +7,14 @@
         </button>
       </template>
     </div>
-    <prism-editor v-model="editorCode" class="editor-panel" :highlight="highlighter" line-numbers />
+    <prism-editor
+      v-if="show"
+      v-model="editorCode"
+      class="my-editor editor-panel mb-4"
+      :highlight="highlighter"
+      line-numbers
+    />
+    <!-- <prism-editor v-model="editorCode" class="editor-panel" :highlight="highlighter" line-numbers /> -->
   </div>
 </template>
 
@@ -15,8 +22,8 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import escodegen from 'escodegen'
 import { parse } from 'acorn'
-import { PrismEditor } from 'vue-prism-editor'
-import 'vue-prism-editor/dist/prismeditor.min.css'
+import { PrismEditor } from 'vue-prism-editor' 
+import 'vue-prism-editor/dist/prismeditor.min.css' 
 import prism from 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css' // import syntax highlighting styles
 import { cloneDeep, forEach, get, isArray, isFunction, isObject, isString, result, set } from 'lodash-es'
@@ -29,7 +36,7 @@ interface IEditPanelProps {
 
 let props = defineProps<IEditPanelProps>()
 
-
+let show = ref(false)
 let emits = defineEmits(['save'])
 const editorCode = ref('')
 let dataType = ref('')
@@ -209,43 +216,45 @@ function onSave () {
 
 
 function init () {
+  if(props.code){
+    let handleResult = null
+    let type = ''
+    if (isArray(props.code)) {
+      handleResult = handleArray(props.code)
+      type = 'array'
+    } else if (isObject(props.code)) {
+      handleResult = handleObject(props.code)
+      type = 'object'
+    } else if (isString(props.code)) {
 
-  let handleResult = null
-  let type = ''
-  if (isArray(props.code)) {
-    handleResult = handleArray(props.code)
-    type = 'array'
-  } else if (isObject(props.code)) {
-    handleResult = handleObject(props.code)
-    type = 'object'
-  } else if (isString(props.code)) {
+    } else if (isFunction(props.code)) {
 
-  } else if (isFunction(props.code)) {
-
+    }
+    dataType.value = type
+    editorCode.value = beautifyResultAst(handleResult, type)
   }
-  dataType.value = type
-  editorCode.value = beautifyResultAst(handleResult, type)
+ 
 }
 
 onMounted(() => {
+  show.value = true
   init()
 
-  // http://172.16.208.12:16050/efwork/static/App.vue
-  fetch('http://172.16.208.12:16050/efwork/static/App.vue', {
-    headers: {
-      'Accept': 'text/plain'
-    }
-  }).then(res => {
-    res.text().then(response => {
-    // editorCode.value = response
+  // // http://172.16.208.12:16050/efwork/static/App.vue
+  // fetch('http://172.16.208.12:16050/efwork/static/App.vue', {
+  //   headers: {
+  //     'Accept': 'text/plain'
+  //   }
+  // }).then(res => {
+  //   res.text().then(response => {
+  //   // editorCode.value = response
 
-      let orginAst = new Ast(response, {
-        parseOptions: { language: 'vue' }
-      }, true)
-      console.log(orginAst,'orginAst');
+  //     let orginAst = new Ast(response, {
+  //       parseOptions: { language: 'vue' }
+  //     }, true)
       
-        })
-  })
+  //       })
+  // })
 })
 
 
