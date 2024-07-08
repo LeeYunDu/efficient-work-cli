@@ -8,6 +8,6 @@ export const SimplificationPropKeysBlackList = [
 
 export const editModelType = [
   { label: '编辑器模式', key: 'simplification' },
-  { label: 'JSON模式', key: 'json' },
+  // { label: 'JSON模式', key: 'json' },
   { label: '详情模式', key: 'detail' },
 ]

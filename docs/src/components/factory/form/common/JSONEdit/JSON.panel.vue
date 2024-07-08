@@ -6,7 +6,6 @@
     width="80%"
     @open="init"
   >
-    <el-button type="primary" @click="init">init</el-button>
     <div class="button-box">
       <el-radio-group v-model="state.model" @change="onTransformClick">
         <template v-for="(item,index) in editModelType" :key="index">
@@ -59,7 +58,7 @@ const props = defineProps({
     default:''
   }
 })
-const editorCode = ref('console.log("Hello World")')
+const editorCode = ref('')
 const highlighter = code => {
   return prism.highlight(code, prism.languages.js)
 }
@@ -143,6 +142,7 @@ function onTransformClick (type:string){
 function onTransformSimplification (type){
   // 只需展示这些字段
   let resultGroup:any = []
+
   forEach(useData.value,currentField=>{
     let result:{
       [key:string]:any
@@ -160,24 +160,18 @@ function onTransformSimplification (type){
               delete option[key]
             }
             if(isFunction(value)){
-              console.log('is Function ')
               value = value.toString()
             }else{
-
             }
-
           })
         })
       }else{
-
         let value = get(currentField,key)
         if(isFunction(value)){
           result[key] = value.toString()
         }else{
           result[key] = value
-
         }
-
       }
     })
     resultGroup.push(result)
@@ -242,43 +236,18 @@ function getASTResult (fields){
   let configAst = new Ast(`
     ${JSON.stringify(fields)}
     `, {}, true)
-  // ${JSON.stringify(fields)}
-
-  // let formFieldsNode = configAst.getVariableNode('formFields')
-  // let elements = formFieldsNode.attr('declarations')[0].init.elements
-
-  // fields.forEach((item,index)=>{
-  //   let node:any = configAst.generateNode({})
-  //   for (const key in item) {
-  //     if (Object.prototype.hasOwnProperty.call(item, key)) {
-  //       const element = item[key]
-  //       let singleField:any = configAst.generateNode({ [key]:element })
-
-  //       node.properties = node.properties.concat(singleField.properties)
-  //     }
-  //   }
-  //   elements.push(node)
-  // })
 
   // 这里做了美化JSON格式的操作
+  
   const acornAst = parse(configAst.ast.generate(), { sourceType: 'module' })
   let result = escodegen.generate(acornAst, { format: { indent: { style: '  ' } } })
+
+  // 清除冒号
+  result = result.replace(/\uFF1A/g, '');
+  
   let beautifyResultAst = new Ast(result, {}, true)
-  let node = beautifyResultAst.ast?.attr('program.body')[0].expression.elements
-  node.forEach(nodeItem=>{
-    let findNode = nodeItem.properties.filter(field=>{
-      return ['testFunction','testFunction2'].includes(get(field,'key.value',''))
-    })
-    findNode.map(filterNode=>{
-      filterNode.value = beautifyResultAst.generateNode(eval(`(${filterNode.value.value})`))
-    })
-    // findNode.value = beautifyResultAst.generateNode(eval(findNode.value.value))
-  })
+  
   return beautifyResultAst.ast.generate()
-
-
-  return configAst.ast.generate()
-  return
   // 创建一个Blob对象，用于生成JSON文件
   // const blob = new Blob([configAst.ast.generate()], { type: 'application/json' })
   const blob = new Blob([configAst.ast.generate()], { type: 'text/typescript' })

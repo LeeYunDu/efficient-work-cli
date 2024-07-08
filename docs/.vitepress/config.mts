@@ -20,6 +20,12 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Szzt 在线工具',
+        items: [
+          { text: 'menu表字段转JSON', link: '/src/components/SzztUtils/menu/readme' },
+        ]
+      },
+      {
         text: 'Szzt CLI',
         items: [
           { text: 'init', link: '/src/components/SzztCLI/init/readme' },
