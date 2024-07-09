@@ -1,5 +1,5 @@
 // 编辑器模式只展示以下字段
-export const SimplificationKey = ['label', 'key', 'type', 'props', 'options']
+export const SimplificationKey = ['label', 'key', 'type', 'props', 'options', 'optionsSource']
 // 黑名单，props不显示以下字段
 export const SimplificationPropKeysBlackList = [
   'isDetail', 'componentType', 'fieldName', 'key', 'options',

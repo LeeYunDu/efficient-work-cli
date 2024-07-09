@@ -321,9 +321,9 @@ function setFieldsConfig(field){
     if(optionsConfig){
       let { sourceType,id,label,value} = optionsConfig.option
       if(sourceType == 'chooseType'){
-        field.options = `dict_${id}`
+        field.optionsSource = `dict_${id}.tree`
       }else if (sourceType === 'node'){
-        field.options = `dict_n${id}`
+        field.optionsSource = `dict_n${id}.tree`
       }
     }
     
