@@ -9,16 +9,36 @@
       <el-button type="primary" @click="onAction(item)">{{ item.label }}</el-button>
     </template>
 
+    <el-popover placement="right" :visible="state.showImport" :width="400" trigger="click">
+      <template #reference>
+        <el-button type="warning" @click="state.showImport = true">导入配置系统中的模块</el-button>
+      </template>
+      <h2 style="margin-bottom: 20px;">该操作会将导入配置系统中指定项目ID的指定模块</h2>
+      <h1>操作步骤</h1>
+      <ul>
+        <li>输入项目ID和菜单ID进行导入</li>
+      </ul>
+      <el-form label-width="100">
+        <template v-for="(item, index) in quickEditFields" :key="index">
+          <el-form-item :label="item.label"> <el-input v-model="state.params[item.key]" v-bind="item.props" />
+          </el-form-item>
+        </template>
+      </el-form>
+      <div class="flex f-jcfe" style="text-align: right;">
+        <el-button type="text" @click=" onAction({ key: 'import' })">确定</el-button>
+        <el-button type="text" @click="state.showImport = false">取消</el-button>
+      </div>
+    </el-popover>
     <el-popover placement="right" :visible="state.show" :width="400" trigger="click">
       <template #reference>
-        <el-button type="primary" @click="state.show = true">导入到menu表</el-button>
+        <el-button type="warning" @click="state.show = true">导出到menu表</el-button>
       </template>
-      <h2 style="margin-bottom: 20px;">该操作会将下面编辑器配置的字段导入到配置系统中指定的项目ID的模块中</h2>
-      <p style="margin-bottom: 20px;">目前只支持导入简单的label、key、props、type等字段</p>
+      <h2 style="margin-bottom: 20px;">该操作会将下面编辑器配置的字段导出到配置系统中指定的项目ID的模块中</h2>
+      <p style="margin-bottom: 20px;">目前只支持导出简单的label、key、props、type等字段</p>
       <h1>操作步骤</h1>
       <ul>
         <li>1、清空编辑器内容，将代码中编写的JSON配置字段复制至下发的编辑器内，点击转化按钮</li>
-        <li>2、点击“导入到menu表”按钮，输入项目ID和菜单ID进行导入</li>
+        <li>2、点击“导出到menu表”按钮，输入项目ID和菜单ID进行导出</li>
       </ul>
       <el-form label-width="100">
         <template v-for="(item, index) in quickEditFields" :key="index">
@@ -43,22 +63,23 @@ import { reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import JSONEdit from './JSONEdit/index.vue'
 import { mockFields, tableFields, formFields } from './mock'
-import { get,set } from 'lodash-es'
+import { get, set } from 'lodash-es'
 import { componentTypeOptions } from './JSONEdit/js/config'
 
 let state = reactive({
   data: [],
   show: false,
+  showImport: false,
   params: {
-    projectId:'',
-    parentId:''
+    projectId: '',
+    parentId: ''
   }
 })
 
 
 let componentTypeMap = {}
-componentTypeOptions.map(e=>{
-  set(componentTypeMap,e.value,get(e,'attr.componentType',''))
+componentTypeOptions.map(e => {
+  set(componentTypeMap, e.value, get(e, 'attr.componentType', ''))
 })
 
 
@@ -69,8 +90,8 @@ let mockData = [
 ]
 
 const quickEditFields = [
-  { label: '项目ID', key: 'projectId', props: { placeholder: '请输入导入到具体项目的id' } },
-  { label: '菜单ID', key: 'parentId', props: { placeholder: '请输入导入到具体项目的菜单的id' } },
+  { label: '项目ID', key: 'projectId', props: { placeholder: '请输入导出到具体项目的id' } },
+  { label: '菜单ID', key: 'parentId', props: { placeholder: '请输入导出到具体项目的菜单的id' } },
 ]
 
 const actionItems = [
@@ -82,6 +103,26 @@ let code = ref<any>(formFields)
 let jsonRef = ref()
 
 
+const nodeApi = 'http://172.16.208.12:16050/node-szzt'
+let FieldUIMapper: {
+  e6: 'text',
+  e7: 'input',
+  e8: 'select',
+  e9: 'cascader',
+  e10: 'checkbox-group',
+  e11: 'radio-group',
+  e12: 'switch',
+  e13: 'datePicker',
+  e14: 'rate',
+  e15: 'slider',
+  e16: 'tag',
+  e17: 'image',
+  e18: 'colorPicker',
+  e20: 'slot',
+  e24: 'input-number',
+  e99: 'slot'
+  'e-1':''
+}
 async function onAction (item) {
   let { key } = item
   switch (key) {
@@ -101,35 +142,91 @@ async function onAction (item) {
     case 'clear':
       code.value = []
       break
+    case 'import':
+      const result = await fetch(`${nodeApi}/menu/query`, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "allMenus": true, "page": 1, "pageSize": 3000, projectId: state.params.projectId })
+      })
+
+      const { data } = await result.json()
+      let list = data.list
+      let menus = list.filter(item => {
+        return item.parentId == state.params.parentId
+      })
+
+      // 为了对应上组件ui-form 所需字段结构,字段需要做处理。 处理方式参考useModule
+      let handleFields = menus.map((field: any) => {
+        let { fieldConf = {} } = JSON.parse(get(field, '_options', field.options))
+        delete field.options
+        try {
+          // 如果menu字段没有开启高级配置,则不会有props字段,则初始化一个
+          if (!fieldConf.props) {
+            fieldConf.props = [{ type: 'props', option: {} }]
+          }
+          // props
+          let props: any = fieldConf.props.find(item => {
+            return item.type === 'props'
+          })
+          if(props){
+            field.props = props.option
+          }
+          // options
+          let options: any = fieldConf.props.find(item => {
+            return item.type === 'options'
+          })
+          if(options){
+            let { sourceType,id,label,value} = options.option
+            if(sourceType == 'chooseType'){
+              field.optionsSource = `dict_${id}.tree`
+            }else if (sourceType === 'node'){
+              field.optionsSource = `dict_n${id}.tree`
+            }
+          }
+          field.label = field.name
+          field.type = get(FieldUIMapper,`e${field.componentType}`,'')
+          if(!field.type){
+            delete field.type
+          }
+        } catch (error) {
+          console.log(`${field.name}更新出错`,error)
+        }
+        return field
+      })
+
+      
+      onAction({ key: 'clear' })
+      code.value = menus
+      state.params.projectId = ''
+      state.params.parentId = ''
+      break
     case 'export':
-      if(state.params.projectId == '' || state.params.parentId == ''){
+      if (state.params.projectId == '' || state.params.parentId == '') {
         return ElMessage.info('id没有输入')
       }
       let jsonRefData = jsonRef.value.getData()
-      console.log(jsonRefData.handleResult.length,'jsonRefData');
-      const nodeApi = 'http://172.16.208.12:16050/node-szzt'
       try {
-        let promiseList:any[] = []
-        jsonRefData.handleResult.forEach(e=>{
+        let promiseList: any[] = []
+        jsonRefData.handleResult.forEach(e => {
           let params = {
-            menu:createFields(e)
+            menu: createFields(e)
           }
           promiseList.push(fetch(`${nodeApi}/menu/create`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
-            body:JSON.stringify(params)
+            body: JSON.stringify(params)
           }))
         })
-        console.log(promiseList,'promiseList');
-        
-        Promise.all(promiseList).then(res=>{
+        Promise.all(promiseList).then(res => {
           ElMessage.success('添加成功')
         })
       } catch (error) {
-        console.log(error,'error');
-        
+        console.log(error, 'error');
+
       }
       state.show = false;
+      state.params.projectId = ''
+      state.params.parentId = ''
       break
     default:
       break
@@ -142,13 +239,13 @@ async function onAction (item) {
 
 
 function createFields (fieldsItem) {
-  let {  key, label, props = {} ,type  } = fieldsItem
+  let { key, label, props = {}, type } = fieldsItem
   // componentType的枚举 跟 menu表的字段对应
-  let componentType = get(componentTypeMap,type,'-1') 
+  let componentType = get(componentTypeMap, type, '-1')
   // 在这里可以根据type类型,获取一些组件的初始化属性
   let initOption: any = props
   if (type) {
-    set(initOption,'type',get(props,'type',fieldsItem.type || '') )
+    set(initOption, 'type', get(props, 'type', fieldsItem.type || ''))
   }
   let fields = {
     'name': label,
