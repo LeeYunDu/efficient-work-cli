@@ -151,9 +151,9 @@ const formFields: FormMode[] = [
       { text: '否', label: 1 },
     ] as any,
     props: {
-      formItem: { required: true, }
+      formItem: { required: true, },
+      child: { type: 'radio' }
     },
-    child: { type: 'radio' }
   },
   {
     label: '时间范围选择器', key: 'activityTimeGroup', type: 'datePicker', props: {

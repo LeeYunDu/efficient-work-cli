@@ -268,7 +268,7 @@ const formFields = [
     }
   },
    {
-    label: '插槽字段',  key: 'y9', slotName: 'slotName', type: 'slot'
+    label: '插槽字段',  key: 'y9', slotName: 'slotName', type: 'slot',
     props: {}
   },
 ]

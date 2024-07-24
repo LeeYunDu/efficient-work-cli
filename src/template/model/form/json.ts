@@ -43,9 +43,10 @@ export const formFields: FormMode[] = [
       { text: '无需报名', label: 1 },
     ] as any,
     props: {
-      formItem: { required: true, }
+      formItem: { required: true, },
+      child: { type: 'radio' }
     },
-    child: { type: 'radio' }
+
   },
   {
     label: '时间范围选择器', key: 'activityTimeGroup', type: 'datePicker', props: {

@@ -134,9 +134,10 @@ export const formFields = (params: any): FieldItem[] => {
         { label: '往年签约', value: false },
       ],
       props: {
-        formItem: { required: true, }
+        formItem: { required: true, },
+        child: { type: 'radio' }
+
       },
-      child: { type: 'radio' }
     },
     {
       label: '时间范围选择器', key: 'activityTimeGroup', type: 'datePicker', props: {

@@ -154,13 +154,18 @@ async function onAction (item) {
       let menus = list.filter(item => {
         return item.parentId == state.params.parentId
       })
-
       // 为了对应上组件ui-form 所需字段结构,字段需要做处理。 处理方式参考useModule
       let handleFields = menus.map((field: any) => {
-        let { fieldConf = {} } = JSON.parse(get(field, '_options', field.options))
+        let { fieldConf = {
+          props:[],
+          transform:[]
+        } } = JSON.parse(get(field, '_options', field.options))
         delete field.options
+        let {transform} = fieldConf
         try {
           // 如果menu字段没有开启高级配置,则不会有props字段,则初始化一个
+         
+         
           if (!fieldConf.props) {
             fieldConf.props = [{ type: 'props', option: {} }]
           }
@@ -171,6 +176,16 @@ async function onAction (item) {
           if(props){
             field.props = props.option
           }
+          transform.forEach(e=>{
+            if(['time','defaultValue','unit'].includes(e.type)){
+              set(field.props,e.type,get(e,'option.value',''))
+            }else{
+              if(e.type == 'dict'){
+                delete e.option.options
+              }
+              set(field.props,e.type,e.option)
+            }
+          })
           // options
           let options: any = fieldConf.props.find(item => {
             return item.type === 'options'
@@ -178,11 +193,12 @@ async function onAction (item) {
           if(options){
             let { sourceType,id,label,value} = options.option
             if(sourceType == 'chooseType'){
-              field.optionsSource = `dict_${id}.tree`
+              set(field.props,'optionsSource',`dict_${id}.tree`)
             }else if (sourceType === 'node'){
-              field.optionsSource = `dict_n${id}.tree`
+              set(field.props,'optionsSource',`dict_n${id}.tree`)
             }
           }
+          
           field.label = field.name
           field.type = get(FieldUIMapper,`e${field.componentType}`,'')
           if(!field.type){
@@ -199,6 +215,7 @@ async function onAction (item) {
       code.value = menus
       state.params.projectId = ''
       state.params.parentId = ''
+      state.showImport = false
       break
     case 'export':
       if (state.params.projectId == '' || state.params.parentId == '') {
@@ -247,6 +264,28 @@ function createFields (fieldsItem) {
   if (type) {
     set(initOption, 'type', get(props, 'type', fieldsItem.type || ''))
   }
+  let transform:any[] = []
+  for (const key in props) {
+    if (Object.prototype.hasOwnProperty.call(props, key)) {
+      const element = props[key];
+      if(['unit','time','defaultValue'].includes(key)){
+        transform.push({
+          type:key,
+          option:{value:element}
+        })
+        delete props[key]
+      }else if(['substring','number','dict'].includes(key)){
+        if(key == 'dict'){
+          delete element.options
+        }
+        transform.push({
+          type:key,
+          option:element
+        })
+        delete props[key]
+      }
+    }
+  }
   let fields = {
     'name': label,
     'key': key,
@@ -268,7 +307,7 @@ function createFields (fieldsItem) {
       'hiddenSide': 0,
       'hiddenHeader': 0,
       'fieldConf': {
-        'open': 1, 'transform': [{}],
+        'open': 1, 'transform': transform,
         'props': [
           { 'type': 'props', 'option': initOption }
         ]

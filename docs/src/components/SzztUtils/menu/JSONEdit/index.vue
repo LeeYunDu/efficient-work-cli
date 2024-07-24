@@ -321,16 +321,28 @@ function setFieldsConfig(field){
     if(optionsConfig){
       let { sourceType,id,label,value} = optionsConfig.option
       if(sourceType == 'chooseType'){
-        field.optionsSource = `dict_${id}.tree`
+        set(field.props,'optionsSource',`dict_${id}.tree`)
       }else if (sourceType === 'node'){
-        field.optionsSource = `dict_n${id}.tree`
+        set(field.props,'optionsSource',`dict_n${id}.tree`)
       }
     }
     
   }
-  if(transform.length >0 ){
+
+  try {
+    transform.forEach(e=>{
+      if(['time','defaultValue','unit'].includes(e.type)){
+        set(field.props,e.type,get(e,'option.value',''))
+      }else{
+        if(e.type == 'dict'){
+          delete e.option.options
+        }
+        set(field.props,e.type,e.option)
+      }
+    })
+  } catch (error) {
+   console.log(error);
   }
-  
  // const props: any = fieldConf.props.filter(item => {
     //   return item.type === 'props'
     // })[0] || {}
