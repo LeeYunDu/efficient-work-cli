@@ -156,6 +156,10 @@ async function onAction (item) {
       })
       // 为了对应上组件ui-form 所需字段结构,字段需要做处理。 处理方式参考useModule
       let handleFields = menus.map((field: any) => {
+
+
+        console.log(field,'field');
+        
         let { fieldConf = {
           props:[],
           transform:[]

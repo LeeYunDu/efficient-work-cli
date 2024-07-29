@@ -41,12 +41,13 @@ demo-preview=./demo.vue
 | :---        | :---   |   :---  |:----: |
 | label   | 名称      | string   |	'label' |
 | key   | key       | string   |	'value' |
-| children   | 选项集合       | {label:string,value:string}[]   |[] |
+| options   | 选项集合       | {label:string,value:string}[]   |[] |
 
 ## SelectPanel 源代码
 ::: details 查看源代码
 
 ``` vue
+
 <template>
   <div class="filter-panel">
     <van-popup
@@ -80,7 +81,7 @@ demo-preview=./demo.vue
           <div class="filter-panel-group-item">
             <div class="group-options">
               <div
-                v-for="(option,optionIndex) in get(group,'children',[])"
+                v-for="(option,optionIndex) in get(group,'options',[])"
                 :key="optionIndex"
                 class="group-option"
                 :class="{
@@ -215,7 +216,6 @@ let useButtons = ref([
     display: flex;
     flex-direction: column;
     margin-top: 8px;
-    flex: 1;
     .item-title {
       color: rgba(11, 22, 40, 1);
       font-size: 15px;
@@ -275,6 +275,7 @@ let useButtons = ref([
   }
 }
 .filter-footer{
+  margin-top: auto;
   .buttons{
     display: flex;
     .button-item{
@@ -307,7 +308,8 @@ let useButtons = ref([
 }
 </style>
 
-``` 
+
+```
 
 :::
 

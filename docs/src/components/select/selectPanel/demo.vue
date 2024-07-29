@@ -21,12 +21,12 @@ let curParams = ref({
 })
 
 const items = ref([
-  { label: '银行机构', key: 'bankName', children: ['不限', '临安农商银行', '工商银行杭州临安支行', '农业银行杭州临安支行', '兴业银行杭州临安支行', '浦发银行杭州临安支行'] },
-  { label: '面向对象', key: 'customer', children: ['不限', '小微企业', '大中型企业', '科创企业', '农村市场', '固投项目'] },
-  { label: '担保方式', key: 'guarantee', children: ['不限', '信用', '第三方保证', '抵押', '质押', '担保公司担保'] },
-  { label: '产品类型', key: 'productType', children: ['不限', '贷款产品', '存款产品', '其他'] }
+  { label: '银行机构', key: 'bankName', options: ['不限', '临安农商银行', '工商银行杭州临安支行', '农业银行杭州临安支行', '兴业银行杭州临安支行', '浦发银行杭州临安支行'] },
+  { label: '面向对象', key: 'customer', options: ['不限', '小微企业', '大中型企业', '科创企业', '农村市场', '固投项目'] },
+  { label: '担保方式', key: 'guarantee', options: ['不限', '信用', '第三方保证', '抵押', '质押', '担保公司担保'] },
+  { label: '产品类型', key: 'productType', options: ['不限', '贷款产品', '存款产品', '其他'] }
 ].map(e=>{
-  e.children = e.children.map(children=>{
+  e.options = e.options.map(children=>{
     return {
       label:children,
       value:children
