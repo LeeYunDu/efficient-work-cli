@@ -13,10 +13,57 @@ export default defineConfig({
       { text: 'Examples', link: '/markdown-examples' }
     ],
     sidebar: [
+
       {
-        text: 'Home',
+        text: 'CSS',
         items: [
-          { text: '工具网站集合', link: '/src/components/website/readme' },
+          { text: 'CSS', link: '/src/components/CSS/readme' },
+          { text: 'CSS - 标题', link: '/src/components/CSS/title-readme' },
+        ]
+      },
+      {
+        text: 'Block',
+        items: [
+          { text: 'Block-1  ', link: '/src/components/block/block-1/readme' },
+          { text: 'Block-2  ', link: '/src/components/block/block-2/readme' },
+          { text: 'Block-3  ', link: '/src/components/block/block-3/readme' },
+          { text: 'Block-4  ', link: '/src/components/block/block-4/readme' },
+          { text: 'Block-5  ', link: '/src/components/block/block-5/readme' },
+          { text: 'Block-6  ', link: '/src/components/block/block-6/readme' },
+        ]
+      },
+      {
+        text: 'Form',
+        items: [
+          { text: 'PC端 UI Form', link: '/src/components/form/UiForm/readme' },
+        ]
+      },
+      {
+        text: 'UI Table',
+        items: [
+          { text: '多级表头', link: '/src/components/UITable/levelHeader/readme' },
+          { text: '对比表格', link: '/src/components/UITable/comparisonTable/readme' },
+          // { text: '填报型表格', link: '/src/components/UITable/fillDataTable/readme' },
+          { text: '表格字段JSON', link: '/src/components/UITable/tableJSON/readme' },
+          { text: '简单的表格', link: '/src/components/UITable/SimpleTable/readme' },
+        ]
+      },
+      {
+        text: '选择器',
+        items: [
+          { text: 'RadioSelect', link: '/src/components/select/radioSelect/readme' },
+          { text: 'TabSelect', link: '/src/components/select/tabSelect/readme' },
+          { text: 'sort', link: '/src/components/select/sort/readme' },
+          { text: '移动端 selectPanel', link: '/src/components/select/selectPanel/readme' },
+          { text: '移动端 picker', link: '/src/components/select/simpleSelect/readme' },
+        ]
+      },
+      {
+        text: 'Progress',
+        items: [
+          { text: 'Progress-1', link: '/src/components/progress/progress-1/readme' },
+          { text: 'Progress-2', link: '/src/components/progress/progress-2/readme' },
+          { text: 'Progress-3', link: '/src/components/progress/progress-3/readme' },
         ]
       },
       {
@@ -34,15 +81,6 @@ export default defineConfig({
         ]
       },
       {
-        text: 'UI Table',
-        items: [
-          { text: '多级表头', link: '/src/components/UITable/levelHeader/readme' },
-          { text: '对比表格', link: '/src/components/UITable/comparisonTable/readme' },
-          // { text: '填报型表格', link: '/src/components/UITable/fillDataTable/readme' },
-          { text: '表格字段JSON', link: '/src/components/UITable/tableJSON/readme' },
-        ]
-      },
-      {
         text: '列表',
         items: [
           { text: '无限滚动列表 RollList', link: '/src/components/list/rollList/readme' },
@@ -56,12 +94,7 @@ export default defineConfig({
       //     { text: 'SimpleDialog', link: '/src/components/dialog/simpleDialog/readme' },
       //   ]
       // },
-      {
-        text: 'Form',
-        items: [
-          { text: 'PC端 UI Form', link: '/src/components/form/UiForm/readme' },
-        ]
-      },
+
       {
         text: 'Form H5',
         items: [
@@ -69,25 +102,8 @@ export default defineConfig({
           { text: 'Picker', link: '/src/components/form/UiFormH5/select/readme' },
         ]
       },
-      {
-        text: '选择器',
-        items: [
-          { text: 'RadioSelect', link: '/src/components/select/radioSelect/readme' },
-          { text: 'TabSelect', link: '/src/components/select/tabSelect/readme' },
-          { text: 'sort', link: '/src/components/select/sort/readme' },
-          { text: '移动端 selectPanel', link: '/src/components/select/selectPanel/readme' },
-          { text: '移动端 picker', link: '/src/components/select/simpleSelect/readme' },
-        ]
-      },
-      {
-        text: 'Block',
-        items: [
-          { text: 'Block-1  ', link: '/src/components/block/block-1/readme' },
-          { text: 'Block-2  ', link: '/src/components/block/block-2/readme' },
-          { text: 'Block-3  ', link: '/src/components/block/block-3/readme' },
-          { text: 'Block-4  ', link: '/src/components/block/block-4/readme' },
-        ]
-      },
+
+
 
       {
         text: 'Tag',
@@ -95,13 +111,7 @@ export default defineConfig({
           { text: 'Tag-1', link: '/src/components/Tag/Tag-1/readme' },
         ]
       },
-      {
-        text: 'Progress',
-        items: [
-          { text: 'Progress-1', link: '/src/components/progress/progress-1/readme' },
-          { text: 'Progress-2', link: '/src/components/progress/progress-2/readme' },
-        ]
-      },
+
       {
         text: '图表',
         items: [
@@ -148,19 +158,20 @@ export default defineConfig({
           { text: '浙政钉', link: '/src/components/appGuide/zzd/readme' },
         ]
       },
-      {
-        text: 'CSS',
-        items: [
-          { text: 'CSS', link: '/src/components/CSS/readme' },
-        ]
-      },
+
       {
         text: 'Factory',
         items: [
           { text: 'form', link: '/src/components/factory/form/readme' },
           { text: 'JSON Edit', link: '/src/components/factory/JSONEdit/readme' },
         ]
-      }
+      },
+      {
+        text: 'Home',
+        items: [
+          { text: '工具网站集合', link: '/src/components/website/readme' },
+        ]
+      },
     ],
 
     socialLinks: [
