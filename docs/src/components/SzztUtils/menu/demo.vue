@@ -104,7 +104,7 @@ let jsonRef = ref()
 
 
 const nodeApi = 'http://172.16.208.12:16050/node-szzt'
-let FieldUIMapper: {
+let FieldUIMapper = {
   e6: 'text',
   e7: 'input',
   e8: 'select',
@@ -120,7 +120,7 @@ let FieldUIMapper: {
   e18: 'colorPicker',
   e20: 'slot',
   e24: 'input-number',
-  e99: 'slot'
+  e99: 'slot',
   'e-1':''
 }
 async function onAction (item) {
@@ -150,16 +150,14 @@ async function onAction (item) {
       })
 
       const { data } = await result.json()
-      let list = data.list
+      let list = data.list.sort((a,b)=>{
+        return a.orderNum - b.orderNum
+      })
       let menus = list.filter(item => {
         return item.parentId == state.params.parentId
       })
       // 为了对应上组件ui-form 所需字段结构,字段需要做处理。 处理方式参考useModule
       let handleFields = menus.map((field: any) => {
-
-
-        console.log(field,'field');
-        
         let { fieldConf = {
           props:[],
           transform:[]
@@ -168,8 +166,6 @@ async function onAction (item) {
         let {transform} = fieldConf
         try {
           // 如果menu字段没有开启高级配置,则不会有props字段,则初始化一个
-         
-         
           if (!fieldConf.props) {
             fieldConf.props = [{ type: 'props', option: {} }]
           }

@@ -310,7 +310,7 @@ function setFieldsConfig(field){
 
   let {props,transform} = fieldConf
   
-  if(props.length >0 ){
+  if(get(props,'length',0)){
     let propsConfig = props.find(item=>{
       return item.type == 'props'
     })

@@ -1595,7 +1595,7 @@ export const mockFields = [
 
 
 // 表格信息
-export const tableFields = [
+export const tableFields2 = [
   {
     "label": "序号：",
     "key": "index",
@@ -2167,6 +2167,504 @@ export const tableFields = [
     "tValue": "溪沁街258号知识产业创业园农村",
     "unit": "",
     "defaultValue": "-"
+  }
+]
+
+export const tableFields = [
+  {
+    "label": "序号",
+    "key": "index",
+    "component": "#",
+    "componentType": -1,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146627,
+      "id": 155972,
+      "name": "序号",
+      "key": "index",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 5,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": -1,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":0},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "序号",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 0
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "value": ""
+  },
+  {
+    "label": "标签名称",
+    "key": "name",
+    "component": "#",
+    "componentType": -1,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146628,
+      "id": 155973,
+      "name": "标签名称",
+      "key": "name",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 6,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": -1,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":0},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "标签名称",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 0
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "value": "",
+    "props": {}
+  },
+  {
+    "label": "所属标签组",
+    "key": "groupName",
+    "component": "#",
+    "componentType": -1,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146629,
+      "id": 155974,
+      "name": "所属标签组",
+      "key": "groupName",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 7,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": -1,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":0},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "所属标签组",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 0
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "value": "",
+    "props": {}
+  },
+  {
+    "label": "级别",
+    "key": "chooseType23Id",
+    "type": "slot",
+    "component": "#",
+    "componentType": 20,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146630,
+      "id": 155975,
+      "name": "级别",
+      "key": "chooseType23Id",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 8,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": 20,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":1,\"transform\":[{}],\"props\":[{\"type\":\"options\",\"option\":{\"sourceType\":\"chooseType\",\"id\":\"23\",\"label\":\"name\",\"value\":\"id\",\"children\":\"children\"}},{\"type\":\"props\",\"option\":{}}]},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "级别",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 1,
+        "transform": [
+          {}
+        ],
+        "props": [
+          {
+            "type": "options",
+            "option": {
+              "sourceType": "chooseType",
+              "id": "23",
+              "label": "name",
+              "value": "id",
+              "children": "children"
+            }
+          },
+          {
+            "type": "props",
+            "option": {}
+          }
+        ]
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "props": {},
+    "value": "",
+    "tValue": "",
+    "unit": "",
+    "defaultValue": ""
+  },
+  {
+    "label": "关联企业（家）",
+    "key": "companyCount",
+    "type": "text",
+    "component": "#",
+    "componentType": 6,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146631,
+      "id": 155976,
+      "name": "关联企业（家）",
+      "key": "companyCount",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 9,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": 6,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":1,\"transform\":[{}],\"props\":[{\"type\":\"props\",\"option\":{\"sortable\":\"custom\",\"minWidth\":\"120px\"}}]},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "关联企业（家）",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 1,
+        "transform": [
+          {}
+        ],
+        "props": [
+          {
+            "type": "props",
+            "option": {
+              "sortable": "custom",
+              "minWidth": "120px"
+            }
+          }
+        ]
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "props": {
+      "sortable": "custom",
+      "minWidth": "120px"
+    },
+    "value": "",
+    "tValue": "",
+    "unit": "",
+    "defaultValue": ""
+  },
+  {
+    "label": "责任部门",
+    "key": "responsibilityDept",
+    "type": "slot",
+    "component": "#",
+    "componentType": 20,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146632,
+      "id": 155977,
+      "name": "责任部门",
+      "key": "responsibilityDept",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 10,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": 20,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":0},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "责任部门",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 0
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "value": "",
+    "props": {}
+  },
+  {
+    "label": "最后更新时间",
+    "key": "updateTime",
+    "type": "slot",
+    "component": "#",
+    "componentType": 20,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146633,
+      "id": 155978,
+      "name": "最后更新时间",
+      "key": "updateTime",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 11,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": 20,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":1,\"transform\":[{}],\"props\":[{\"type\":\"props\",\"option\":{\"sortable\":\"custom\",\"minWidth\":\"140px\"}}]},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "最后更新时间",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 1,
+        "transform": [
+          {}
+        ],
+        "props": [
+          {
+            "type": "props",
+            "option": {
+              "sortable": "custom",
+              "minWidth": "140px"
+            }
+          }
+        ]
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "props": {
+      "sortable": "custom",
+      "minWidth": "140px"
+    },
+    "value": "",
+    "tValue": "",
+    "unit": "",
+    "defaultValue": ""
+  },
+  {
+    "label": "状态",
+    "key": "status",
+    "type": "slot",
+    "component": "#",
+    "componentType": 20,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146634,
+      "id": 155979,
+      "name": "状态",
+      "key": "status",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 12,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": 20,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":0},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "状态",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 0
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "value": "",
+    "props": {}
+  },
+  {
+    "label": "操作",
+    "key": "opt",
+    "type": "slot",
+    "component": "#",
+    "componentType": 20,
+    "icon": "",
+    "picture": "",
+    "remark": "",
+    "path": "#",
+    "link": "#",
+    "_config": {
+      "sid": 146635,
+      "id": 155980,
+      "name": "操作",
+      "key": "opt",
+      "menuType": 5,
+      "hidden": 1,
+      "parentId": "146622",
+      "orderNum": 13,
+      "path": "#",
+      "link": "#",
+      "component": "#",
+      "pageType": 1,
+      "componentType": 20,
+      "icon": "",
+      "projectId": "425",
+      "options": "{\"hiddenSide\":0,\"hiddenHeader\":0,\"fieldConf\":{\"open\":1,\"transform\":[{}],\"props\":[{\"type\":\"props\",\"option\":{\"fixed\":\"right\",\"width\":\"240px\"}}]},\"btnConf\":{\"open\":0}}",
+      "picture": "",
+      "remark": "",
+      "label": "操作",
+      "code": [],
+      "haveAuth": true
+    },
+    "_options": {
+      "hiddenSide": 0,
+      "hiddenHeader": 0,
+      "fieldConf": {
+        "open": 1,
+        "transform": [
+          {}
+        ],
+        "props": [
+          {
+            "type": "props",
+            "option": {
+              "fixed": "right",
+              "width": "240px"
+            }
+          }
+        ]
+      },
+      "btnConf": {
+        "open": 0
+      }
+    },
+    "props": {
+      "fixed": "right",
+      "width": "240px"
+    },
+    "value": "",
+    "tValue": "",
+    "unit": "",
+    "defaultValue": ""
   }
 ]
 
