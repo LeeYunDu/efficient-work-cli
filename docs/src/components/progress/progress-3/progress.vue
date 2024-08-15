@@ -3,6 +3,7 @@
     <template v-for="(item, index) in activities" :key="index">
       <div class="timeline-item">
         <div class="header">
+          <div class="line-time">2022-10-10 12:23</div>
           <div class="dot">
             <!-- <img src="static/images/talents/dot-1.png" class="dot" alt=""> -->
              
@@ -63,6 +64,14 @@ const activities = [
   .header {
     display: flex;
     align-items: center;
+
+       .line-time{
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      font-size: 14px;
+      color: #6E6E6E;
+      width: 140px;
+    }
     .second {
       font-family: PingFangSC, PingFang SC;
       font-weight: 400;
@@ -103,6 +112,7 @@ const activities = [
     padding: 5px 19px;
     margin: 0 0 3px 7px;
     height: auto;
+    margin-left: 147px;
     &::after{
       content: '';
       width: 1px;
