@@ -341,6 +341,110 @@ export const phoneCall = (corpId: any) => {
 
 ``` ts
 /**./src/utils/zw.js 政务网二次封装的方法*/
+
+
+
+
+/**
+ * 获取用户经纬度
+ */
+export const getUserLocation = () => {
+  return new Promise((resolve, reject) => {
+    window.ZWJSBridge.onReady(() => {
+      window.ZWJSBridge.getLocation().then((res: any) => {
+        resolve({ success: true, data: res })
+      }).catch((error: any) => {
+        resolve({ success: false, msg: JSON.stringify(error), data: {} })
+      })
+    })
+  })
+}
+
+
+// 导航
+export function openNavAMap (target: any) {
+  try {
+    if (deviceType().isZlb) {
+      window.ZWJSBridge.onReady(() => {
+        const url = `zwfw://openThirdMap?longitude=${target.lng}&latitude=${target.lat}&locationName=${target.name}`
+        window.ZWJSBridge.openLink({ url }).then((res: any) => {
+          console.log(res)
+        }).catch((error: any) => {
+          console.log(error)
+        })
+      })
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+/**
+ * 选择图片
+ */
+export const chooseImage = (): any => {
+  return new Promise((resolve, reject) => {
+    window.ZWJSBridge.onReady(() => {
+      window.ZWJSBridge.chooseImage({
+        upload: false
+      }).then((res: any) => {
+        resolve({ success: true, data: res })
+      }).catch((error: any) => {
+        resolve({ success: false, msg: JSON.stringify(error), data: {} })
+      })
+    })
+  })
+}
+
+
+/**
+ * 获取设备唯一标识
+ */
+export const getUserDeviceUUID = () => {
+  return new Promise((resolve, reject) => {
+    window.ZWJSBridge.onReady(() => {
+      window.ZWJSBridge.getUUID().then((res: any) => {
+        resolve({ success: true, data: res })
+      }).catch((error: any) => {
+        resolve({ success: false, msg: JSON.stringify(error), data: {} })
+      })
+    })
+  })
+}
+
+/**
+ * 获取ticket
+ */
+export const getSsoTicket = () => {
+  return new Promise((resolve, reject) => {
+    window.ZWJSBridge.onReady(() => {
+      window.ZWJSBridge.ssoTicket({}).then((res: any) => {
+        //使用IRS“浙里办”统一单点登录组件
+        if (res && res.result === true && res.ticketId) {
+          resolve({ success: true, data: res.ticketId })
+        } else {
+          resolve({ success: false })
+        }
+      }).catch((error: any) => {
+        resolve({ success: false, msg: JSON.stringify(error), data: {} })
+      })
+    })
+  })
+}
+
+
+export const setTitle = (title: string) => {
+  window.ZWJSBridge.onReady(() => {
+    window.ZWJSBridge.setTitle({ title }).then((res: any) => {
+      console.log(res)
+    }).catch((error: any) => {
+      console.log(error)
+    })
+  })
+}
+
+
 function isZlb () {
   const sUserAgent = window.navigator.userAgent.toLowerCase()
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

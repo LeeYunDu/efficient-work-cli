@@ -2,109 +2,115 @@
   "hash": "24609bfd",
   "configHash": "370bf8f9",
   "lockfileHash": "be3a115e",
-  "browserHash": "3793aa1a",
+  "browserHash": "13662730",
   "optimized": {
     "vue": {
       "src": "../../../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
-      "fileHash": "e1f84fe3",
+      "fileHash": "4448fdb3",
       "needsInterop": false
     },
     "vitepress > @vue/devtools-api": {
       "src": "../../../../node_modules/vitepress/node_modules/@vue/devtools-api/dist/index.js",
       "file": "vitepress___@vue_devtools-api.js",
-      "fileHash": "7cbecda7",
+      "fileHash": "c9c1b62d",
       "needsInterop": false
     },
     "vitepress > @vueuse/core": {
       "src": "../../../../node_modules/@vueuse/core/index.mjs",
       "file": "vitepress___@vueuse_core.js",
-      "fileHash": "22a8a4f2",
+      "fileHash": "024dc500",
       "needsInterop": false
     },
     "v-viewer": {
       "src": "../../../../node_modules/v-viewer/dist/index.mjs",
       "file": "v-viewer.js",
-      "fileHash": "ea021959",
+      "fileHash": "fa19a158",
       "needsInterop": false
     },
     "element-plus": {
       "src": "../../../../node_modules/element-plus/es/index.mjs",
       "file": "element-plus.js",
-      "fileHash": "7bc044e8",
+      "fileHash": "e3da512d",
       "needsInterop": false
     },
     "@vitepress-demo-preview/component": {
       "src": "../../../../node_modules/@vitepress-demo-preview/component/dist/preview-component.js",
       "file": "@vitepress-demo-preview_component.js",
-      "fileHash": "fe0dd712",
+      "fileHash": "bced97a1",
       "needsInterop": false
     },
     "vant": {
       "src": "../../../../node_modules/vant/es/index.mjs",
       "file": "vant.js",
-      "fileHash": "b79d2e20",
+      "fileHash": "3ab15f5b",
       "needsInterop": false
     },
     "escodegen": {
       "src": "../../../../node_modules/escodegen/escodegen.js",
       "file": "escodegen.js",
-      "fileHash": "efcae171",
+      "fileHash": "79d63419",
       "needsInterop": true
     },
     "acorn": {
       "src": "../../../../node_modules/acorn/dist/acorn.mjs",
       "file": "acorn.js",
-      "fileHash": "08246f57",
+      "fileHash": "c337a088",
       "needsInterop": false
     },
     "vue-prism-editor": {
       "src": "../../../../node_modules/vue-prism-editor/dist/prismeditor.esm.js",
       "file": "vue-prism-editor.js",
-      "fileHash": "ffbf9b15",
+      "fileHash": "25a4b0f6",
       "needsInterop": false
     },
     "prismjs": {
       "src": "../../../../node_modules/prismjs/prism.js",
       "file": "prismjs.js",
-      "fileHash": "e3c93a49",
+      "fileHash": "1dd4faed",
       "needsInterop": true
     },
     "lodash-es": {
       "src": "../../../../node_modules/lodash-es/lodash.js",
       "file": "lodash-es.js",
-      "fileHash": "53d884b5",
+      "fileHash": "6fad1cfe",
       "needsInterop": false
     },
     "gogocode": {
       "src": "../../../../node_modules/gogocode/umd/gogocode.js",
       "file": "gogocode.js",
-      "fileHash": "0a907ff5",
+      "fileHash": "f3fdb70d",
       "needsInterop": true
     },
     "lodash": {
       "src": "../../../../node_modules/lodash/lodash.js",
       "file": "lodash.js",
-      "fileHash": "e4ab78ed",
+      "fileHash": "1ce6c860",
       "needsInterop": true
     },
     "jsoneditor": {
       "src": "../../../../node_modules/jsoneditor/dist/jsoneditor.min.js",
       "file": "jsoneditor.js",
-      "fileHash": "dc4e2f1a",
+      "fileHash": "196a9407",
       "needsInterop": true
     },
     "highcharts": {
       "src": "../../../../node_modules/highcharts/highcharts.js",
       "file": "highcharts.js",
-      "fileHash": "590b77d3",
+      "fileHash": "b0899c23",
       "needsInterop": true
     },
     "highcharts/highcharts-3d": {
       "src": "../../../../node_modules/highcharts/highcharts-3d.js",
       "file": "highcharts_highcharts-3d.js",
-      "fileHash": "8893ffdc",
+      "fileHash": "b7f9d02a",
       "needsInterop": true
+    },
+    "xlsx": {
+      "src": "../../../../node_modules/xlsx/xlsx.mjs",
+      "file": "xlsx.js",
+      "fileHash": "ed01e1f6",
+      "needsInterop": false
     }
   },
   "chunks": {
